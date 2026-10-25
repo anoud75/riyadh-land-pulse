@@ -137,11 +137,11 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
     <div dir="rtl" className="fixed inset-0 z-40 flex bg-background">
       {sideOpen && (
         <aside className="flex w-72 shrink-0 flex-col border-l bg-surface">
-          <div className="flex items-center justify-between px-4 pt-4">
-            <Link to="/"><img src={logo.url} alt="سرج" className="h-8" /></Link>
-            <button aria-label="إخفاء القائمة" onClick={() => setSideOpen(false)} className="grid size-8 place-items-center rounded-lg hover:bg-secondary"><PanelRight className="size-4" /></button>
+          <div className="flex h-16 shrink-0 items-center justify-between gap-3 px-5">
+            <Link to="/" className="flex shrink-0 items-center"><img src={logo.url} alt="سرج" className="h-8" /></Link>
+            <button aria-label="إخفاء القائمة" onClick={() => setSideOpen(false)} className="grid size-8 shrink-0 place-items-center rounded-lg hover:bg-secondary"><PanelRight className="size-4" /></button>
           </div>
-          <button onClick={() => { setActiveId(null); setInput(""); setPanel(null); }} className="mx-4 mt-5 flex items-center justify-center gap-2 rounded-2xl bg-ink py-3 text-sm font-medium text-ink-foreground"><Plus className="size-4" />محادثة جديدة</button>
+          <button onClick={() => { setActiveId(null); setInput(""); setPanel(null); }} className="mx-4 mt-3 flex items-center justify-center gap-2 rounded-2xl bg-ink py-3 text-sm font-medium text-ink-foreground"><Plus className="size-4" />محادثة جديدة</button>
           <label className="mx-4 mt-3 flex items-center gap-2 rounded-2xl bg-secondary px-3 py-2.5 text-sm">
             <Search className="size-4 text-muted-foreground" />
             <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="ابحث في المحادثات" className="min-w-0 flex-1 bg-transparent outline-none" />
