@@ -3,7 +3,7 @@ import type { ChartSpec } from "@/lib/agentUi";
 const fmt = (v: number) => (Math.abs(v) >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : Math.abs(v) >= 1e4 ? `${Math.round(v / 1000)}K` : v.toLocaleString("en-US"));
 
 /** Inline chart rendered from a server-built spec. */
-export function ChatChart({ spec, onPick }: { spec: ChartSpec; onPick?: (id: string) => void }) {
+export function ChatChart({ spec, onPick }: { spec: ChartSpec; onPick?: ((id: string) => void) | undefined }) {
   return (
     <figure className="rounded-2xl border bg-surface p-4">
       <figcaption className="mb-3 flex items-baseline justify-between gap-2"><span className="font-semibold">{spec.title}</span><span className="text-xs text-muted-foreground">{spec.unit}</span></figcaption>
@@ -13,7 +13,7 @@ export function ChatChart({ spec, onPick }: { spec: ChartSpec; onPick?: (id: str
   );
 }
 
-function Bars({ spec, onPick }: { spec: ChartSpec; onPick?: (id: string) => void }) {
+function Bars({ spec, onPick }: { spec: ChartSpec; onPick?: ((id: string) => void) | undefined }) {
   const diverging = spec.type === "diverging" || spec.series.some((s) => s.value < 0);
   const max = Math.max(...spec.series.map((s) => Math.abs(s.value)), 1);
   return (
@@ -40,7 +40,7 @@ function Bars({ spec, onPick }: { spec: ChartSpec; onPick?: (id: string) => void
   );
 }
 
-function Scatter({ spec, onPick }: { spec: ChartSpec; onPick?: (id: string) => void }) {
+function Scatter({ spec, onPick }: { spec: ChartSpec; onPick?: ((id: string) => void) | undefined }) {
   const W = 520, H = 240, P = 32;
   const xs = spec.series.map((s) => s.value), ys = spec.series.map((s) => s.value2 ?? 0);
   const x0 = 0, x1 = Math.max(...xs, 1), y0 = Math.min(...ys, -5), y1 = Math.max(...ys, 5);

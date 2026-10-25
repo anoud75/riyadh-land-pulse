@@ -38,7 +38,7 @@ describe("viz builders", () => {
   });
   it("gap chart shows North commercial -8", () => {
     const g = buildGapChart(initialParcels, initialInquiries);
-    expect(g.series.find((s) => s.label === "شمال · تجاري")?.value).toBe(-8);
+    expect(g.series.find((s) => s.label === "الشمال · تجاري")?.value).toBe(-8);
   });
   it("region report has a gap chart", () => {
     expect(buildRegionReport(initialParcels, initialInquiries, "North").sections.some((s) => s.chart?.type === "diverging")).toBe(true);

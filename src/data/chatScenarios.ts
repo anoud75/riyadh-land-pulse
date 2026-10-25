@@ -3,7 +3,7 @@ import type { UiPayload } from "@/lib/agentUi";
 import * as T from "@/lib/sarjAgentTools";
 import * as V from "@/lib/agentViz";
 
-export interface ChatMsg { role: "user" | "assistant"; text: string; ui?: UiPayload | null; uis?: UiPayload[]; suggestions?: string[] }
+export interface ChatMsg { role: "user" | "assistant"; text: string; ui?: UiPayload | null; uis?: UiPayload[]; suggestions?: string[] | undefined }
 export interface Scenario { id: string; title: string; build: (p: Parcel[], i: Inquiry[]) => ChatMsg[] }
 
 const n = (x: number) => x.toLocaleString("en-US");
