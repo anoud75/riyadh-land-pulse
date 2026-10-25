@@ -64,8 +64,11 @@ export function snapshotUrl(
   if (!PUBLIC_TOKEN) return null;
   const { width, height, zoom = 14.5, style = "streets-v12" } = opts;
   const r = parcelRadiusM(p.area_sqm);
-  const circle = encodePolyline(circlePoints(p.lng, p.lat, r));
+  const circle = encodeURIComponent(encodePolyline(circlePoints(p.lng, p.lat, r)));
   const marker = `pin-s+${PIN_HEX}(${p.lng.toFixed(5)},${p.lat.toFixed(5)})`;
-  const path = `path-2+${PIN_HEX}-+${PIN_HEX}33(enc:${circle})`;
-  return `${STATIC_BASE}/${style}/static/${marker},${path}/${width}x${height}@2x?access_token=${PUBLIC_TOKEN}&attribution=false&logo=false`;
+  // Static API path syntax: path-{strokeWidth}+{color}-{opacity}(enc:polyline).
+  // A wide translucent stroke reads as a soft glow around the footprint.
+  const glow = `path-16+${PIN_HEX}-0.16(enc:${circle})`;
+  const edge = `path-2+${PIN_HEX}-0.8(enc:${circle})`;
+  return `${STATIC_BASE}/${style}/static/${marker},${glow},${edge}/${p.lng.toFixed(5)},${p.lat.toFixed(5)},${zoom}/${width}x${height}@2x?access_token=${PUBLIC_TOKEN}&attribution=false&logo=false`;
 }
