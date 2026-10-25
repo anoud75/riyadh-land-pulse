@@ -12,6 +12,7 @@ import { aggregateDistricts, districtColor, type DistrictAgg } from "@/lib/mapSt
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, type DistrictCollection } from "@/lib/districtStats";
 import { MARKET_LISTINGS } from "@/lib/marketEngine";
+import { iconExpr, registerPlaceIcons } from "@/lib/placeIcons";
 import type { OpenPlacesFile } from "@/lib/openPlaces";
 import { CATEGORY_AR } from "@/lib/siteSuitability";
 const OPEN_AR = CATEGORY_AR as Record<string, string>;
@@ -78,8 +79,8 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       m.addSource("market", { type: "geojson", data: fc([]) });
       m.addLayer({ id: "market", type: "circle", source: "market", paint: { "circle-radius": 6, "circle-color": "#374151", "circle-stroke-color": "#d1d5db", "circle-stroke-width": 3 } });
       m.addSource("open", { type: "geojson", data: fc([]) });
-      m.addLayer({ id: "open", type: "circle", source: "open", minzoom: 11, paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2, 15, 5], "circle-opacity": 0.75,
-        "circle-color": ["match", ["get", "c"], "hospital", "#e11d48", "pharmacy", "#16a34a", "cafe", "#a16207", "restaurant", "#ea580c", "school", "#2563eb", "supermarket", "#0891b2", "mosque", "#0f766e", "park", "#65a30d", "gym", "#9333ea", "#64748b"] } }, "market");
+      registerPlaceIcons(m);
+      m.addLayer({ id: "open", type: "symbol", source: "open", minzoom: 11, layout: { "icon-image": iconExpr("c"), "icon-size": ["interpolate", ["linear"], ["zoom"], 11, 0.35, 13, 0.6, 16, 0.9], "icon-allow-overlap": false, "icon-padding": 1 } }, "market");
       setGen((g) => g + 1);
     });
     m.on("click", "open", (e) => {

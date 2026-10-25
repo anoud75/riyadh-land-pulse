@@ -1,5 +1,6 @@
 /// <reference types="geojson" />
 import mapboxgl from "mapbox-gl";
+import { iconExpr, registerPlaceIcons } from "@/lib/placeIcons";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Inquiry, Parcel } from "@/data/types";
@@ -78,10 +79,8 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
       m.addLayer({ id: "iso-fill", type: "fill", source: "iso", paint: { "fill-color": "#0ea5a4", "fill-opacity": 0.07 } });
       m.addLayer({ id: "iso-line", type: "line", source: "iso", paint: { "line-color": "#0ea5a4", "line-width": 1.5, "line-dasharray": [3, 2] } });
       m.addSource("pois", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-      m.addLayer({ id: "poi", type: "circle", source: "pois", paint: {
-        "circle-radius": 6, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5,
-        "circle-color": ["match", ["get", "category"], "hospital", "#e11d48", "pharmacy", "#16a34a", "cafe", "#a16207", "restaurant", "#ea580c", "school", "#2563eb", "supermarket", "#0891b2", "mosque", "#0f766e", "park", "#65a30d", "gym", "#9333ea", "#64748b"],
-      } });
+      registerPlaceIcons(m);
+      m.addLayer({ id: "poi", type: "symbol", source: "pois", layout: { "icon-image": iconExpr("category"), "icon-size": ["interpolate", ["linear"], ["zoom"], 10, 0.55, 15, 0.9], "icon-allow-overlap": true } });
       const poiPop = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
       m.on("mouseenter", "poi", (e) => { const f = e.features?.[0]; if (f) poiPop.setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number]).setText(String(f.properties?.["label"])).addTo(m); });
       m.on("mouseleave", "poi", () => poiPop.remove());
