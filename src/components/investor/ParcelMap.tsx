@@ -73,7 +73,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       m.addLayer({ id: "hl-fill", type: "fill", source: "hl", paint: { "fill-color": "#e0393e", "fill-opacity": 0.12 } });
       m.addLayer({ id: "hl-line", type: "line", source: "hl", paint: { "line-color": "#e0393e", "line-width": 3 } });
       m.addSource("market", { type: "geojson", data: fc([]) });
-      m.addLayer({ id: "market", type: "circle", source: "market", paint: { "circle-radius": 5, "circle-color": "#6b7280", "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5 } });
+      m.addLayer({ id: "market", type: "circle", source: "market", paint: { "circle-radius": 6, "circle-color": "#374151", "circle-stroke-color": "#d1d5db", "circle-stroke-width": 3 } });
       setGen((g) => g + 1);
     });
     m.on("click", "market", (e) => {
