@@ -273,8 +273,11 @@ function AssistantTurn({ m, mode, agent, onPanel, onAsk }: { m: ChatMsg; mode: M
   return (
     <div>
       <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground"><Sparkle className="size-3.5 text-primary" />{agent}{ids.length ? ` · ${ids.length} نتائج من ${parcels.filter(isAvailable).length} أرضًا متاحة` : ""}</div>
-      {lines[0] && <p className="text-lg font-semibold leading-relaxed">{lines[0]}</p>}
-      {lines.slice(1).map((l, i) => <p key={i} className="mt-2 leading-relaxed text-foreground/80">{l}</p>)}
+      {lines.length > 0 && (
+        <div className="max-w-2xl rounded-3xl rounded-tr-md border bg-surface px-5 py-4 shadow-sm">
+          {lines.map((l, i) => <p key={i} className={`leading-8 ${i ? "mt-2 text-foreground/85" : "text-[15px] text-foreground"}`}>{l}</p>)}
+        </div>
+      )}
 
       {list.map((u, i) => {
         if (u.kind === "cards") return <div key={i} className="mt-5 grid gap-3 md:grid-cols-2">{u.parcelIds.map((id) => parcels.find((p) => p.parcel_id === id)).filter(Boolean).map((p) => <RichCard key={p!.parcel_id} p={p!} mode={mode} />)}</div>;
