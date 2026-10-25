@@ -36,8 +36,7 @@ function Layout() {
       <div className="flex items-center justify-between">
         <Link to="/"><Logo className="h-8" /></Link>
       </div>
-      <Link to="/investor/chats" className="mt-6 block rounded-xl border px-3 py-2 text-center text-sm hover:bg-secondary">محادثة جديدة +</Link>
-      <label className="mt-3 flex items-center gap-2 rounded-xl border bg-surface px-3 py-2 text-sm text-muted-foreground">
+      <label className="mt-6 flex items-center gap-2 rounded-xl border bg-surface px-3 py-2 text-sm text-muted-foreground">
         <Search className="size-4" /><input placeholder="ابحث" className="w-full bg-transparent outline-none" />
       </label>
       <nav className="mt-6 space-y-1">
