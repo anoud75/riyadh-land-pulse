@@ -121,7 +121,7 @@ export function AgentUiBlock({ ui }: { ui: UiPayload }) {
   }
   if (ui.kind === "diagnosis") {
     const d = ui.data;
-    const row = (l: string, v: string | number) => <div className="flex justify-between gap-3 border-b py-1 last:border-0"><span className="text-muted-foreground">{l}</span><b className="font-mono">{typeof v === "number" ? v.toLocaleString("en-US") : v}</b></div>;
+    const row = (l: string, v: string | number | null) => <div className="flex justify-between gap-3 border-b py-1 last:border-0"><span className="text-muted-foreground">{l}</span><b className="font-mono">{typeof v === "number" ? v.toLocaleString("en-US") : (v ?? "—")}</b></div>;
     return (
       <div className="mt-3 grid gap-2 sm:grid-cols-2 text-xs">
         <div className="rounded-2xl border p-3"><div className="mb-1 font-semibold">تجاري {AREA_AR[d.area]} — نفاد</div>{row("أراضٍ متاحة", d.commercial.available_parcels)}{row("مشترون مفتوحون", d.commercial.open_inquiries)}{row("ميزانيات ضائعة (ريال)", d.commercial.buyer_budgets_total_sar)}</div>
@@ -149,8 +149,8 @@ function MiniCard({ p, badge }: { p: Parcel; badge?: string }) {
 /** Small schematic map of Riyadh parcels with the recommended ones highlighted. */
 function MiniMap({ highlight }: { highlight: string[] }) {
   const { parcels } = usePortfolio();
-  const lat = [24.45, 25.05], lng = [46.45, 47.0];
-  const xy = (p: Parcel) => [((p.lng - lng[0]) / (lng[1] - lng[0])) * 200, ((lat[1] - p.lat) / (lat[1] - lat[0])) * 200];
+  const lat0 = 24.45, lat1 = 25.05, lng0 = 46.45, lng1 = 47.0;
+  const xy = (p: Parcel) => [((p.lng - lng0) / (lng1 - lng0)) * 200, ((lat1 - p.lat) / (lat1 - lat0)) * 200];
   return (
     <Link to="/investor/map" className="block rounded-xl border bg-secondary/40" aria-label="افتح الخريطة">
       <svg viewBox="0 0 200 200" className="w-full">
