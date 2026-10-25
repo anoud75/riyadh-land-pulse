@@ -22,9 +22,9 @@ export function districtGeo(parcels: Parcel[], ar: string) {
 
 function hull(points: [number, number][]) {
   const p = [...points].sort((a, b) => a[1] - b[1] || a[0] - b[0]);
-  const cross = (o: number[], a: number[], b: number[]) => (a[1] - o[1]) * (b[0] - o[0]) - (a[0] - o[0]) * (b[1] - o[1]);
+  const cross = (o: number[], a: number[], b: number[]) => (a[1]! - o[1]!) * (b[0]! - o[0]!) - (a[0]! - o[0]!) * (b[1]! - o[1]!);
   const lo: [number, number][] = [], up: [number, number][] = [];
-  for (const q of p) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
-  for (const q of p.reverse()) { while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  for (const q of p) { while (lo.length >= 2 && cross(lo[lo.length - 2]!, lo[lo.length - 1]!, q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.reverse()) { while (up.length >= 2 && cross(up[up.length - 2]!, up[up.length - 1]!, q) <= 0) up.pop(); up.push(q); }
   return [...lo.slice(0, -1), ...up.slice(0, -1)];
 }
