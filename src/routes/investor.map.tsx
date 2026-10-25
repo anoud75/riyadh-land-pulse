@@ -4,8 +4,6 @@ import { districtGeo } from "@/lib/districtGeo";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Minus, Plus, Sparkles, X } from "lucide-react";
 import type { MapHandle } from "@/components/investor/ParcelMap";
-import { PLACE_ICON } from "@/lib/placeIcons";
-import { CATEGORY_AR } from "@/lib/siteSuitability";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, type Area, type Parcel } from "@/data/types";
 import { LAYER_LABELS, LEGENDS, type MapLayer } from "@/lib/mapLayers";
@@ -153,16 +151,8 @@ function MapPage() {
             </button>
             <button onClick={() => setShowOpen((v) => !v)} aria-pressed={showOpen} title="مقاهٍ ومطاعم ومستشفيات وصيدليات ومدارس… تظهر عند التقريب"
               className={`rounded-full border px-3 py-1.5 text-sm shadow-sm ${showOpen ? "bg-ink text-ink-foreground" : "bg-surface text-muted-foreground"}`}>
-              أماكن مفتوحة (Overture)
+              خدمات
             </button>
-            {showOpen && (
-              <div className="flex w-full flex-wrap justify-center gap-1.5 text-xs">
-                {Object.entries(PLACE_ICON).map(([c, v]) => (
-                  <span key={c} className="rounded-full border bg-surface px-2 py-0.5 shadow-sm">{v.emoji} {CATEGORY_AR[c as keyof typeof CATEGORY_AR]}</span>
-                ))}
-                <span className="rounded-full bg-surface px-2 py-0.5 text-muted-foreground shadow-sm">قرّبي الخريطة لرؤية الأيقونات</span>
-              </div>
-            )}
           </div>
         </div>
 
