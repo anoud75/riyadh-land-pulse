@@ -38,6 +38,7 @@
   --color-ink-line: var(--ink-line);
   --color-surface: var(--surface);
   --color-chart-blue: var(--chart-blue);
+  --color-map-lease: var(--map-lease);
 }
 
 :root {
@@ -80,6 +81,7 @@
   --map-near: #a3a3a3;
   --map-above: #dc2626;
   --map-marker-shadow: 0 3px 12px color-mix(in oklab, var(--ink) 18%, transparent);
+  --map-panel-shadow: 0 8px 32px color-mix(in oklab, var(--ink) 10%, transparent);
 }
 
 @utility grid-bg {
@@ -180,3 +182,36 @@
 .parcel-price-marker[data-selected="true"] .parcel-pin-halo { display: block; position: absolute; width: 78px; height: 78px; border: 1px solid var(--marker-tone); border-radius: 50%; z-index: -1; background: color-mix(in oklab, var(--marker-tone) 12%, transparent); animation: parcel-location-pulse 2.8s ease-out infinite; pointer-events: none; }
 @keyframes parcel-location-pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .parcel-price-marker[data-selected="true"] .parcel-pin-halo { animation: none; } }
+
+/* Unframed map canvas with movable, independent tools. */
+.map-topbar, .map-bottom-dock, .map-filter-tray, .map-legend {
+  position: absolute; z-index: 10; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--map-panel-shadow); display: flex; align-items: center;
+}
+.map-topbar { top: 16px; left: 50%; transform: translateX(-50%); gap: 8px; padding: 5px 8px; border-radius: 8px; white-space: nowrap; }
+.map-toolbar-divider { height: 20px; width: 1px; background: var(--border); flex-shrink: 0; }
+.map-filter-tray { top: 76px; left: 50%; transform: translateX(-50%); width: min(760px, calc(100% - 32px)); padding: 10px; flex-wrap: wrap; justify-content: center; gap: 6px; border-radius: 8px; z-index: 20; }
+.map-bottom-dock { bottom: 44px; left: 50%; transform: translateX(-50%); padding: 4px; gap: 2px; border-radius: 8px; }
+.map-legend { bottom: 100px; left: 50%; transform: translateX(-50%); gap: 12px; padding: 8px 12px; border-radius: 8px; font-size: 10px; max-width: calc(100% - 24px); flex-wrap: wrap; justify-content: center; }
+.map-snapshot-label { position: absolute; bottom: 10px; right: 16px; font-size: 10px; color: var(--muted-foreground); background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+.map-floating-panel { position: absolute; top: 100px; z-index: 12; width: 304px; height: min(590px, calc(100dvh - 240px)); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--map-panel-shadow); background: var(--surface); overflow: hidden; display: flex; flex-direction: column; }
+.map-panel-left { left: 16px; }
+.map-panel-right { right: 16px; }
+.map-panel-handle { touch-action: none; cursor: grab; user-select: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--secondary); }
+.map-panel-handle:active { cursor: grabbing; }
+.map-panel-body { min-height: 0; flex: 1; overflow-y: auto; }
+.map-panel-right .map-panel-body { overflow: hidden; }
+.parcel-price-marker { border-radius: 8px; }
+.parcel-price-marker::after { content: ""; position: absolute; bottom: -5px; left: calc(50% - 4px); width: 8px; height: 8px; background: inherit; border-right: 1px solid var(--marker-tone); border-bottom: 1px solid var(--marker-tone); transform: rotate(45deg); }
+.parcel-pin-dot { border-radius: 0; background: transparent; border: 1.5px solid var(--marker-tone); }
+.parcel-marker-anchor[data-compact="true"] .parcel-pin-dot { width: 16px; height: 16px; background: transparent; border-radius: 0; box-shadow: none; }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker::after { display: none; }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) { border-radius: 8px; }
+.parcel-price-marker[data-selected="true"] .parcel-pin-halo { width: 50px; height: 50px; border-radius: 0; animation: none; background: transparent; border: 2px solid var(--marker-tone); transform: rotate(45deg); }
+@media (max-width: 760px) {
+  .map-topbar { left: auto; right: 8px; top: 12px; transform: none; gap: 2px; }
+  .map-floating-panel { top: auto; bottom: 145px; width: min(304px, calc(100vw - 32px)); height: min(430px, calc(100dvh - 240px)); }
+  .map-panel-left { left: 16px; z-index: 13; }
+  .map-panel-right { right: 16px; }
+  .map-filter-tray { top: 70px; }
+}
