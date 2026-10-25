@@ -15,7 +15,14 @@ import { Route as ContextualModelRouteImport } from './routes/contextual-model'
 import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as PortfolioRequestRouteImport } from './routes/portfolio-request'
 import { Route as WhoRouteImport } from './routes/who'
+import { Route as InvestorIndexRouteImport } from './routes/investor.index'
+import { Route as InvestorChatsRouteImport } from './routes/investor.chats'
+import { Route as InvestorCompareRouteImport } from './routes/investor.compare'
+import { Route as InvestorInquiriesRouteImport } from './routes/investor.inquiries'
+import { Route as InvestorMapRouteImport } from './routes/investor.map'
 import { Route as WhoNameRouteImport } from './routes/who_.name'
+import { Route as InvestorInquireParcelIdRouteImport } from './routes/investor.inquire.$parcelId'
+import { Route as InvestorParcelsParcelIdRouteImport } from './routes/investor.parcels.$parcelId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,39 +54,94 @@ const WhoRoute = WhoRouteImport.update({
   path: '/who',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvestorIndexRoute = InvestorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const InvestorChatsRoute = InvestorChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const InvestorCompareRoute = InvestorCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const InvestorInquiriesRoute = InvestorInquiriesRouteImport.update({
+  id: '/inquiries',
+  path: '/inquiries',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const InvestorMapRoute = InvestorMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => InvestorRoute,
+} as any)
 const WhoNameRoute = WhoNameRouteImport.update({
   id: '/who_/name',
   path: '/who/name',
   getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorInquireParcelIdRoute = InvestorInquireParcelIdRouteImport.update({
+  id: '/inquire/$parcelId',
+  path: '/inquire/$parcelId',
+  getParentRoute: () => InvestorRoute,
+} as any)
+const InvestorParcelsParcelIdRoute = InvestorParcelsParcelIdRouteImport.update({
+  id: '/parcels/$parcelId',
+  path: '/parcels/$parcelId',
+  getParentRoute: () => InvestorRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contextual-model': typeof ContextualModelRoute
-  '/investor': typeof InvestorRoute
+  '/investor': typeof InvestorRouteWithChildren
   '/portfolio-request': typeof PortfolioRequestRoute
   '/who': typeof WhoRoute
+  '/investor/chats': typeof InvestorChatsRoute
+  '/investor/compare': typeof InvestorCompareRoute
+  '/investor/inquiries': typeof InvestorInquiriesRoute
+  '/investor/map': typeof InvestorMapRoute
   '/who/name': typeof WhoNameRoute
+  '/investor/': typeof InvestorIndexRoute
+  '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
+  '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contextual-model': typeof ContextualModelRoute
-  '/investor': typeof InvestorRoute
   '/portfolio-request': typeof PortfolioRequestRoute
   '/who': typeof WhoRoute
+  '/investor/chats': typeof InvestorChatsRoute
+  '/investor/compare': typeof InvestorCompareRoute
+  '/investor/inquiries': typeof InvestorInquiriesRoute
+  '/investor/map': typeof InvestorMapRoute
   '/who/name': typeof WhoNameRoute
+  '/investor': typeof InvestorIndexRoute
+  '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
+  '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/contextual-model': typeof ContextualModelRoute
-  '/investor': typeof InvestorRoute
+  '/investor': typeof InvestorRouteWithChildren
   '/portfolio-request': typeof PortfolioRequestRoute
   '/who': typeof WhoRoute
+  '/investor/chats': typeof InvestorChatsRoute
+  '/investor/compare': typeof InvestorCompareRoute
+  '/investor/inquiries': typeof InvestorInquiriesRoute
+  '/investor/map': typeof InvestorMapRoute
   '/who_/name': typeof WhoNameRoute
+  '/investor/': typeof InvestorIndexRoute
+  '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
+  '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,16 +152,29 @@ export interface FileRouteTypes {
     | '/investor'
     | '/portfolio-request'
     | '/who'
+    | '/investor/chats'
+    | '/investor/compare'
+    | '/investor/inquiries'
+    | '/investor/map'
     | '/who/name'
+    | '/investor/'
+    | '/investor/inquire/$parcelId'
+    | '/investor/parcels/$parcelId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/contextual-model'
-    | '/investor'
     | '/portfolio-request'
     | '/who'
+    | '/investor/chats'
+    | '/investor/compare'
+    | '/investor/inquiries'
+    | '/investor/map'
     | '/who/name'
+    | '/investor'
+    | '/investor/inquire/$parcelId'
+    | '/investor/parcels/$parcelId'
   id:
     | '__root__'
     | '/'
@@ -108,14 +183,21 @@ export interface FileRouteTypes {
     | '/investor'
     | '/portfolio-request'
     | '/who'
+    | '/investor/chats'
+    | '/investor/compare'
+    | '/investor/inquiries'
+    | '/investor/map'
     | '/who_/name'
+    | '/investor/'
+    | '/investor/inquire/$parcelId'
+    | '/investor/parcels/$parcelId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ContextualModelRoute: typeof ContextualModelRoute
-  InvestorRoute: typeof InvestorRoute
+  InvestorRoute: typeof InvestorRouteWithChildren
   PortfolioRequestRoute: typeof PortfolioRequestRoute
   WhoRoute: typeof WhoRoute
   WhoNameRoute: typeof WhoNameRoute
@@ -165,6 +247,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/investor/': {
+      id: '/investor/'
+      path: '/'
+      fullPath: '/investor/'
+      preLoaderRoute: typeof InvestorIndexRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/investor/chats': {
+      id: '/investor/chats'
+      path: '/chats'
+      fullPath: '/investor/chats'
+      preLoaderRoute: typeof InvestorChatsRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/investor/compare': {
+      id: '/investor/compare'
+      path: '/compare'
+      fullPath: '/investor/compare'
+      preLoaderRoute: typeof InvestorCompareRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/investor/inquiries': {
+      id: '/investor/inquiries'
+      path: '/inquiries'
+      fullPath: '/investor/inquiries'
+      preLoaderRoute: typeof InvestorInquiriesRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/investor/map': {
+      id: '/investor/map'
+      path: '/map'
+      fullPath: '/investor/map'
+      preLoaderRoute: typeof InvestorMapRouteImport
+      parentRoute: typeof InvestorRoute
+    }
     '/who_/name': {
       id: '/who_/name'
       path: '/who/name'
@@ -172,14 +289,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhoNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/investor/inquire/$parcelId': {
+      id: '/investor/inquire/$parcelId'
+      path: '/inquire/$parcelId'
+      fullPath: '/investor/inquire/$parcelId'
+      preLoaderRoute: typeof InvestorInquireParcelIdRouteImport
+      parentRoute: typeof InvestorRoute
+    }
+    '/investor/parcels/$parcelId': {
+      id: '/investor/parcels/$parcelId'
+      path: '/parcels/$parcelId'
+      fullPath: '/investor/parcels/$parcelId'
+      preLoaderRoute: typeof InvestorParcelsParcelIdRouteImport
+      parentRoute: typeof InvestorRoute
+    }
   }
 }
+
+interface InvestorRouteChildren {
+  InvestorChatsRoute: typeof InvestorChatsRoute
+  InvestorCompareRoute: typeof InvestorCompareRoute
+  InvestorInquiriesRoute: typeof InvestorInquiriesRoute
+  InvestorMapRoute: typeof InvestorMapRoute
+  InvestorIndexRoute: typeof InvestorIndexRoute
+  InvestorInquireParcelIdRoute: typeof InvestorInquireParcelIdRoute
+  InvestorParcelsParcelIdRoute: typeof InvestorParcelsParcelIdRoute
+}
+
+const InvestorRouteChildren: InvestorRouteChildren = {
+  InvestorChatsRoute: InvestorChatsRoute,
+  InvestorCompareRoute: InvestorCompareRoute,
+  InvestorInquiriesRoute: InvestorInquiriesRoute,
+  InvestorMapRoute: InvestorMapRoute,
+  InvestorIndexRoute: InvestorIndexRoute,
+  InvestorInquireParcelIdRoute: InvestorInquireParcelIdRoute,
+  InvestorParcelsParcelIdRoute: InvestorParcelsParcelIdRoute,
+}
+
+const InvestorRouteWithChildren = InvestorRoute._addFileChildren(
+  InvestorRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ContextualModelRoute: ContextualModelRoute,
-  InvestorRoute: InvestorRoute,
+  InvestorRoute: InvestorRouteWithChildren,
   PortfolioRequestRoute: PortfolioRequestRoute,
   WhoRoute: WhoRoute,
   WhoNameRoute: WhoNameRoute,

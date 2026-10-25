@@ -39,6 +39,15 @@ function Page() {
           ))}
         </div>
       </main>
-    </div>
+        </div>
+        <h2 className="mt-12 text-xl font-semibold">أحدث الاستفسارات</h2>
+        <div className="mt-4 divide-y rounded-2xl border bg-card">
+          {[...inquiries].sort((a, b) => b.date.localeCompare(a.date) || b.inquiry_id.localeCompare(a.inquiry_id)).slice(0, 6).map((i) => (
+            <div key={i.inquiry_id} className="flex flex-wrap justify-between gap-2 p-4 text-sm">
+              <div><span className="font-mono text-muted-foreground">{i.inquiry_id}</span> · {i.investor_name} · {i.wants_to}</div>
+              <div className="text-muted-foreground">{AREA_AR[i.area_of_city_wanted]} · {LAND_AR[i.land_type_wanted]} · {i.missingBudget ? "بلا ميزانية" : `${i.budget_sar?.toLocaleString("en-US")} ريال`} · {i.date}</div>
+            </div>
+          ))}
+        </div>
   );
 }
