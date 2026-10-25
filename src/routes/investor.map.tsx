@@ -13,7 +13,6 @@ import { getParcelInsight } from "@/lib/investorEngine";
 import { FOOTPRINT_DISTRICTS } from "@/data/districtSeries";
 import { CompareButton, PriceLine } from "@/components/investor/ParcelCard";
 import { MapAssistant } from "@/components/investor/MapAssistant";
-import { MapTicker } from "@/components/investor/MapTicker";
 import { pct, sar } from "@/components/investor/format";
 
 const ParcelMap = lazy(() => import("@/components/investor/ParcelMap"));
@@ -276,7 +275,7 @@ function Drawer({ p, onClose, onFootprint }: { p: Parcel; onClose: () => void; o
   ).length;
   const district = FOOTPRINT_DISTRICTS.find((d) => (d.match as readonly string[]).includes(p.district_en))?.ar ?? "الملقا";
   return (
-    <aside className="absolute bottom-28 right-4 top-28 z-[1001] w-[min(360px,90vw)] overflow-y-auto rounded-3xl border bg-surface p-5 shadow-xl">
+    <aside className="absolute bottom-4 right-4 top-16 z-[1001] w-[min(360px,90vw)] overflow-y-auto rounded-3xl border bg-surface p-5 shadow-xl">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <span className="size-1.5 rounded-full bg-primary" />
         الأرض المحددة
