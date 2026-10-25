@@ -158,9 +158,11 @@
   animation: sarj-orb-spin 14s linear infinite;
 }
 
-/* the sloshing wave */
+/* the sloshing wave — a tight ellipse so its crest curves like a liquid dome */
 .sarj-orb::after {
-  background: radial-gradient(118% 42% at 50% var(--sarj-y), #2c58f2 0%, #4f5cf0 26%, #784ee2 48%, #de78c6 68%, rgba(255, 217, 194, 0.55) 80%, transparent 92%);
+  background:
+    radial-gradient(78% 26% at 50% var(--sarj-y), #2c58f2 0%, #5a58ee 30%, #784ee2 52%, #de78c6 74%, rgba(255, 217, 194, 0.5) 86%, transparent 96%),
+    radial-gradient(46% 18% at 62% var(--sarj-y), rgba(255, 255, 255, 0.55), transparent 70%);
   animation: sarj-orb-slosh 5.2s ease-in-out infinite;
 }
 
