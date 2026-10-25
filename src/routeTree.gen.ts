@@ -27,6 +27,7 @@ import { Route as InvestorChatsRouteImport } from './routes/investor.chats'
 import { Route as InvestorCompareRouteImport } from './routes/investor.compare'
 import { Route as InvestorInquiriesRouteImport } from './routes/investor.inquiries'
 import { Route as InvestorMapRouteImport } from './routes/investor.map'
+import { Route as LocateTokenRouteImport } from './routes/locate.$token'
 import { Route as WhoNameRouteImport } from './routes/who_.name'
 import { Route as InvestorFootprintDistrictRouteImport } from './routes/investor.footprint.$district'
 import { Route as InvestorInquireParcelIdRouteImport } from './routes/investor.inquire.$parcelId'
@@ -122,6 +123,11 @@ const InvestorMapRoute = InvestorMapRouteImport.update({
   path: '/map',
   getParentRoute: () => InvestorRoute,
 } as any)
+const LocateTokenRoute = LocateTokenRouteImport.update({
+  id: '/locate/$token',
+  path: '/locate/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhoNameRoute = WhoNameRouteImport.update({
   id: '/who_/name',
   path: '/who/name',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/investor/compare': typeof InvestorCompareRoute
   '/investor/inquiries': typeof InvestorInquiriesRoute
   '/investor/map': typeof InvestorMapRoute
+  '/locate/$token': typeof LocateTokenRoute
   '/who/name': typeof WhoNameRoute
   '/admin/': typeof AdminIndexRoute
   '/investor/': typeof InvestorIndexRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/investor/compare': typeof InvestorCompareRoute
   '/investor/inquiries': typeof InvestorInquiriesRoute
   '/investor/map': typeof InvestorMapRoute
+  '/locate/$token': typeof LocateTokenRoute
   '/who/name': typeof WhoNameRoute
   '/admin': typeof AdminIndexRoute
   '/investor': typeof InvestorIndexRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/investor/compare': typeof InvestorCompareRoute
   '/investor/inquiries': typeof InvestorInquiriesRoute
   '/investor/map': typeof InvestorMapRoute
+  '/locate/$token': typeof LocateTokenRoute
   '/who_/name': typeof WhoNameRoute
   '/admin/': typeof AdminIndexRoute
   '/investor/': typeof InvestorIndexRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/investor/compare'
     | '/investor/inquiries'
     | '/investor/map'
+    | '/locate/$token'
     | '/who/name'
     | '/admin/'
     | '/investor/'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/investor/compare'
     | '/investor/inquiries'
     | '/investor/map'
+    | '/locate/$token'
     | '/who/name'
     | '/admin'
     | '/investor'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/investor/compare'
     | '/investor/inquiries'
     | '/investor/map'
+    | '/locate/$token'
     | '/who_/name'
     | '/admin/'
     | '/investor/'
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   InvestorRoute: typeof InvestorRouteWithChildren
   PortfolioRequestRoute: typeof PortfolioRequestRoute
   WhoRoute: typeof WhoRoute
+  LocateTokenRoute: typeof LocateTokenRoute
   WhoNameRoute: typeof WhoNameRoute
 }
 
@@ -426,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestorMapRouteImport
       parentRoute: typeof InvestorRoute
     }
+    '/locate/$token': {
+      id: '/locate/$token'
+      path: '/locate/$token'
+      fullPath: '/locate/$token'
+      preLoaderRoute: typeof LocateTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/who_/name': {
       id: '/who_/name'
       path: '/who/name'
@@ -512,6 +532,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvestorRoute: InvestorRouteWithChildren,
   PortfolioRequestRoute: PortfolioRequestRoute,
   WhoRoute: WhoRoute,
+  LocateTokenRoute: LocateTokenRoute,
   WhoNameRoute: WhoNameRoute,
 }
 export const routeTree = rootRouteImport

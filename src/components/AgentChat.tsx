@@ -150,7 +150,7 @@ function MiniCard({ p, badge }: { p: Parcel; badge?: string }) {
 }
 
 /** Small schematic map of Riyadh parcels with the recommended ones highlighted. */
-function MiniMap({ highlight }: { highlight: string[] }) {
+export function MiniMap({ highlight }: { highlight: string[] }) {
   const { parcels } = usePortfolio();
   const lat0 = 24.45, lat1 = 25.05, lng0 = 46.45, lng1 = 47.0;
   const xy = (p: Parcel): [number, number] => [((p.lng - lng0) / (lng1 - lng0)) * 200, ((lat1 - p.lat) / (lat1 - lat0)) * 200];
