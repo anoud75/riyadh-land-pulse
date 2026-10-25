@@ -90,8 +90,8 @@ function MapPage() {
           <Button size="sm" variant={showOpen ? "default" : "ghost"} aria-pressed={showOpen} onClick={() => setShowOpen(!showOpen)}>خدمات</Button>
         </div>}
 
-        <MapPanel title="مساعد سرج" side="right" hidden={!chatOpen} onMinimize={() => setChatOpen(false)}><MapAssistant parcels={parcels} onApplyFilters={(f) => { setFilters(f); setMode("parcels"); }} onFocusParcel={(p) => { setSelected(p); setDetailsOpen(true); setMode("parcels"); }} /></MapPanel>
-        {selected && mode === "parcels" && detailsOpen && <MapPanel title="تفاصيل الأرض" side="left" onMinimize={() => setDetailsOpen(false)}><Drawer p={selected} onClose={() => setSelected(null)} /></MapPanel>}
+        <MapPanel title="مساعد سرج" side="right" className={selected && mode === "parcels" && detailsOpen ? "map-panel-stacked-below" : ""} hidden={!chatOpen} onMinimize={() => setChatOpen(false)}><MapAssistant parcels={parcels} onApplyFilters={(f) => { setFilters(f); setMode("parcels"); }} onFocusParcel={(p) => { setSelected(p); setDetailsOpen(true); setMode("parcels"); }} /></MapPanel>
+        {selected && mode === "parcels" && detailsOpen && <MapPanel title="تفاصيل الأرض" side="right" className={chatOpen ? "map-panel-stacked" : ""} onMinimize={() => setDetailsOpen(false)}><Drawer p={selected} onClose={() => setSelected(null)} /></MapPanel>}
 
         <div className="map-bottom-dock" dir="rtl">
           <Button size="icon" variant={chatOpen ? "default" : "ghost"} aria-label="مساعد سرج" title="مساعد سرج" aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)}><Sparkles className="size-4" /></Button>
