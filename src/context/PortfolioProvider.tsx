@@ -1,3 +1,4 @@
+import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { initialInquiries, initialParcels } from "@/data";
 import type { Inquiry, Parcel, RawInquiry, RawParcel } from "@/data/types";
@@ -48,7 +49,9 @@ interface Ctx {
   setInvestorName: (n: string) => void;
 }
 
-const PortfolioContext = createContext<Ctx | null>(null);
+// Keep one context object across hot reloads so live edits never orphan the provider.
+const g = globalThis as { __sarjPortfolioCtx?: React.Context<Ctx | null> };
+const PortfolioContext = (g.__sarjPortfolioCtx ??= createContext<Ctx | null>(null));
 
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [parcels, setParcels] = useState<Parcel[]>(initialParcels);
