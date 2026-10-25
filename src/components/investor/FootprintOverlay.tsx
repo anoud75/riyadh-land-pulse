@@ -94,7 +94,7 @@ export function FootprintOverlay({
           ))}
         </div>
         <p className={`${glass} max-w-2xl rounded-xl px-3 py-1.5 text-center text-[11px] leading-relaxed text-muted-foreground`}>
-          المصدر: الهيئة العامة للإحصاء — الرقم القياسي لأسعار العقارات (أرض سكنية/تجارية، المملكة، 2023 = 100) والتقديرات السكانية لمنطقة الرياض حتى {data.popYear}.
+          المصدر: الهيئة العامة للإحصاء — الرقم القياسي لأسعار العقارات (أرض سكنية/تجارية، المملكة، 2023 = 100) والتقديرات السكانية لمنطقة الرياض حتى 2022{data.popSource === "estimate" ? "، مُسقطة إلى 2026 بنمو 2.5% سنويًا (تقدير)" : ""}.
           سعر 2026 من سجل سرج؛ 2019–2020 تقدير، وتوزيع الجنس تقديري.
         </p>
       </div>
@@ -117,7 +117,7 @@ export function FootprintOverlay({
           </p>
         </div>
         <div>
-          <div className="font-medium">سكان منطقة الرياض {data.popYear}</div>
+          <div className="font-medium">سكان منطقة الرياض {data.popYear}{data.popSource === "estimate" ? " (تقدير: GASTAT 2022 + نمو 2.5% سنويًا)" : " · GASTAT"}</div>
           <div className="text-xs text-muted-foreground">الإجمالي {thousands(data.populationTotal)}</div>
           {data.population.map((p) => (
             <div key={p.band} className="flex justify-between"><span>{p.band}</span><span>ذ {thousands(p.male)} · إ {thousands(p.female)}</span></div>

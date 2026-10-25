@@ -25,7 +25,7 @@ export interface SiteResult {
   district: string; useCase: UseCase; category: PlaceCategory | null;
   score: number | null; label: string; reasons: string[];
   found: number; nearestMin: number | null; within10: number;
-  services?: ServiceCheck[]; medianPpm: number | null; riyadhMedianPpm: number | null; parcelIds: string[];
+  population2026?: number | null; services?: ServiceCheck[]; medianPpm: number | null; riyadhMedianPpm: number | null; parcelIds: string[];
 }
 
 export function businessLabel(s: number) { return s >= 70 ? "فرصة عالية" : s >= 45 ? "فرصة متوسطة" : "مشبعة"; }
@@ -33,12 +33,14 @@ export function livingLabel(s: number) { return s >= 70 ? "ممتاز للسكن
 export function commercialLabel(s: number) { return s >= 70 ? "حركة عالية" : s >= 45 ? "حركة متوسطة" : "حركة ضعيفة"; }
 
 /** Business gap: long drive to the nearest competitor and few competitors within 10 minutes score high. */
-export function scoreBusiness(category: PlaceCategory, input: { found: number; nearestMin: number | null; within10: number }) {
+/** popRatio = district population / median district population; adds up to 15 demand points (85 from the gap). */
+export function scoreBusiness(category: PlaceCategory, input: { found: number; nearestMin: number | null; within10: number; popRatio?: number | null }) {
   if (input.found === 0 || input.nearestMin == null) return { score: null, label: "بيانات غير كافية" };
   const w = BUSINESS_WEIGHTS[category];
   const dist = clamp(input.nearestMin / 30);
   const dens = clamp(1 - input.within10 / 10);
-  const score = r(100 * (w.distance * dist + w.density * dens));
+  const gap = w.distance * dist + w.density * dens;
+  const score = input.popRatio == null ? r(100 * gap) : r(85 * gap + populationBoost(input.popRatio));
   return { score, label: businessLabel(score) };
 }
 
@@ -77,3 +79,6 @@ export function detectUseCase(q: string): { useCase: UseCase; category: PlaceCat
   if (/(محل|تجاري|معرض|ايجار تجاري|retail)/.test(s)) return { useCase: "commercial", category: null };
   return { useCase: "living", category: null };
 }
+
+/** Demand points from population: 0 at no people, 7.5 at the median district, capped at 15 for twice the median or more. */
+export function populationBoost(popRatio: number) { return 15 * clamp(popRatio / 2); }

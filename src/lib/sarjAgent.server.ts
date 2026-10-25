@@ -178,7 +178,7 @@ export async function runSarjAgent(input: {
             const c = r.center!;
             emit({ kind: "map", command: { action: ids.length ? "highlight" : "focus", center: [c[1], c[0]], zoom: 12.5, parcelIds: ids, radiusKm: null, label: `${r.results.map((x) => x.district).join("، ")} · أماكن قريبة`, district: r.results.length === 1 ? r.results[0]!.district : null, choropleth: null, pois: r.pois, isochrone: r.isochrone } });
           }
-          return { results: r.results.map(({ services, ...x }) => ({ ...x, services: services?.map((s) => `${s.label_ar}: ${s.minutes ?? "غير موجود"} دقيقة`) })), districts_not_found: r.missing, note: "المصدر Mapbox؛ أوقات القيادة تقديرية لحركة مرور اعتيادية. بيانات السكان على مستوى الحي غير متاحة." };
+          return { results: r.results.map(({ services, ...x }) => ({ ...x, services: services?.map((s) => `${s.label_ar}: ${s.minutes ?? "غير موجود"} دقيقة`) })), districts_not_found: r.missing, note: "المصدر Mapbox؛ أوقات القيادة تقديرية لحركة مرور اعتيادية. population2026 تقدير: إجمالي الرياض من GASTAT 2022 مُسقط إلى 2026 بنمو 2.5% سنويًا وموزّع حسب مساحة الحي؛ قل إنه تقدير." };
         } catch (e) {
           return { error: `تعذّر جلب الأماكن من Mapbox: ${(e as Error).message}` };
         }
