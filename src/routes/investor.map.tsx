@@ -12,6 +12,7 @@ import { PriceLine } from "@/components/investor/ParcelCard";
 import { MapAssistant } from "@/components/investor/MapAssistant";
 import { Button } from "@/components/ui/button";
 import { MapPanel } from "@/components/investor/MapPanel";
+import { Logo } from "@/components/SiteHeader";
 import { pct, sar } from "@/components/investor/format";
 
 const ParcelMap = lazy(() => import("@/components/investor/ParcelMap"));
@@ -71,7 +72,7 @@ function MapPage() {
         </ClientOnly>
 
         <div className="map-topbar" dir="rtl">
-          <Button asChild variant="ghost" className="shrink-0"><Link to="/investor"><ArrowRight className="size-4" /><span className="font-bold">سرج</span></Link></Button>
+          <Button asChild variant="ghost" className="shrink-0"><Link to="/investor" aria-label="سرج"><ArrowRight className="size-4" /><Logo className="h-6" /></Link></Button>
           <span className="map-toolbar-divider" />
           <div className="flex items-center gap-1">
             {(["parcels", "districts"] as const).map((m) => <Button key={m} size="sm" variant={mode === m ? "default" : "ghost"} aria-pressed={mode === m} onClick={() => { setMode(m); setSelected(null); }}>{m === "parcels" ? "الأراضي" : "الأحياء"}</Button>)}
