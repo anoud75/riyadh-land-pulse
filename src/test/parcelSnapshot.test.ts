@@ -42,8 +42,8 @@ describe("parcelSnapshot", () => {
   });
 
   it("grows the glow ring to stay visible, but shows a large parcel's real footprint", () => {
-    expect(haloRadiusM(24.71, 15, 600, null)).toBeCloseTo(138, 0); // ~15% of image width across
-    expect(haloRadiusM(24.71, 15, 600, 5000)).toBeCloseTo(138, 0); // tiny parcel → halo
+    expect(haloRadiusM(24.71, 15, 600, null)).toBeCloseTo(195, 0); // ~15% of image width across
+    expect(haloRadiusM(24.71, 15, 600, 5000)).toBeCloseTo(195, 0); // tiny parcel → halo
     expect(haloRadiusM(24.71, 15, 600, 1_000_000)).toBeCloseTo(Math.sqrt(1_000_000 / Math.PI), 0); // 100 ha → real footprint
   });
 
@@ -54,7 +54,7 @@ describe("parcelSnapshot", () => {
     expect(url).toContain("pin-s+7c3aed(46.67530,24.71360)");
     expect(url).toContain("path-16+7c3aed-0.16(enc:");
     expect(url).toContain("path-2+7c3aed-0.8(enc:");
-    expect(url).toContain("/46.67530,24.71360,14.5/600x300@2x");
+    expect(url).toContain("/46.67530,24.71360,15/600x300@2x");
     expect(url).toContain("access_token=");
   });
 });
