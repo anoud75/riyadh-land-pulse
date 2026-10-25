@@ -1,156 +1,115 @@
-import { Circle, CircleMarker, LayersControl, MapContainer, Polygon, TileLayer, Tooltip, useMap } from "react-leaflet";
-import { Fragment, useEffect } from "react";
-import type { Map as LeafletMap } from "leaflet";
-import type { Area, Parcel } from "@/data/types";
-import { AREA_AR } from "@/data/types";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Parcel } from "@/data/types";
 import { parcelColor, parcelRadius, type MapLayer } from "@/lib/mapLayers";
 import { competitorPoints, reachPolygon, REACH_MINUTES } from "@/lib/reach";
-import { aggregateDistricts, districtColor, districtRadius, type DistrictAgg } from "@/lib/mapStats";
+import { aggregateDistricts, districtColor, type DistrictAgg } from "@/lib/mapStats";
+import geoRaw from "@/data/riyadhDistricts.json";
+import { districtBounds, districtStats, type DistrictCollection } from "@/lib/districtStats";
 
-const RIYADH: [number, number] = [24.7136, 46.6753];
-const AREAS: Area[] = ["North", "South", "East", "West", "Central"];
+const GEO = geoRaw as unknown as DistrictCollection;
+const TOKEN = import.meta.env.VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN as string | undefined;
+const STYLES = { satellite: "mapbox://styles/mapbox/satellite-streets-v12", streets: "mapbox://styles/mapbox/streets-v12", light: "mapbox://styles/mapbox/light-v11" } as const;
+const STYLE_AR: Record<keyof typeof STYLES, string> = { satellite: "قمر صناعي", streets: "شوارع", light: "فاتحة" };
 
-/** Land plot drawn as a square footprint (enlarged for visibility, scaled by area). */
-function parcelSquare(p: Parcel): [number, number][] {
+/** Imperative handle the map page uses to move the camera. */
+export interface MapHandle {
+  flyTo: (lat: number, lng: number, zoom: number, offsetX?: number) => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+}
+
+const sq = (p: Parcel): [number, number][] => {
   const h = parcelRadius(p);
-  const dLat = h / 111320;
-  const dLng = h / (111320 * Math.cos((p.lat * Math.PI) / 180));
-  return [[p.lat - dLat, p.lng - dLng], [p.lat - dLat, p.lng + dLng], [p.lat + dLat, p.lng + dLng], [p.lat + dLat, p.lng - dLng]];
-}
+  const dLat = h / 111320, dLng = h / (111320 * Math.cos((p.lat * Math.PI) / 180));
+  return [[p.lng - dLng, p.lat - dLat], [p.lng + dLng, p.lat - dLat], [p.lng + dLng, p.lat + dLat], [p.lng - dLng, p.lat + dLat], [p.lng - dLng, p.lat - dLat]];
+};
+const poly = (ring: [number, number][], props: Record<string, unknown> = {}) => ({ type: "Feature" as const, properties: props, geometry: { type: "Polygon" as const, coordinates: [ring] } });
+const fc = (features: unknown[]) => ({ type: "FeatureCollection", features }) as GeoJSON.FeatureCollection;
 
-function FlyTo({ p }: { p: Parcel | null }) {
-  const map = useMap();
-  useEffect(() => {
-    if (p) map.flyTo([p.lat, p.lng], 15, { duration: 0.8 });
-  }, [p, map]);
-  return null;
-}
-
-/** Soft region names (الشمال، الشرق…) floating over each area's parcel cloud. */
-function RegionLabels({ parcels }: { parcels: Parcel[] }) {
-  return (
-    <>
-      {AREAS.map((a) => {
-        const list = parcels.filter((p) => p.area_of_city === a);
-        if (!list.length) return null;
-        const lat = list.reduce((s, p) => s + p.lat, 0) / list.length;
-        const lng = list.reduce((s, p) => s + p.lng, 0) / list.length;
-        return (
-          <CircleMarker key={a} center={[lat, lng]} radius={0} interactive={false}>
-            <Tooltip permanent direction="center" className="region-label">
-              {AREA_AR[a]}
-            </Tooltip>
-          </CircleMarker>
-        );
-      })}
-    </>
-  );
-}
-
-export default function ParcelMap({
-  parcels,
-  layer,
-  mode,
-  selected,
-  onSelect,
-  onSelectDistrict,
-  mapRef,
-  highlight,
-}: {
-  parcels: Parcel[];
-  layer: MapLayer;
-  mode: "parcels" | "districts";
-  selected: Parcel | null;
-  onSelect: (p: Parcel | null) => void;
-  onSelectDistrict: (d: DistrictAgg) => void;
-  mapRef: React.RefObject<LeafletMap | null>;
-  highlight?: [number, number][] | null;
+export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, highlight }: {
+  parcels: Parcel[]; layer: MapLayer; mode: "parcels" | "districts"; selected: Parcel | null;
+  onSelect: (p: Parcel | null) => void; onSelectDistrict: (d: DistrictAgg) => void;
+  mapRef: React.RefObject<MapHandle | null>; highlight?: [number, number][] | null;
 }) {
-  const districts = mode === "districts" ? aggregateDistricts(parcels) : [];
+  const box = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("satellite");
+  const [gen, setGen] = useState(0); // bumps after each style load so data is re-applied
+  const cb = useRef({ onSelect, onSelectDistrict, parcels }); cb.current = { onSelect, onSelectDistrict, parcels };
+
+  const data = useMemo(() => {
+    const aggs = aggregateDistricts(parcels);
+    const stats = districtStats(GEO, parcels, []);
+    const byId = new Map(stats.map((s) => [s.id, s]));
+    const districts = GEO.features.map((f) => { const s = byId.get(f.properties.id)!; return { ...f, id: f.properties.id, properties: { ...f.properties, color: s.parcelIds.length ? districtColor(s.medianPpm) : "#000000", op: s.parcelIds.length ? 0.45 : 0.04, label: s.parcelIds.length ? `${s.name_ar} · ${s.parcelIds.length}` : "" } }; });
+    const squares = parcels.map((p) => poly(sq(p), { id: p.parcel_id, color: parcelColor(p, layer, parcels), sel: selected?.parcel_id === p.parcel_id ? 1 : 0, label: `${p.district_ar} · ${p.parcel_id}` }));
+    const reach = selected && mode === "parcels" ? REACH_MINUTES.map((m, i) => poly(reachPolygon(selected.parcel_id, selected.lat, selected.lng, m).map(([a, b]) => [b, a] as [number, number]), { op: 0.08 + i * 0.07 })) : [];
+    const comps = selected && mode === "parcels" ? competitorPoints(selected.parcel_id, selected.lat, selected.lng).map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [c[1], c[0]] } })) : [];
+    const hl = highlight?.length ? [poly([...highlight.map(([a, b]) => [b, a] as [number, number]), [highlight[0]![1], highlight[0]![0]]])] : [];
+    return { aggs, districts, squares, reach, comps, hl };
+  }, [parcels, layer, selected, mode, highlight]);
+
+  useEffect(() => {
+    if (!box.current || !TOKEN) return;
+    mapboxgl.accessToken = TOKEN;
+    const m = new mapboxgl.Map({ container: box.current, style: STYLES.satellite, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
+    map.current = m;
+    mapRef.current = {
+      flyTo: (lat, lng, zoom, offsetX = 0) => m.flyTo({ center: [lng, lat], zoom, offset: [-offsetX, 0], duration: 1100 }),
+      zoomIn: () => m.zoomIn(), zoomOut: () => m.zoomOut(),
+    };
+    m.on("style.load", () => {
+      const src = (id: string) => m.addSource(id, { type: "geojson", data: fc([]) });
+      ["districts", "squares", "reach", "comps", "hl"].forEach(src);
+      m.addLayer({ id: "d-fill", type: "fill", source: "districts", layout: { visibility: "none" }, paint: { "fill-color": ["get", "color"], "fill-opacity": ["get", "op"] } });
+      m.addLayer({ id: "d-line", type: "line", source: "districts", layout: { visibility: "none" }, paint: { "line-color": "#ffffff", "line-width": 1, "line-opacity": 0.8 } });
+      m.addLayer({ id: "d-label", type: "symbol", source: "districts", layout: { visibility: "none", "text-field": ["get", "label"], "text-size": 12, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"] }, paint: { "text-color": "#111", "text-halo-color": "#fff", "text-halo-width": 1.5 } });
+      m.addLayer({ id: "reach", type: "fill", source: "reach", paint: { "fill-color": "#7c3aed", "fill-opacity": ["get", "op"], "fill-outline-color": "#6d28d9" } });
+      m.addLayer({ id: "sq", type: "fill", source: "squares", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.6 } });
+      m.addLayer({ id: "sq-line", type: "line", source: "squares", paint: { "line-color": ["case", ["==", ["get", "sel"], 1], "#ffffff", ["get", "color"]], "line-width": ["case", ["==", ["get", "sel"], 1], 3, 1.5] } });
+      m.addLayer({ id: "comps", type: "circle", source: "comps", paint: { "circle-radius": 6, "circle-color": "#ffffff", "circle-stroke-color": "#111827", "circle-stroke-width": 2 } });
+      m.addLayer({ id: "hl-fill", type: "fill", source: "hl", paint: { "fill-color": "#e0393e", "fill-opacity": 0.12 } });
+      m.addLayer({ id: "hl-line", type: "line", source: "hl", paint: { "line-color": "#e0393e", "line-width": 3 } });
+      setGen((g) => g + 1);
+    });
+    const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 6 });
+    m.on("mousemove", "sq", (e) => { m.getCanvas().style.cursor = "pointer"; popup.setLngLat(e.lngLat).setText(String(e.features?.[0]?.properties?.label ?? "")).addTo(m); });
+    m.on("mouseleave", "sq", () => { m.getCanvas().style.cursor = ""; popup.remove(); });
+    m.on("click", "sq", (e) => { const id = e.features?.[0]?.properties?.id; const p = cb.current.parcels.find((x) => x.parcel_id === id); if (p) cb.current.onSelect(p); });
+    m.on("click", "d-fill", (e) => {
+      const f = GEO.features.find((x) => x.properties.id === Number(e.features?.[0]?.id)); if (!f) return;
+      m.fitBounds(districtBounds(f), { padding: 60, duration: 900 });
+      const name = f.properties.name_ar;
+      const agg = aggregateDistricts(cb.current.parcels).find((d) => d.district_ar === name);
+      if (agg) cb.current.onSelectDistrict(agg);
+    });
+    return () => { m.remove(); map.current = null; mapRef.current = null; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { if (gen && map.current) map.current.setStyle(STYLES[styleKey]); }, [styleKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const m = map.current; if (!m || !gen) return;
+    const set = (id: string, f: unknown[]) => (m.getSource(id) as mapboxgl.GeoJSONSource | undefined)?.setData(fc(f));
+    set("districts", data.districts); set("squares", data.squares); set("reach", data.reach); set("comps", data.comps); set("hl", data.hl);
+    const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
+    vis(["d-fill", "d-line", "d-label"], mode === "districts");
+    vis(["sq", "sq-line"], mode === "parcels");
+  }, [data, mode, gen]);
+
+  useEffect(() => { if (selected && mode === "parcels") map.current?.flyTo({ center: [selected.lng, selected.lat], zoom: 15, duration: 800 }); }, [selected, mode]);
+
+  if (!TOKEN) return <div className="grid size-full place-items-center text-sm text-muted-foreground">الخريطة غير مهيأة: رمز Mapbox غير متوفر.</div>;
   return (
-    <MapContainer ref={mapRef} center={RIYADH} zoom={11} maxZoom={19} className="size-full" scrollWheelZoom zoomControl={false}>
-      <LayersControl position="topleft">
-        <LayersControl.BaseLayer checked name="قمر صناعي">
-          <TileLayer maxZoom={19} attribution="Imagery &copy; Esri"
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="شوارع">
-          <TileLayer maxZoom={19} attribution="&copy; OpenStreetMap"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="خريطة فاتحة">
-          <TileLayer maxZoom={16} attribution="Tiles &copy; Esri"
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}" />
-        </LayersControl.BaseLayer>
-        <LayersControl.Overlay checked name="أسماء الشوارع والأحياء">
-          <TileLayer maxZoom={19} zIndex={500}
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
-        </LayersControl.Overlay>
-        <LayersControl.Overlay name="الطرق">
-          <TileLayer maxZoom={19} zIndex={499}
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}" />
-        </LayersControl.Overlay>
-      </LayersControl>
-
-      {mode === "districts" &&
-        districts.map((d) => {
-          const color = districtColor(d.medianPrice);
-          return (
-            <Fragment key={d.district_en}>
-              {d.hull.length >= 3 && (
-                <Polygon positions={d.hull} pathOptions={{ color, weight: 1, fillColor: color, fillOpacity: 0.06 }} />
-              )}
-              <Circle
-                center={[d.lat, d.lng]}
-                radius={districtRadius(d.count)}
-                pathOptions={{ color, weight: 1.5, fillColor: color, fillOpacity: 0.4 }}
-                eventHandlers={{ click: () => onSelectDistrict(d) }}
-              >
-                <Tooltip permanent direction="center" className="district-label">
-                  {`${d.district_ar} · ${d.count}`}
-                </Tooltip>
-              </Circle>
-            </Fragment>
-          );
-        })}
-
-      {mode === "parcels" && <RegionLabels parcels={parcels} />}
-
-      {mode === "parcels" && selected &&
-        REACH_MINUTES.map((m, i) => (
-          <Polygon
-            key={`${selected.parcel_id}-${m}`}
-            positions={reachPolygon(selected.parcel_id, selected.lat, selected.lng, m)}
-            pathOptions={{ color: "#6d28d9", weight: 1, fillColor: "#7c3aed", fillOpacity: 0.08 + i * 0.07 }}
-          >
-            <Tooltip sticky>{`${m} دقيقة (تقدير)`}</Tooltip>
-          </Polygon>
+    <div className="relative size-full">
+      <div ref={box} className="absolute inset-0" />
+      <div className="absolute bottom-6 left-3 z-[5] flex overflow-hidden rounded-xl border bg-surface text-xs shadow-sm" dir="rtl">
+        {(Object.keys(STYLES) as (keyof typeof STYLES)[]).map((k) => (
+          <button key={k} onClick={() => setStyleKey(k)} className={`px-3 py-1.5 ${styleKey === k ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>{STYLE_AR[k]}</button>
         ))}
-      {mode === "parcels" && selected &&
-        competitorPoints(selected.parcel_id, selected.lat, selected.lng).map((c, i) => (
-          <CircleMarker key={i} center={c} radius={6} pathOptions={{ color: "#111827", fillColor: "#ffffff", fillOpacity: 1, weight: 2 }}>
-            <Tooltip permanent direction="top" offset={[0, -6]}>منافس</Tooltip>
-          </CircleMarker>
-        ))}
-      {mode === "parcels" &&
-        parcels.map((p) => {
-          const color = parcelColor(p, layer, parcels);
-          const isSel = selected?.parcel_id === p.parcel_id;
-          return (
-            <Polygon
-              key={p.parcel_id}
-              positions={parcelSquare(p)}
-              pathOptions={{ color: isSel ? "#ffffff" : color, weight: isSel ? 3 : 1.5, fillColor: color, fillOpacity: 0.55 }}
-              eventHandlers={{ click: () => onSelect(p) }}
-            >
-              <Tooltip>{`${p.district_ar} · ${p.parcel_id}`}</Tooltip>
-            </Polygon>
-          );
-        })}
-      {highlight && (
-        <Polygon positions={highlight} pathOptions={{ color: "#e0393e", weight: 3, fillColor: "#e0393e", fillOpacity: 0.12 }} />
-      )}
-      <FlyTo p={mode === "parcels" ? selected : null} />
-    </MapContainer>
+      </div>
+    </div>
   );
 }
