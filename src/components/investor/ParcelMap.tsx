@@ -57,7 +57,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     if (!box.current || !TOKEN) return;
     mapboxgl.accessToken = TOKEN;
-    const m = new mapboxgl.Map({ container: box.current, style: STYLES.light, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
+    const m = new mapboxgl.Map({ container: box.current, style: STYLES.streets, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
     map.current = m;
     const ro = new ResizeObserver(() => m.resize()); ro.observe(box.current);
     mapRef.current = {
