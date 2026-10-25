@@ -177,3 +177,9 @@ export function nextId(ids: string[], prefix: string): string {
   const max = Math.max(0, ...ids.map((id) => Number(id.replace(/\D/g, "")) || 0));
   return `${prefix}-${String(max + 1).padStart(3, "0")}`;
 }
+
+/** Annual growth used to project GASTAT 2022 population to the August 2026 snapshot (user-specified, not a GASTAT figure). */
+export const GROWTH_RATE_2026 = 0.025;
+export function projectPopulationTo2026(basePopulation2022: number): number {
+  return Math.round(basePopulation2022 * Math.pow(1 + GROWTH_RATE_2026, 4));
+}

@@ -308,6 +308,7 @@ function SuitabilityBlock({ ui }: { ui: Extract<UiPayload, { kind: "suitability"
               {r.services.map((s) => <li key={s.category} className="flex justify-between rounded-lg bg-secondary px-2 py-1"><span>{s.label_ar}</span><span className="font-medium">{s.minutes == null ? "غير موجود" : `${s.minutes} د`}</span></li>)}
             </ul>
           )}
+          {r.population2026 != null && <div className="mt-2 text-xs text-muted-foreground">السكان 2026 (تقدير): <b className="text-foreground">{r.population2026.toLocaleString("en-US")}</b></div>}
           <ul className="mt-3 space-y-1 text-sm text-foreground/80">{r.reasons.map((x) => <li key={x}>• {x}</li>)}</ul>
           <div className="mt-2 text-[11px] text-muted-foreground">المصدر: {ui.source} · {r.found} مكانًا · أوقات القيادة تقديرية</div>
         </div>

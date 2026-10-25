@@ -6,6 +6,7 @@ import type { Inquiry, Parcel } from "@/data/types";
 import type { MapCommand } from "@/lib/agentUi";
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, findDistrict, metricValue, METRIC_AR, type DistrictCollection, type DistrictMetric, type DistrictStat } from "@/lib/districtStats";
+import { districtPopulation2026 } from "@/lib/districtPopulation";
 import { CATEGORY_AR } from "@/lib/siteSuitability";
 const CAT_AR = CATEGORY_AR as Record<string, string>;
 
@@ -34,6 +35,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
   const pickRef = useRef(onPick); pickRef.current = onPick;
 
   const stats = useMemo(() => districtStats(GEO, parcels, inquiries ?? []), [parcels, inquiries]);
+  const popById = useMemo(() => new Map(districtPopulation2026(GEO).map((p) => [p.id, p.population])), []);
   const statById = useMemo(() => new Map(stats.map((s) => [s.id, s])), [stats]);
   useEffect(() => { if (command.choropleth && metrics.includes(command.choropleth)) setMetric(command.choropleth); }, [command.choropleth]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -156,6 +158,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
             <ul className="space-y-0.5 text-muted-foreground">
               <li>أراضٍ لسرج: <b className="text-foreground">{hover.parcelIds.length}</b> (متاحة {hover.available})</li>
               <li>وسيط سعر المتر: <b className="text-foreground">{fmt(hover.medianPpm)}</b> ريال</li>
+              <li>السكان 2026 (تقدير): <b className="text-foreground">{fmt(popById.get(hover.id) ?? null)}</b></li>
               <li>متوسط أيام العرض: <b className="text-foreground">{fmt(hover.avgDom)}</b></li>
               {inquiries && <li>مشترون ينتظرون في المنطقة: <b className="text-foreground">{hover.waiting}</b> · الفجوة {hover.gap}</li>}
             </ul>

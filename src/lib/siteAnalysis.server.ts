@@ -5,6 +5,7 @@ import { districtBounds, districtStats, findDistrict, type DistrictCollection } 
 import { isAvailable, isPriced, median } from "./portfolioEngine";
 import { driveMinutes, isochrone, searchPlaces, type Poi } from "./placesProvider.server";
 import * as S from "./siteSuitability";
+import { districtPopulation2026, POP_ESTIMATE_NOTE } from "./districtPopulation";
 
 const GEO = geoRaw as unknown as DistrictCollection;
 
@@ -17,6 +18,9 @@ export async function analyzeSite(parcels: Parcel[], input: { use_case: S.UseCas
   const stats = districtStats(GEO, parcels, []);
   const riyadhMedian = median(parcels.filter(isPriced).map((p) => p.price_per_sqm_sar!));
   const results: S.SiteResult[] = []; const pois: Poi[] = []; const missing: string[] = [];
+  const pops = districtPopulation2026(GEO);
+  const sortedPop = pops.map((p) => p.population).sort((a, b) => a - b);
+  const medianPop = sortedPop[Math.floor(sortedPop.length / 2)] || 1;
   let firstCenter: [number, number] | null = null;
   const category = input.use_case === "business" ? input.category ?? "hospital" : null;
 
@@ -28,7 +32,8 @@ export async function analyzeSite(parcels: Parcel[], input: { use_case: S.UseCas
     const center: [number, number] = [(x0 + x1) / 2, (y0 + y1) / 2];
     firstCenter ??= center;
     const pad = 0.06; const bbox: [number, number, number, number] = [x0 - pad, y0 - pad, x1 + pad, y1 + pad];
-    const base = { district: f.properties.name_ar, useCase: input.use_case, category, medianPpm: st.medianPpm, riyadhMedianPpm: riyadhMedian, parcelIds: st.parcelIds.filter((id) => { const p = parcels.find((x) => x.parcel_id === id); return p && isAvailable(p); }) };
+    const population2026 = pops.find((p) => p.id === f.properties.id)?.population ?? null;
+    const base = { population2026, district: f.properties.name_ar, useCase: input.use_case, category, medianPpm: st.medianPpm, riyadhMedianPpm: riyadhMedian, parcelIds: st.parcelIds.filter((id) => { const p = parcels.find((x) => x.parcel_id === id); return p && isAvailable(p); }) };
 
     if (input.use_case === "business") {
       const found = await searchPlaces(category!, center, bbox);
@@ -36,11 +41,12 @@ export async function analyzeSite(parcels: Parcel[], input: { use_case: S.UseCas
       const valid = mins.filter((m): m is number => m != null);
       const nearestMin = valid.length ? Math.min(...valid) : null;
       const within10 = valid.filter((m) => m <= 10).length;
-      const sc = S.scoreBusiness(category!, { found: found.length, nearestMin, within10 });
+      const sc = S.scoreBusiness(category!, { found: found.length, nearestMin, within10, popRatio: population2026 == null ? null : population2026 / medianPop });
       pois.push(...found.slice(0, 25));
       const reasons = found.length
         ? [`أقرب ${S.CATEGORY_AR[category!]} على بُعد ${nearestMin ?? "—"} دقيقة بالسيارة`, `${within10} منافسًا خلال 10 دقائق`, `${found.length} مكانًا وُجد في Mapbox حول الحي`]
         : [`لم يجد Mapbox أي ${S.CATEGORY_AR[category!]} حول الحي؛ قد تكون البيانات ناقصة`];
+      if (population2026 != null) reasons.push(`السكان 2026 نحو ${population2026.toLocaleString("en-US")} (${POP_ESTIMATE_NOTE})`);
       if (base.parcelIds.length) reasons.push(`${base.parcelIds.length} أرض متاحة لدى سرج في الحي`);
       results.push({ ...base, ...sc, reasons, found: found.length, nearestMin, within10 });
     } else if (input.use_case === "living") {

@@ -78,13 +78,15 @@ export function getDistrictFootprint(parcels: Parcel[], ar: string, year: number
   // Arm 3 — GASTAT Riyadh-region age structure (latest release 2022 carried forward).
   const popYear = Math.min(2022, Math.max(2019, year));
   const g = GASTAT_POP[popYear]!;
-  const total = g.riyadh;
+  const projected = year >= 2026;
+  const total = projected ? projectPopulationTo2026(GASTAT_POP[2022]!.riyadh) : g.riyadh;
+  const popSource: SeriesSource = projected ? "estimate" : "gastat";
   const population = AGE_BANDS.map((band, i) => {
     const n = total * g.shares[i]!;
     const maleShare = i >= 2 && i <= 4 ? 0.6 : 0.52; // sex split estimated — not in supplied tables
     return { band, male: Math.round(n * maleShare), female: Math.round(n * (1 - maleShare)) };
   });
 
-  return { district: d.ar, year, price, deals, closedDeals: closed.length, medianDays, population, populationTotal: total, popYear, parcelsInDistrict: inD.length };
+  return { district: d.ar, year, price, deals, closedDeals: closed.length, medianDays, population, populationTotal: total, popYear: projected ? 2026 : popYear, popSource, parcelsInDistrict: inD.length };
 }
 export type DistrictFootprint = ReturnType<typeof getDistrictFootprint>;
