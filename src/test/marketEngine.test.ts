@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { getMarketRentalYield, buildMarketInsight, MARKET_LISTINGS, offerKind } from "@/lib/marketEngine";
-import { usableParcels } from "./helpers";
+import { initialParcels } from "@/data";
 
 describe("marketEngine", () => {
-  const parcels = usableParcels();
+  const parcels = initialParcels;
   it("SRE-052 north residential gets 90k–110k from Yasmin + Hittin", () => {
     const b = getMarketRentalYield("القيروان", "North", parcels);
     expect(b.scope).toBe("area");
