@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { circlePoints, encodePolyline, parcelRadiusM, snapshotUrl } from "@/lib/parcelSnapshot";
+import { circlePoints, encodePolyline, haloRadiusM, parcelRadiusM, snapshotUrl } from "@/lib/parcelSnapshot";
 
 /** Decoder mirror of encodePolyline so the round trip is verified. */
 function decodePolyline(s: string): [number, number][] {

@@ -54,20 +54,31 @@ export function parcelRadiusM(areaSqm: number | null | undefined): number {
 }
 
 /**
- * URL of a static street map centered on the parcel, with a translucent
- * footprint circle and a pin. Width/height are CSS-independent (2x DPR baked in).
+ * Radius of the glow ring around the parcel location: the parcel's real
+ * footprint when that is large enough to see, otherwise a neighborhood halo
+ * (~15% of the image width across) so the highlight is always visible.
+ */
+export function haloRadiusM(lat: number, zoom: number, widthPx: number, areaSqm: number | null | undefined): number {
+  const metersPerPx = (156543.03 * Math.cos((lat * Math.PI) / 180)) / 2 ** zoom;
+  const halo = metersPerPx * widthPx * 0.075;
+  return Math.max(parcelRadiusM(areaSqm), halo);
+}
+
+/**
+ * URL of a static street map centered on the parcel, with a glowing halo
+ * ring and a pin. Width/height are CSS-independent (2x DPR baked in).
  */
 export function snapshotUrl(
   p: { lng: number; lat: number; area_sqm?: number | null },
   opts: { width: number; height: number; zoom?: number; style?: string },
 ): string | null {
   if (!PUBLIC_TOKEN) return null;
-  const { width, height, zoom = 14.5, style = "streets-v12" } = opts;
-  const r = parcelRadiusM(p.area_sqm);
+  const { width, height, zoom = 15, style = "streets-v12" } = opts;
+  const r = haloRadiusM(p.lat, zoom, width, p.area_sqm);
   const circle = encodeURIComponent(encodePolyline(circlePoints(p.lng, p.lat, r)));
   const marker = `pin-s+${PIN_HEX}(${p.lng.toFixed(5)},${p.lat.toFixed(5)})`;
   // Static API path syntax: path-{strokeWidth}+{color}-{opacity}(enc:polyline).
-  // A wide translucent stroke reads as a soft glow around the footprint.
+  // A wide translucent stroke reads as a soft glow around the location.
   const glow = `path-16+${PIN_HEX}-0.16(enc:${circle})`;
   const edge = `path-2+${PIN_HEX}-0.8(enc:${circle})`;
   return `${STATIC_BASE}/${style}/static/${marker},${glow},${edge}/${p.lng.toFixed(5)},${p.lat.toFixed(5)},${zoom}/${width}x${height}@2x?access_token=${PUBLIC_TOKEN}&attribution=false&logo=false`;
