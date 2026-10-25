@@ -76,6 +76,7 @@ export async function analyzeSite(parcels: Parcel[], input: { use_case: S.UseCas
       const far = services.filter((s) => s.minutes == null || s.minutes > 15).map((s) => s.label_ar);
       const reasons = [
         `${services.filter((s) => s.minutes != null && s.minutes <= 10).length} من ${services.length} خدمات خلال 10 دقائق`,
+        `المصادر: ${sourceLine(lists.flat())}`,
         far.length ? `أبعد أو غير موجود: ${far.join("، ")}` : "كل الخدمات الأساسية قريبة",
         st.medianPpm != null && riyadhMedian ? `وسيط سعر المتر ${st.medianPpm.toLocaleString("en-US")} ريال مقابل ${riyadhMedian.toLocaleString("en-US")} في الرياض` : "لا توجد صفقات كافية لسعر الحي لدى سرج",
       ];

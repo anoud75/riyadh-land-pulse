@@ -16,7 +16,7 @@ const GROUNDING = `القاعدة الحاسمة: لا تحسب أي وسيط أ
 
 const VIZ = `أدوات العرض: drawChart لرسم مقارنة أو توزيع داخل المحادثة (استخدمها كلما قارن المستخدم أو طلب رسمًا)، generateReport لتقرير كامل يُفتح في اللوحة الجانبية، controlMap لفتح الخريطة داخل المحادثة وتحريكها (تقريب على حي أو منطقة، إبراز أراضٍ، رسم نطاق بالكيلومتر، أو عرض الرياض كاملة). عند ذكر أراضٍ محددة استدعِ controlMap لإبرازها. لا تقل للمستخدم "اذهب إلى الخريطة"؛ أنت تفتحها بنفسك.
 مؤشر الإيجار: إذا كان المستثمر على أرض سكنية ونيته بناء شقق للإيجار استدعِ getMarketBenchmark وانقل نصه حرفيًا.
-ملاءمة الموقع: إذا قال المستخدم "أبي أفتح مستشفى/كافيه/صيدلية… في حي كذا" استدعِ analyzeSite بـ use_case=business والفئة. إذا قال "أبي أسكن/أعيش في حي كذا" أو سأل عن الخدمات والأسعار للسكن استدعِ analyzeSite بـ use_case=living. للمحلات التجارية use_case=commercial. إن لم يحدد حيًا فاختر حتى 3 أحياء فيها أراضٍ متاحة. انقل الدرجة والدقائق وعدد المنافسين حرفيًا، واذكر أن المصدر Mapbox وأن الأوقات تقديرية. لا تستدعِ controlMap بعدها؛ الخريطة تُفتح تلقائيًا.`;
+ملاءمة الموقع: إذا قال المستخدم "أبي أفتح مستشفى/كافيه/صيدلية… في حي كذا" استدعِ analyzeSite بـ use_case=business والفئة. إذا قال "أبي أسكن/أعيش في حي كذا" أو سأل عن الخدمات والأسعار للسكن استدعِ analyzeSite بـ use_case=living. للمحلات التجارية use_case=commercial. إن لم يحدد حيًا فاختر حتى 3 أحياء فيها أراضٍ متاحة. انقل الدرجة والدقائق وعدد المنافسين حرفيًا، واذكر أن المصادر Mapbox وOverture Maps وأن الأوقات تقديرية. لا تملك صفقات وزارة العدل ولا بيانات data.gov.sa؛ إن سُئلت عنها فقل إنها غير متصلة بعد. لا تستدعِ controlMap بعدها؛ الخريطة تُفتح تلقائيًا.`;
 
 const INVESTOR_SYS = `أنت "محلّل المواقع" لدى سرج العقارية. المستخدم مستثمر يبحث عن أرض في الرياض.
 النطاق المسموح فقط: أراضي سرج المتاحة، الأحياء، الأسعار والوسائط، المقارنة، هامش التفاوض، الخريطة.
@@ -185,14 +185,14 @@ export async function runSarjAgent(input: {
           const { analyzeSite } = await import("./siteAnalysis.server");
           const r = await analyzeSite(parcels, f);
           if (r.results.length) {
-            emit({ kind: "suitability", useCase: r.useCase, category: r.category, results: r.results, source: "Mapbox" });
+            emit({ kind: "suitability", useCase: r.useCase, category: r.category, results: r.results, source: "Mapbox + Overture Maps" });
             if (r.results.length > 1) emit({ kind: "chart", chart: { type: "bar", title: "مقارنة درجة الملاءمة بين الأحياء", unit: "/100", series: r.results.map((x) => ({ label: x.district, value: x.score ?? 0 })), source: "Mapbox + سرج" } });
             const ids = r.results.flatMap((x) => x.parcelIds).slice(0, 12);
             ids.forEach((id) => parcelIds.add(id));
             const c = r.center!;
             emit({ kind: "map", command: { action: ids.length ? "highlight" : "focus", center: [c[1], c[0]], zoom: 12.5, parcelIds: ids, radiusKm: null, label: `${r.results.map((x) => x.district).join("، ")} · أماكن قريبة`, district: r.results.length === 1 ? r.results[0]!.district : null, choropleth: null, pois: r.pois, isochrone: r.isochrone } });
           }
-          return { results: r.results.map(({ services, ...x }) => ({ ...x, services: services?.map((s) => `${s.label_ar}: ${s.minutes ?? "غير موجود"} دقيقة`) })), districts_not_found: r.missing, note: "المصدر Mapbox؛ أوقات القيادة تقديرية لحركة مرور اعتيادية. population2026 تقدير: إجمالي الرياض من GASTAT 2022 مُسقط إلى 2026 بنمو 2.5% سنويًا وموزّع حسب مساحة الحي؛ قل إنه تقدير." };
+          return { results: r.results.map(({ services, ...x }) => ({ ...x, services: services?.map((s) => `${s.label_ar}: ${s.minutes ?? "غير موجود"} دقيقة`) })), districts_not_found: r.missing, note: "المصادر: Mapbox وOverture Maps (لقطة 2026-10-21) مع إزالة المكرر؛ أوقات القيادة تقديرية لحركة مرور اعتيادية. population2026 تقدير: إجمالي الرياض من GASTAT 2022 مُسقط إلى 2026 بنمو 2.5% سنويًا وموزّع حسب مساحة الحي؛ قل إنه تقدير." };
         } catch (e) {
           return { error: `تعذّر جلب الأماكن من Mapbox: ${(e as Error).message}` };
         }
