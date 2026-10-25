@@ -6,6 +6,7 @@ import { isAvailable, isPriced } from "@/lib/portfolioEngine";
 import { CompareButton, Fact, ParcelCard, PriceLine } from "@/components/investor/ParcelCard";
 import { ParcelSnapshot } from "@/components/investor/ParcelSnapshot";
 import { sar } from "@/components/investor/format";
+import { Send } from "lucide-react";
 
 type Search = {
   all?: boolean | undefined;
