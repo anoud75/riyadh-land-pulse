@@ -17,7 +17,7 @@ function decodePolyline(s: string): [number, number][] {
       }
       nums.push(res & 1 ? ~(res >> 1) : res >> 1);
     }
-    lat += nums[0]; lng += nums[1];
+    lat += nums[0]!; lng += nums[1]!;
     out.push([lng / 1e5, lat / 1e5]);
   }
   return out;

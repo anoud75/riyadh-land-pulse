@@ -22,7 +22,7 @@ export function encodePolyline(points: [number, number][]): string {
     const nums = [Math.round(lat * 1e5), Math.round(lng * 1e5)];
     const prevs = [prevLat, prevLng];
     for (let i = 0; i < 2; i++) {
-      let v = nums[i] - prevs[i];
+      let v = nums[i]! - prevs[i]!;
       v = v < 0 ? ~(v << 1) : v << 1;
       while (v >= 0x20) {
         out += String.fromCharCode((0x20 | (v & 0x1f)) + 63);
@@ -30,7 +30,7 @@ export function encodePolyline(points: [number, number][]): string {
       }
       out += String.fromCharCode(v + 63);
     }
-    prevLat = nums[0]; prevLng = nums[1];
+    prevLat = nums[0]!; prevLng = nums[1]!;
   }
   return out;
 }
