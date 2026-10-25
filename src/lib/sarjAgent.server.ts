@@ -172,6 +172,7 @@ export async function runSarjAgent(input: {
           const r = await analyzeSite(parcels, f);
           if (r.results.length) {
             emit({ kind: "suitability", useCase: r.useCase, category: r.category, results: r.results, source: "Mapbox" });
+            if (r.results.length > 1) emit({ kind: "chart", chart: { type: "bar", title: "مقارنة درجة الملاءمة بين الأحياء", unit: "/100", series: r.results.map((x) => ({ label: x.district, value: x.score ?? 0 })), source: "Mapbox + سرج" } });
             const ids = r.results.flatMap((x) => x.parcelIds).slice(0, 12);
             ids.forEach((id) => parcelIds.add(id));
             const c = r.center!;
