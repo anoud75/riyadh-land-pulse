@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { getNearbyParcels, getParcelInsight } from "@/lib/investorEngine";
-import { CompareButton, Fact, PriceLine } from "@/components/investor/ParcelCard";
+import { Fact, PriceLine } from "@/components/investor/ParcelCard";
 import { pct, sar } from "@/components/investor/format";
 import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { ParcelSnapshot } from "@/components/investor/ParcelSnapshot";
@@ -38,7 +38,6 @@ function Detail() {
           <div className="mt-1 text-muted-foreground">{segLabel} · <span className="font-mono">{p.parcel_id}</span></div>
         </div>
         <div className="flex gap-2">
-          <CompareButton id={p.parcel_id} />
           <Link to="/investor/inquire/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full bg-primary px-4 py-1.5 text-sm text-primary-foreground">استفسر عن هذه الأرض</Link>
         </div>
       </div>
