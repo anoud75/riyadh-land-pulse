@@ -3,9 +3,9 @@ import type mapboxgl from "mapbox-gl";
 
 export const PLACE_ICON: Record<string, { emoji: string; color: string }> = {
   hospital: { emoji: "🏥", color: "#e11d48" }, pharmacy: { emoji: "💊", color: "#16a34a" }, cafe: { emoji: "☕", color: "#a16207" },
-  restaurant: { emoji: "🍽️", color: "#ea580c" }, school: { emoji: "🏫", color: "#2563eb" }, supermarket: { emoji: "🛒", color: "#0891b2" },
+  restaurant: { emoji: "🍴", color: "#ea580c" }, school: { emoji: "🏫", color: "#2563eb" }, supermarket: { emoji: "🛒", color: "#0891b2" },
   mosque: { emoji: "🕌", color: "#0f766e" }, park: { emoji: "🌳", color: "#65a30d" }, gym: { emoji: "🏋️", color: "#9333ea" },
-  shopping_mall: { emoji: "🛍️", color: "#db2777" },
+  shopping_mall: { emoji: "🛍", color: "#db2777" },
 };
 
 export const iconId = (c: string) => `pi-${c}`;
