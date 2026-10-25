@@ -47,7 +47,14 @@ interface Ctx {
   setRole: (r: Role) => void;
   investorName: string;
   setInvestorName: (n: string) => void;
+  revealLog: RevealEntry[];
+  revealPhone: (inquiryId: string) => void;
+  offers: OfferEntry[];
+  sendOffer: (inquiryId: string, parcelId: string) => void;
 }
+
+export interface RevealEntry { inquiry_id: string; by: string; at: string }
+export interface OfferEntry { inquiry_id: string; parcel_id: string; at: string }
 
 // Keep one context object across hot reloads so live edits never orphan the provider.
 const g = globalThis as { __sarjPortfolioCtx?: React.Context<Ctx | null> };
@@ -101,14 +108,21 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   };
   const toggleCompare = (id: string) =>
     setCompareIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id].slice(-4)));
+  const [revealLog, setRevealLog] = useState<RevealEntry[]>([]);
+  const [offers, setOffers] = useState<OfferEntry[]>([]);
+  const revealPhone = (inquiry_id: string) =>
+    setRevealLog((prev) => [{ inquiry_id, by: "فريق سرج", at: new Date().toISOString() }, ...prev]);
+  const sendOffer = (inquiry_id: string, parcel_id: string) =>
+    setOffers((prev) => [{ inquiry_id, parcel_id, at: new Date().toISOString() }, ...prev]);
 
   const value = useMemo(
     () => ({
       parcels, inquiries, addParcel, addInquiry, submitInvestorInquiry, myInquiries,
       compareIds, toggleCompare, role, setRole, investorName, setInvestorName,
+      revealLog, revealPhone, offers, sendOffer,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [parcels, inquiries, myInquiries, compareIds, role, investorName],
+    [parcels, inquiries, myInquiries, compareIds, role, investorName, revealLog, offers],
   );
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>;
 }
