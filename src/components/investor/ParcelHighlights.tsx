@@ -10,7 +10,7 @@ const ORDER: PlaceCategory[] = ["mosque", "school", "hospital", "pharmacy", "sup
 export function ParcelHighlights({ parcel: p }: { parcel: Parcel; priceDeltaPct?: number | null }) {
   const [places, setPlaces] = useState<OpenPlacesFile | null>(null);
   useEffect(() => {
-    import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile));
+    import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile)).catch(() => {});
   }, []);
   const counts = useMemo(() => (places ? servicesNear(places, p.lat, p.lng) : null), [places, p.lat, p.lng]);
   const total = counts ? Object.values(counts).reduce((a, b) => a + (b ?? 0), 0) : null;

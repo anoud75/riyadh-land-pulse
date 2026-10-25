@@ -72,7 +72,7 @@ function Compare() {
   const [weights, setWeights] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile));
+    import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile)).catch(() => {});
   }, []);
 
   useEffect(() => {

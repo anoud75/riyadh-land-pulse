@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazyWithReload } from "@/lib/lazyWithReload";
 import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
@@ -17,7 +18,7 @@ import type { Parcel } from "@/data/types";
 import { ChatChart } from "@/components/chat/ChatChart";
 import { AgentUiBlock } from "@/components/AgentChat";
 
-const ChatMap = lazy(() => import("@/components/chat/ChatMap"));
+const ChatMap = lazyWithReload(() => import("@/components/chat/ChatMap"));
 
 type Mode = "investor" | "admin";
 interface Thread { id: string; title: string; group: "اليوم" | "أمس" | "آخر 7 أيام"; msgs: ChatMsg[] }

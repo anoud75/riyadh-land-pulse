@@ -1,10 +1,11 @@
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense, useState } from "react";
+import { Suspense, useState } from "react";
+import { lazyWithReload } from "@/lib/lazyWithReload";
 import { Check } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { boundsCheck } from "@/lib/adminEngine";
 
-const PinMap = lazy(() => import("@/components/admin/PinMap"));
+const PinMap = lazyWithReload(() => import("@/components/admin/PinMap"));
 
 export const Route = createFileRoute("/locate/$token")({
   head: () => ({
