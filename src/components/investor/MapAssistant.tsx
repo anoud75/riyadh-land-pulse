@@ -6,6 +6,7 @@ import type { Parcel } from "@/data/types";
 import { answerQuery } from "@/lib/assistant";
 import { EMPTY_FILTERS, type MapFilters } from "@/lib/mapStats";
 import { getParcelInsight } from "@/lib/investorEngine";
+import { SarjOrb } from "@/components/SarjOrb";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { useServerFn } from "@tanstack/react-start";
 import { askSarjAgent } from "@/lib/sarjAgent.functions";
@@ -130,7 +131,7 @@ export function MapAssistant({
         )}
         {busy && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
-            <span className="sarj-orb size-4 shrink-0 rounded-full" />
+            <SarjOrb className="size-4 shrink-0" />
             يفكّر… يبحث في {parcels.length} أرضًا…
           </div>
         )}

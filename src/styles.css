@@ -125,57 +125,56 @@
   }
 }
 
-/* Liquid assistant orb — a sloshing fluid ribbon floating on the page, no solid disc behind it */
-@property --sarj-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-@property --sarj-y { syntax: "<percentage>"; inherits: false; initial-value: 66%; }
-
+/* Liquid assistant orb — the looping clip, multiplied onto the page so its white backdrop vanishes */
 .sarj-orb {
-  --orb-glow: 14px;
   position: relative;
-  background:
-    radial-gradient(36% 24% at 33% 21%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 72%),
-    radial-gradient(circle at 50% 52%, color-mix(in oklab, var(--primary) 10%, transparent), color-mix(in oklab, var(--primary) 4%, transparent) 55%, transparent 76%);
-  box-shadow: 0 0 var(--orb-glow) calc(var(--orb-glow) * 0.16) color-mix(in oklab, var(--primary) 20%, transparent);
-  animation: sarj-orb-breathe 5s ease-in-out infinite;
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  line-height: 0;
 }
-.sarj-orb-hero { --orb-glow: 46px; }
 
-.sarj-orb::before,
-.sarj-orb::after {
+/* soft halo sitting under the clip */
+.sarj-orb::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  inset: -16%;
+  border-radius: 50%;
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(circle, #000 45%, rgba(0, 0, 0, 0.5) 65%, transparent 82%);
-  mask-image: radial-gradient(circle, #000 45%, rgba(0, 0, 0, 0.5) 65%, transparent 82%);
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%);
+  animation: sarj-orb-breathe 5s ease-in-out infinite;
+}
+.sarj-orb-hero::before {
+  inset: -30%;
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 26%, transparent), transparent 72%);
 }
 
-/* slow internal swirl */
-.sarj-orb::before {
-  background: conic-gradient(from var(--sarj-a) at 50% 50%, #2f5bf0 0deg, #784ee2 90deg, #de78c6 170deg, #ffd9c2 215deg, #6f7bf5 300deg, #2f5bf0 360deg);
-  opacity: 0.5;
-  animation: sarj-orb-spin 14s linear infinite;
+.sarj-orb-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
 }
 
-/* the sloshing wave — a tight ellipse so its crest curves like a liquid dome */
-.sarj-orb::after {
+/* only shown if the clip can't load */
+.sarj-orb-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   background:
-    radial-gradient(78% 26% at 50% var(--sarj-y), #2c58f2 0%, #5a58ee 30%, #784ee2 52%, #de78c6 74%, rgba(255, 217, 194, 0.5) 86%, transparent 96%),
-    radial-gradient(46% 18% at 62% var(--sarj-y), rgba(255, 255, 255, 0.55), transparent 70%);
-  animation: sarj-orb-slosh 5.2s ease-in-out infinite;
+    radial-gradient(38% 26% at 34% 22%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 72%),
+    conic-gradient(from 210deg at 50% 50%, #2f5bf0, #784ee2, #de78c6, #ffd9c2, #6f7bf5, #2f5bf0);
 }
 
-@keyframes sarj-orb-spin { to { --sarj-a: 360deg; } }
-@keyframes sarj-orb-slosh {
-  0%, 100% { --sarj-y: 72%; transform: rotate(-6deg) scale(1.05); }
-  50% { --sarj-y: 28%; transform: rotate(6deg) scale(1.05); }
-}
 @keyframes sarj-orb-breathe {
-  50% { transform: scale(1.035); box-shadow: 0 0 calc(var(--orb-glow) * 1.3) calc(var(--orb-glow) * 0.22) color-mix(in oklab, var(--primary) 28%, transparent); }
+  50% { transform: scale(1.12); opacity: 0.7; }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .sarj-orb, .sarj-orb::before, .sarj-orb::after { animation: none; }
+  .sarj-orb::before { animation: none; }
 }
 
 @media print {
