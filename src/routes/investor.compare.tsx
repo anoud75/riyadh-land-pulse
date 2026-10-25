@@ -65,10 +65,17 @@ function Compare() {
   const [keys, setKeys] = useState<string[]>(DEFAULT_KEYS);
   const [places, setPlaces] = useState<OpenPlacesFile | null>(null);
   const [openP, setOpenP] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
 
   useEffect(() => {
     import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile));
   }, []);
+
+  useEffect(() => {
+    if (!hint) return;
+    const t = setTimeout(() => setHint(null), 3000);
+    return () => clearTimeout(t);
+  }, [hint]);
 
   const ctx = useMemo(() => {
     const out: Record<string, Ctx> = {};
@@ -87,6 +94,15 @@ function Compare() {
     return r.dir === 1 ? Math.max(...vals) : Math.min(...vals);
   };
   const toggleKey = (k: string) => setKeys((s) => (s.includes(k) ? s.filter((x) => x !== k) : [...s, k]));
+  const MAX_COMPARE = 5;
+  const atLimit = compareIds.length >= MAX_COMPARE;
+  const pick = (id: string) => {
+    if (!compareIds.includes(id) && atLimit) {
+      setHint("أقصى عدد للمقارنة هو ٥ أراضٍ — أزل واحدة أولًا.");
+      return;
+    }
+    toggleCompare(id);
+  };
   const toggleGroup = (g: string) => {
     const gk = ROWS.filter((r) => r.group === g).map((r) => r.key);
     const all = gk.every((k) => keys.includes(k));
@@ -101,7 +117,7 @@ function Compare() {
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <Popover open={openP} onOpenChange={setOpenP}>
           <PopoverTrigger className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm hover:border-primary">
-            الأراضي ({items.length}) <ChevronDown className="size-4" />
+            الأراضي ({items.length}/{MAX_COMPARE}) <ChevronDown className="size-4" />
           </PopoverTrigger>
           <PopoverContent align="start" className="w-80 p-0">
             <Command>
@@ -112,7 +128,7 @@ function Compare() {
                   {parcels.map((p) => {
                     const on = compareIds.includes(p.parcel_id);
                     return (
-                      <CommandItem key={p.parcel_id} value={`${p.district_ar} ${p.parcel_id}`} onSelect={() => toggleCompare(p.parcel_id)}>
+                      <CommandItem key={p.parcel_id} value={`${p.district_ar} ${p.parcel_id}`} onSelect={() => pick(p.parcel_id)}>
                         <Check className={`size-4 ${on ? "opacity-100 text-primary" : "opacity-0"}`} />
                         <span className="flex-1">{p.district_ar} · {LAND_AR[p.land_type]}</span>
                         <span className="font-mono text-xs text-muted-foreground">{p.parcel_id}</span>
@@ -144,6 +160,7 @@ function Compare() {
           </PopoverContent>
         </Popover>
 
+        {hint && <span className="text-xs text-destructive">{hint}</span>}
         {items.map((i) => (
           <span key={i.parcel.parcel_id} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground">
             {i.parcel.district_ar}
@@ -152,8 +169,10 @@ function Compare() {
         ))}
       </div>
 
-      {items.length === 0 ? (
-        <p className="mt-8 rounded-2xl border bg-card p-8 text-center text-muted-foreground">اختر أرضين أو أكثر من قائمة «الأراضي» لبدء المقارنة.</p>
+      {items.length < 2 ? (
+        <p className="mt-8 rounded-2xl border bg-card p-8 text-center text-muted-foreground">
+          {items.length === 0 ? "اختر أرضين على الأقل من قائمة «الأراضي» لبدء المقارنة." : "اختر أرضًا ثانية لبدء المقارنة — أقل عدد للمقارنة أرضان."}
+        </p>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-2xl border bg-card">
           <table className="w-full text-sm">
