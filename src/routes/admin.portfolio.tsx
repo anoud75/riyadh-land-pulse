@@ -91,12 +91,12 @@ function Portfolio() {
       >
         <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
           {view === "chart" ? (
-            <DeltaScatter points={pts} stagnantDays={STAGNANT_DAYS} selected={focus ?? null} onPick={pick} inquiries={inquiries} />
+            <DeltaScatter points={pts} stagnantDays={STAGNANT_DAYS} selected={focus ?? null} onPick={pick} />
           ) : (
             <div className="h-[380px] overflow-hidden rounded-xl border">
               <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>
                 <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>
-                  <ChatMap command={focus ? mapCommand(parcels, { parcel_ids: [focus] }) : { ...mapCommand(parcels, { parcel_ids: stagnant.map((p) => p.id) }), action: "highlight" }} parcels={parcels.filter((p) => pts.some((x) => x.id === p.parcel_id))} onPick={pick} />
+                  <ChatMap command={focus ? mapCommand(parcels, { parcel_ids: [focus] }) : { ...mapCommand(parcels, { parcel_ids: stagnant.map((p) => p.id) }), action: "highlight" }} parcels={parcels.filter((p) => pts.some((x) => x.id === p.parcel_id))} onPick={pick} inquiries={inquiries} />
                 </Suspense>
               </ClientOnly>
             </div>
