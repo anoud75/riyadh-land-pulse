@@ -118,8 +118,8 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
         const inView = point.x > -100 && point.y > -60 && point.x < m.getContainer().clientWidth + 100 && point.y < m.getContainer().clientHeight + 60;
         const full = active || (m.getZoom() >= 10.25 && inView && !occupied.some((p) => Math.abs(p.x - point.x) < 172 && Math.abs(p.y - point.y) < 64));
         if (full) occupied.push(point);
-        element.dataset.compact = String(!full);
-        element.dataset.active = String(active);
+        element.dataset['compact'] = String(!full);
+        element.dataset['active'] = String(active);
         element.style.display = mode === "parcels" ? "" : "none";
         element.style.zIndex = active ? "4" : full ? "2" : "1";
       }
