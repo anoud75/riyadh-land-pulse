@@ -75,7 +75,7 @@ export function ParcelCard({ p }: { p: Parcel }) {
         <Fact k="في السوق" v={`${p.days_on_market} يومًا`} />
       </dl>
       {p.coordinatesCorrected && <div className="mt-2 text-xs text-muted-foreground">الإحداثيات صُحّحت تلقائيًا</div>}
-      <div className="mt-4"><CompareButton id={p.parcel_id} /></div>
+      <div className="mt-4 text-xs text-muted-foreground transition-colors group-hover:text-primary">اضغط لمعرفة المزيد ←</div>
       </div>
     </Link>
   );
