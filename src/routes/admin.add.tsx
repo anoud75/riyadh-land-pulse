@@ -1,5 +1,6 @@
 import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useState } from "react";
+import { Suspense, useState } from "react";
+import { lazyWithReload } from "@/lib/lazyWithReload";
 import { Check, Copy, MapPin, Send } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { boundsCheck, nearestDistrict, previewParcelImpact, RIYADH_RADIUS_KM, totalPrice } from "@/lib/adminEngine";
@@ -7,7 +8,7 @@ import { nextId } from "@/lib/portfolioEngine";
 import { AREA_AR, AREAS, LAND_AR, DEAL_AR, SNAPSHOT_DATE, type Area, type DealType, type LandType } from "@/data/types";
 import { fmt } from "@/components/admin/charts";
 
-const PinMap = lazy(() => import("@/components/admin/PinMap"));
+const PinMap = lazyWithReload(() => import("@/components/admin/PinMap"));
 
 export const Route = createFileRoute("/admin/add")({
   head: () => ({

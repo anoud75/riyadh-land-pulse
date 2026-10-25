@@ -131,7 +131,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       if (!live) return;
       const f = mod.default as unknown as OpenPlacesFile;
       src()?.setData(fc(f.places.map(([lng, lat, c, n]) => ({ type: "Feature", properties: { c: f.categories[c], n }, geometry: { type: "Point", coordinates: [lng, lat] } }))));
-    });
+    }).catch(() => {});
     return () => { live = false; };
   }, [showOpen, gen]);
 

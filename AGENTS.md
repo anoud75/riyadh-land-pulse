@@ -26,3 +26,4 @@
 - Open place data (Overture) is a static Riyadh snapshot in `src/data/overturePlaces.json` with release + fetch date; it is merged with Mapbox only through `src/lib/openPlaces.ts` (75 m + name dedupe) and every place keeps its source.
 - The investor agent replies as strict JSON `{prose, ui_action}`; `src/lib/agentQualify.ts` (pure) gates parcel recommendations until budget or size is known, drops ids no tool returned, and strips UI-label text — the UI renders cards from ui_action, never from prose.
 - Comparison scores are pure min–max weighted averages in `src/lib/weightedCompare.ts`; missing values are skipped (weight renormalized), never zero-scored — keeps rankings fair and testable.
+- Lazily loaded components go through `lazyWithReload` (`src/lib/lazyWithReload.ts`), never bare `lazy()` — a module URL that a new deploy or a dev-server restart has replaced then reloads the page once instead of blanking the screen.

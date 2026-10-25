@@ -1,5 +1,6 @@
 import { createFileRoute, ClientOnly, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
+import { lazyWithReload } from "@/lib/lazyWithReload";
 import { ArrowRight, ChevronDown, Layers, LocateFixed, Minus, Plus, Sparkles, X, SlidersHorizontal, Heart, MapPin } from "lucide-react";
 import type { MapHandle } from "@/components/investor/ParcelMap";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -15,7 +16,7 @@ import { MapPanel } from "@/components/investor/MapPanel";
 import { Logo } from "@/components/SiteHeader";
 import { pct, sar } from "@/components/investor/format";
 
-const ParcelMap = lazy(() => import("@/components/investor/ParcelMap"));
+const ParcelMap = lazyWithReload(() => import("@/components/investor/ParcelMap"));
 
 export const Route = createFileRoute("/investor/map")({
   head: () => ({

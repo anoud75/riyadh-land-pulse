@@ -1,5 +1,6 @@
 import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazyWithReload } from "@/lib/lazyWithReload";
 import { X } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { getParcelInsight } from "@/lib/investorEngine";
@@ -8,7 +9,7 @@ import { AREA_AR, AREAS, DEAL_AR, LAND_AR, type Area, type DealType, type LandTy
 import { fmt } from "@/components/admin/charts";
 import { ChipGroup } from "@/components/admin/chartKit";
 
-const ChatMap = lazy(() => import("@/components/chat/ChatMap"));
+const ChatMap = lazyWithReload(() => import("@/components/chat/ChatMap"));
 
 export const Route = createFileRoute("/admin/portfolio")({
   validateSearch: (s: Record<string, unknown>): { focus?: string } => (typeof s['focus'] === "string" && /^SRE-\d+$/.test(s['focus']) ? { focus: s['focus'] } : {}),
