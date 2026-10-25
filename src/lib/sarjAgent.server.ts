@@ -4,6 +4,7 @@ import { z } from "zod";
 import { initialInquiries, initialParcels } from "@/data";
 import type { Inquiry, Parcel } from "@/data/types";
 import * as T from "./sarjAgentTools";
+import type { UiPayload } from "./agentUi";
 
 const MODEL = "openai/gpt-6-astra";
 
@@ -30,11 +31,7 @@ export interface AgentResult {
   ui: UiPayload | null;
 }
 
-export type UiPayload =
-  | { kind: "cards"; parcelIds: string[] }
-  | { kind: "negotiation_report"; funnel: { analyzed: number; in_budget: number; recommended: number }; parcelIds: string[]; multipliers: Record<string, number | null> }
-  | { kind: "diagnosis"; data: ReturnType<typeof T.diagnoseRegion> }
-  | { kind: "excluded"; rows: { inquiry_id: string; name: string; segment: string; wait_days: number }[] };
+export type { UiPayload } from "./agentUi";
 
 export async function runSarjAgent(input: {
   mode: "investor" | "admin";
