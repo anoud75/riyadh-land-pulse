@@ -52,8 +52,8 @@ describe("parcelSnapshot", () => {
     if (url === null) return; // no token in this environment — the component shows the fallback
     expect(url).toContain("api.mapbox.com/styles/v1/mapbox/streets-v12/static/");
     expect(url).toContain("pin-s+7c3aed(46.67530,24.71360)");
-    expect(url).toContain("path-16+7c3aed-0.16(enc:");
-    expect(url).toContain("path-2+7c3aed-0.8(enc:");
+    expect(url).toContain("path-2+7c3aed-0.85+7c3aed-0.18(");
+    expect(url).not.toContain("enc:");
     expect(url).toContain("/46.67530,24.71360,15/600x300@2x");
     expect(url).toContain("access_token=");
   });

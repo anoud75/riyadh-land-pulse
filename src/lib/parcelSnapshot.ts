@@ -77,9 +77,8 @@ export function snapshotUrl(
   const r = haloRadiusM(p.lat, zoom, width, p.area_sqm);
   const circle = encodeURIComponent(encodePolyline(circlePoints(p.lng, p.lat, r)));
   const marker = `pin-s+${PIN_HEX}(${p.lng.toFixed(5)},${p.lat.toFixed(5)})`;
-  // Static API path syntax: path-{strokeWidth}+{color}-{opacity}(enc:polyline).
-  // A wide translucent stroke reads as a soft glow around the location.
-  const glow = `path-16+${PIN_HEX}-0.16(enc:${circle})`;
-  const edge = `path-2+${PIN_HEX}-0.8(enc:${circle})`;
-  return `${STATIC_BASE}/${style}/static/${marker},${glow},${edge}/${p.lng.toFixed(5)},${p.lat.toFixed(5)},${zoom}/${width}x${height}@2x?access_token=${PUBLIC_TOKEN}&attribution=false&logo=false`;
+  // Static API path syntax (documented):
+  // path-{strokeWidth}+{strokeColor}-{strokeOpacity}+{fillColor}-{fillOpacity}({polyline})
+  const ring = `path-2+${PIN_HEX}-0.85+${PIN_HEX}-0.18(${circle})`;
+  return `${STATIC_BASE}/${style}/static/${marker},${ring}/${p.lng.toFixed(5)},${p.lat.toFixed(5)},${zoom}/${width}x${height}@2x?access_token=${PUBLIC_TOKEN}&attribution=false&logo=false`;
 }
