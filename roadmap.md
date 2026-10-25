@@ -13,4 +13,9 @@
 - [x] استبدال المربعات بشارات أسعار ونقاط تتكيف مع التقريب، وإبراز الموقع المحدد مع الحفاظ على الأحياء.
 - [x] التحقق من الاختيار والتصفية والتقريب وعرض الأحياء بالمتصفح.
 - [x] Site & living analysis in chat (business / living / commercial)
-- [ ] Investor map "حولي" toggle for nearby places
+- [x] Investor map services toggle for nearby places
+
+## Movable map workspace
+- [x] Quiet light Mapbox canvas, price badges and location reticles (no invented boundaries).
+- [x] Draggable/collapsible assistant, parcel details and filter controls.
+- [x] Verify selection, dragging, filters, districts, assistant and narrow screens.

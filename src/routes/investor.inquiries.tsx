@@ -10,6 +10,8 @@ export const Route = createFileRoute("/investor/inquiries")({
       { name: "description", content: "استفساراتك المرسلة لفريق سرج وحالتها." },
       { property: "og:title", content: "استفساراتي — سرج" },
       { property: "og:description", content: "حالة استفساراتك." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Mine,

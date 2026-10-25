@@ -9,6 +9,8 @@ export const Route = createFileRoute("/portfolio-request")({
       { name: "description", content: "اطلب جلسة على بيانات محفظتك الفعلية واحصل على تقرير الفجوات والأراضي الراكدة." },
       { property: "og:title", content: "اعرض محفظتك — سرج" },
       { property: "og:description", content: "جلسة واحدة، وتقرير بالفجوات يبقى عندك." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,

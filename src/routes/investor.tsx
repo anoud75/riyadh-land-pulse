@@ -13,6 +13,8 @@ export const Route = createFileRoute("/investor")({
       { name: "description", content: "تصفّح أراضي سرج المتاحة في الرياض وقارن بينها واستفسر عنها." },
       { property: "og:title", content: "واجهة المستثمر — سرج" },
       { property: "og:description", content: "الأراضي، المقارنة، والاستفسارات." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Layout,

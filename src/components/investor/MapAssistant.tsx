@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Send } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Parcel } from "@/data/types";
 import { answerQuery } from "@/lib/assistant";
 import { EMPTY_FILTERS, type MapFilters } from "@/lib/mapStats";
@@ -25,7 +26,7 @@ interface Msg {
 }
 
 const GREETING =
-  "اسألني عن أي أرض — مثلًا: «أبغى أرض تجارية كبيرة شرق الرياض، يهمني دخول الشاحنات». أرشّح من 120 أرضًا وأصفّي الخريطة مباشرة.";
+  "ما الذي تبحث عنه في الرياض؟ أخبرني بهدفك وميزانيتك أو المساحة المطلوبة لنبدأ.";
 
 export function MapAssistant({
   parcels,
@@ -87,14 +88,14 @@ export function MapAssistant({
   };
 
   return (
-    <section className="flex h-full flex-col rounded-3xl border bg-surface shadow-lg" aria-label="المساعد">
+    <section className="flex h-full flex-col bg-surface" aria-label="المساعد">
       <header className="border-b px-4 py-3">
         <div className="text-xs text-muted-foreground">المساعد</div>
         <div className="mt-0.5 flex items-center gap-2">
-          <span className="grid size-7 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">س</span>
+          <Sparkles className="size-5 text-primary" />
           <span className="font-semibold">محلّل المواقع</span>
           <span className="mr-auto flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="size-1.5 rounded-full bg-map-lease" />
             يقرأ {parcels.length} أرضًا
           </span>
         </div>
@@ -108,7 +109,7 @@ export function MapAssistant({
             </div>
           ) : (
             <div key={m.id} className="flex gap-2">
-              <span className="mt-1 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">س</span>
+              <Sparkles className="mt-1 size-4 shrink-0 text-primary" />
               <div className="min-w-0 flex-1">
                 <p className="whitespace-pre-line text-sm leading-relaxed">{m.text}</p>
                 {m.ui && <AgentUiBlock ui={m.ui} />}
@@ -117,20 +118,20 @@ export function MapAssistant({
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {m.more.map((id) => {
                       const p = parcels.find((x) => x.parcel_id === id);
-                      return p ? <button key={id} onClick={() => onFocusParcel(p)} className="rounded-full bg-secondary px-2.5 py-1 text-xs hover:bg-accent">{p.district_ar} · {id}</button> : null;
+                      return p ? <Button variant="secondary" key={id} onClick={() => onFocusParcel(p)} className="rounded-full px-2.5 py-1 text-xs hover:bg-accent">{p.district_ar} · {id}</Button> : null;
                     })}
                   </div>
                 ) : null}
                 {m.chips?.length ? (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {m.chips.map((c) => (
-                      <button
+                      <Button
                         key={c}
                         onClick={() => chip(c, m.top)}
                         className="rounded-full border px-3 py-1 text-xs hover:bg-secondary"
                       >
                         {c}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 ) : null}
@@ -159,13 +160,13 @@ export function MapAssistant({
           placeholder="اكتب ما تنوي بناءه…"
           className="min-w-0 flex-1 rounded-full border bg-background px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         />
-        <button
+        <Button
           type="submit"
           aria-label="إرسال"
           className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
         >
           <Send className="size-4 -scale-x-100" />
-        </button>
+        </Button>
       </form>
     </section>
   );
@@ -194,9 +195,9 @@ function AssistantParcelCard({ id, onOpen }: { id: string; onOpen: (p: Parcel) =
         </p>
       )}
       <div className="mt-2 flex gap-2">
-        <button onClick={() => onOpen(p)} className="rounded-full bg-secondary px-3 py-1 text-xs hover:bg-accent">
-          يفتح سجل الأرض {p.parcel_id}
-        </button>
+        <Button variant="secondary" onClick={() => onOpen(p)} className="rounded-full px-3 py-1 text-xs hover:bg-accent">
+          الموقع على الخريطة
+        </Button>
         <Link
           to="/investor/parcels/$parcelId"
           params={{ parcelId: p.parcel_id }}

@@ -16,6 +16,8 @@ export const Route = createFileRoute("/investor/parcels/$parcelId")({
       { name: "description", content: `تفاصيل الأرض ${params.parcelId} ومقارنتها بوسيط شريحتها.` },
       { property: "og:title", content: `أرض ${params.parcelId} — سرج` },
       { property: "og:description", content: "لماذا رُشّحت، وما لم يتحقق منه." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Detail,

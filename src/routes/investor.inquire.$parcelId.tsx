@@ -12,6 +12,8 @@ export const Route = createFileRoute("/investor/inquire/$parcelId")({
       { name: "description", content: "راجع استفسارك المعبّأ مسبقًا وأرسله لفريق سرج." },
       { property: "og:title", content: "استفسارك — سرج" },
       { property: "og:description", content: "استفسار معبّأ مسبقًا عن أرض." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Inquire,

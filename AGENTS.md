@@ -20,6 +20,7 @@
 - All maps use Mapbox GL JS (public connector token, lazy-loaded behind ClientOnly); land-card thumbnails are Mapbox Static Images built by pure `src/lib/parcelSnapshot.ts`; Riyadh district boundaries live in `src/data/riyadhDistricts.json` and per-district figures come from pure `src/lib/districtStats.ts` — one map engine, real boundaries, testable numbers.
 - Investor maps never receive inquiries, so demand metrics (waiting/gap) are team-only — keeps buyer data out of the investor view.
 - Investor parcel markers use React portals into Mapbox markers with screen-space label collision handling; marks represent locations, not cadastral boundaries — keeps controls accessible and avoids fabricated parcel shapes.
+- Investor map floating panels use a shared viewport-bounded pointer-drag wrapper, independent of native Mapbox gestures — users can move or collapse panels without blocking map navigation.
 - Place and driving-time data come only from `src/lib/placesProvider.server.ts` (Mapbox via gateway); site scores are pure functions in `src/lib/siteSuitability.ts` — keeps scores testable and every place traceable to Mapbox.
 - Aqar market benchmarks come only from `src/lib/marketEngine.ts` over the imported static sample; they are asking prices and never mixed with Sarj closed deals.
 - Open place data (Overture) is a static Riyadh snapshot in `src/data/overturePlaces.json` with release + fetch date; it is merged with Mapbox only through `src/lib/openPlaces.ts` (75 m + name dedupe) and every place keeps its source.

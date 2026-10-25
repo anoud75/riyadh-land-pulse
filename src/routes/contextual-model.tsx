@@ -12,6 +12,8 @@ export const Route = createFileRoute("/contextual-model")({
       { name: "description", content: "كيف يزن نموذج سرج كل معيار بحسب القطاع، ووسائط كل شريحة في الرياض." },
       { property: "og:title", content: "النموذج السياقي — سرج" },
       { property: "og:description", content: "أوزان القطاعات ووسائط الشرائح المحسوبة من الصفقات المغلقة." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,

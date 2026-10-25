@@ -37,6 +37,8 @@ export const Route = createFileRoute("/investor/")({
       { name: "description", content: "الأراضي المتاحة في الرياض مع فلاتر القطاع والميزانية وعرض الشارع." },
       { property: "og:title", content: "الأراضي — سرج" },
       { property: "og:description", content: "تصفّح الأراضي المتاحة." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Lands,

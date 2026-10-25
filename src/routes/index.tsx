@@ -11,6 +11,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "سرج تقرأ محفظة الأراضي وطلب السوق في نموذج واحد في الرياض." },
       { property: "og:title", content: "سرج العقارية" },
       { property: "og:description", content: "محفظة الأراضي وطلب السوق في نموذج واحد." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Home,
