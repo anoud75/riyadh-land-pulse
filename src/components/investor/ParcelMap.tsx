@@ -39,7 +39,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
 }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("light");
+  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("streets");
   const [slots, setSlots] = useState<{ parcel: Parcel; element: HTMLDivElement; marker: mapboxgl.Marker }[]>([]);
   const [gen, setGen] = useState(0); // bumps after each style load so data is re-applied
   const cb = useRef({ onSelect, onSelectDistrict, parcels }); cb.current = { onSelect, onSelectDistrict, parcels };
