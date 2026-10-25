@@ -183,7 +183,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     <div className="relative size-full">
       {slots.map(({ parcel, element }) => createPortal(<ParcelMapMarker parcel={parcel} parcels={parcels} layer={layer} selected={selected?.parcel_id === parcel.parcel_id} onSelect={() => onSelect(parcel)} />, element, parcel.parcel_id))}
       <div ref={box} className="absolute inset-0 h-full w-full" />
-      <div className="map-style-switch absolute left-4 top-5 z-[5] flex overflow-hidden rounded-lg border bg-surface text-xs shadow-sm" dir="rtl">
+      <div className="map-style-switch absolute left-4 top-5 z-[5] flex overflow-hidden rounded-full border bg-surface text-xs shadow-sm" dir="rtl">
         {(Object.keys(STYLES) as (keyof typeof STYLES)[]).map((k) => (
           <Button key={k} size="sm" variant={styleKey === k ? "default" : "ghost"} aria-pressed={styleKey === k} onClick={() => setStyleKey(k)} className="rounded-none">{STYLE_AR[k]}</Button>
         ))}
