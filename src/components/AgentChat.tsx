@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ChatChart } from "@/components/chat/ChatChart";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Send } from "lucide-react";
@@ -129,6 +130,8 @@ export function AgentUiBlock({ ui }: { ui: UiPayload }) {
       </div>
     );
   }
+  if (ui.kind === "chart") return <div className="mt-3"><ChatChart spec={ui.chart} /></div>;
+  if (ui.kind !== "excluded") return null;
   return (
     <div className="mt-3 rounded-2xl border p-3 text-xs">
       <div className="mb-1 font-semibold">مستبعدون من المطابقة — لا مخزون</div>
