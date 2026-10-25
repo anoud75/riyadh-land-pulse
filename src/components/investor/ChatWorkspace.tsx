@@ -1,4 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
+import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, BarChart3, Briefcase, Columns2, ExternalLink, FileText, GitCompare, Inbox, LandPlot, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, Sun, Users, X } from "lucide-react";
