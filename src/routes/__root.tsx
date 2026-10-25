@@ -117,6 +117,19 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  // After a new deploy, old page chunks disappear; reload once to fetch the fresh ones.
+  useEffect(() => {
+    const onErr = (e: Event) => {
+      if (sessionStorage.getItem("chunk-reload")) return;
+      e.preventDefault();
+      sessionStorage.setItem("chunk-reload", "1");
+      window.location.reload();
+    };
+    window.addEventListener("vite:preloadError", onErr);
+    const t = setTimeout(() => sessionStorage.removeItem("chunk-reload"), 10000);
+    return () => { window.removeEventListener("vite:preloadError", onErr); clearTimeout(t); };
+  }, []);
+
 
   return (
     <QueryClientProvider client={queryClient}>
