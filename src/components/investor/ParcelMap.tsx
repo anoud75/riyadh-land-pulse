@@ -1,4 +1,4 @@
-import { Circle, CircleMarker, MapContainer, Polygon, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { Circle, CircleMarker, LayersControl, MapContainer, Polygon, TileLayer, Tooltip, useMap } from "react-leaflet";
 import { useEffect } from "react";
 import type { Parcel } from "@/data/types";
 import { parcelColor, parcelRadius, type MapLayer } from "@/lib/mapLayers";
@@ -9,7 +9,7 @@ const RIYADH: [number, number] = [24.7136, 46.6753];
 function FlyTo({ p }: { p: Parcel | null }) {
   const map = useMap();
   useEffect(() => {
-    if (p) map.flyTo([p.lat, p.lng], 12, { duration: 0.6 });
+    if (p) map.flyTo([p.lat, p.lng], 15, { duration: 0.8 });
   }, [p, map]);
   return null;
 }
@@ -26,11 +26,29 @@ export default function ParcelMap({
   onSelect: (p: Parcel | null) => void;
 }) {
   return (
-    <MapContainer center={RIYADH} zoom={11} className="size-full" scrollWheelZoom>
-      <TileLayer
-        attribution='Tiles &copy; Esri'
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-      />
+    <MapContainer center={RIYADH} zoom={11} maxZoom={19} className="size-full" scrollWheelZoom>
+      <LayersControl position="topleft">
+        <LayersControl.BaseLayer checked name="قمر صناعي">
+          <TileLayer maxZoom={19} attribution="Imagery &copy; Esri"
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+        </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="شوارع">
+          <TileLayer maxZoom={19} attribution="&copy; OpenStreetMap"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="خريطة فاتحة">
+          <TileLayer maxZoom={16} attribution="Tiles &copy; Esri"
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}" />
+        </LayersControl.BaseLayer>
+        <LayersControl.Overlay checked name="أسماء الشوارع والأحياء">
+          <TileLayer maxZoom={19} zIndex={500}
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
+        </LayersControl.Overlay>
+        <LayersControl.Overlay checked name="الطرق">
+          <TileLayer maxZoom={19} zIndex={499}
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}" />
+        </LayersControl.Overlay>
+      </LayersControl>
       {selected &&
         REACH_MINUTES.map((m, i) => (
           <Polygon
