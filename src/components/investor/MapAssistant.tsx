@@ -6,6 +6,9 @@ import { answerQuery } from "@/lib/assistant";
 import { EMPTY_FILTERS, type MapFilters } from "@/lib/mapStats";
 import { getParcelInsight } from "@/lib/investorEngine";
 import { usePortfolio } from "@/context/PortfolioProvider";
+import { useServerFn } from "@tanstack/react-start";
+import { askSarjAgent } from "@/lib/sarjAgent.functions";
+import { initialParcels } from "@/data";
 import { pct, sar } from "./format";
 import { PriceLine } from "./ParcelCard";
 
