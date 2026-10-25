@@ -11,6 +11,7 @@ import { competitorPoints, reachPolygon, REACH_MINUTES } from "@/lib/reach";
 import { aggregateDistricts, districtColor, type DistrictAgg } from "@/lib/mapStats";
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, type DistrictCollection } from "@/lib/districtStats";
+import { MARKET_LISTINGS } from "@/lib/marketEngine";
 
 const GEO = geoRaw as unknown as DistrictCollection;
 const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
@@ -27,10 +28,10 @@ export interface MapHandle {
 const poly = (ring: [number, number][], props: Record<string, unknown> = {}) => ({ type: "Feature" as const, properties: props, geometry: { type: "Polygon" as const, coordinates: [ring] } });
 const fc = (features: unknown[]) => ({ type: "FeatureCollection", features }) as GeoJSON.FeatureCollection;
 
-export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, highlight }: {
+export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, highlight, showMarket = false }: {
   parcels: Parcel[]; layer: MapLayer; mode: "parcels" | "districts"; selected: Parcel | null;
   onSelect: (p: Parcel | null) => void; onSelectDistrict: (d: DistrictAgg) => void;
-  mapRef: React.RefObject<MapHandle | null>; highlight?: [number, number][] | null;
+  mapRef: React.RefObject<MapHandle | null>; highlight?: [number, number][] | null; showMarket?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -71,8 +72,23 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       m.addLayer({ id: "comps", type: "circle", source: "comps", paint: { "circle-radius": 6, "circle-color": "#ffffff", "circle-stroke-color": "#111827", "circle-stroke-width": 2 } });
       m.addLayer({ id: "hl-fill", type: "fill", source: "hl", paint: { "fill-color": "#e0393e", "fill-opacity": 0.12 } });
       m.addLayer({ id: "hl-line", type: "line", source: "hl", paint: { "line-color": "#e0393e", "line-width": 3 } });
+      m.addSource("market", { type: "geojson", data: fc([]) });
+      m.addLayer({ id: "market", type: "circle", source: "market", paint: { "circle-radius": 6, "circle-color": "#374151", "circle-stroke-color": "#d1d5db", "circle-stroke-width": 3 } });
       setGen((g) => g + 1);
     });
+    m.on("click", "market", (e) => {
+      const f = e.features?.[0]; if (!f) return;
+      const pr = f.properties as { title: string; price: number; kind: string };
+      const kind = pr.kind === "rent" ? "إيجار" : pr.kind === "sale" ? "بيع" : "غير محدد";
+      const el = document.createElement("div"); el.dir = "rtl"; el.style.fontSize = "12px";
+      const t = document.createElement("div"); t.style.fontWeight = "600"; t.textContent = pr.title;
+      const p = document.createElement("div"); p.textContent = `سعر العرض: ${Number(pr.price).toLocaleString("en-US")} ريال · ${kind}`;
+      const s = document.createElement("div"); s.style.color = "#6b7280"; s.style.fontSize = "10px"; s.textContent = "عقار — بيانات مستوردة";
+      el.append(t, p, s);
+      new mapboxgl.Popup({ closeButton: false, maxWidth: "240px" }).setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number]).setDOMContent(el).addTo(m);
+    });
+    m.on("mouseenter", "market", () => { m.getCanvas().style.cursor = "pointer"; });
+    m.on("mouseleave", "market", () => { m.getCanvas().style.cursor = ""; });
     m.on("click", "d-fill", (e) => {
       const f = GEO.features.find((x) => x.properties.id === Number(e.features?.[0]?.id)); if (!f) return;
       m.fitBounds(districtBounds(f), { padding: 60, duration: 900 });
@@ -89,9 +105,10 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     const m = map.current; if (!m || !gen) return;
     const set = (id: string, f: unknown[]) => (m.getSource(id) as mapboxgl.GeoJSONSource | undefined)?.setData(fc(f));
     set("districts", data.districts); set("reach", data.reach); set("comps", data.comps); set("hl", data.hl);
+    set("market", showMarket ? MARKET_LISTINGS.map((l) => ({ type: "Feature", properties: { title: l.title, price: l.price, kind: l.kind }, geometry: { type: "Point", coordinates: [l.lng, l.lat] } })) : []);
     const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     vis(["d-fill", "d-line", "d-label"], mode === "districts");
-  }, [data, mode, gen]);
+  }, [data, mode, gen, showMarket]);
 
   useEffect(() => {
     const m = map.current;

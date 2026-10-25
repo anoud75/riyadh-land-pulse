@@ -21,3 +21,4 @@
 - Investor maps never receive inquiries, so demand metrics (waiting/gap) are team-only — keeps buyer data out of the investor view.
 - Investor parcel markers use React portals into Mapbox markers with screen-space label collision handling; marks represent locations, not cadastral boundaries — keeps controls accessible and avoids fabricated parcel shapes.
 - Place and driving-time data come only from `src/lib/placesProvider.server.ts` (Mapbox via gateway); site scores are pure functions in `src/lib/siteSuitability.ts` — keeps scores testable and every place traceable to Mapbox.
+- Aqar market benchmarks come only from `src/lib/marketEngine.ts` over the imported static sample; they are asking prices and never mixed with Sarj closed deals.

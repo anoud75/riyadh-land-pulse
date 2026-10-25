@@ -4,6 +4,8 @@ import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { getNearbyParcels, getParcelInsight } from "@/lib/investorEngine";
 import { CompareButton, Fact, PriceLine } from "@/components/investor/ParcelCard";
 import { pct, sar } from "@/components/investor/format";
+import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
+import { buildMarketInsight } from "@/lib/marketEngine";
 
 export const Route = createFileRoute("/investor/parcels/$parcelId")({
   head: ({ params }) => ({
@@ -81,6 +83,7 @@ function Detail() {
           </ul>
         </section>
       </div>
+      {p.land_type === "residential" && <div className="mt-6"><MarketInsightCard insight={buildMarketInsight(p, parcels)} /></div>}
 
       <h2 className="mt-10 text-lg font-semibold">أراضٍ قريبة</h2>
       <div className="mt-3 grid gap-3 md:grid-cols-3">
