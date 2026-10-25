@@ -95,7 +95,7 @@ export function DeltaScatter({ points, stagnantDays, selected, onPick }: { point
           return (
             <circle key={p.id} cx={x(p.days)} cy={y(p.delta)} r={on ? 9 : p.stagnant ? 6 : 5}
               className={`cursor-pointer transition ${p.stagnant ? "fill-destructive" : "fill-chart-blue/70"} ${on ? "stroke-foreground" : "stroke-card"}`} strokeWidth={on ? 3 : 1.5}
-              onMouseEnter={() => setTip({ x: (x(p.days) / W) * 100, y: (y(p.delta) / H) * 100, body: <><b>{p.district} · {p.parcel_id ?? p.id}</b><div>{p.days} يومًا في السوق</div><div>سعر المتر {p.delta > 0 ? "أعلى" : "أقل"} من الوسيط بـ {Math.abs(p.delta)}%</div></> })}
+              onMouseEnter={() => setTip({ x: (x(p.days) / W) * 100, y: (y(p.delta) / H) * 100, body: <><b>{p.district} · {p.id}</b><div>{p.days} يومًا في السوق</div><div>سعر المتر {p.delta > 0 ? "أعلى" : "أقل"} من الوسيط بـ {Math.abs(p.delta)}%</div></> })}
               onClick={() => onPick?.(p.id)} />
           );
         })}
