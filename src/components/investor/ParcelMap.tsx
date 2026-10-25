@@ -86,7 +86,7 @@ export default function ParcelMap({
           <TileLayer maxZoom={19} zIndex={500}
             url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
         </LayersControl.Overlay>
-        <LayersControl.Overlay checked name="الطرق">
+        <LayersControl.Overlay name="الطرق">
           <TileLayer maxZoom={19} zIndex={499}
             url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}" />
         </LayersControl.Overlay>
