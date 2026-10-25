@@ -138,7 +138,12 @@ export function MapAssistant({
             </div>
           ),
         )}
-        {busy && <div className="text-xs text-muted-foreground">يستدعي أدوات المحفظة…</div>}
+        {busy && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
+            <span className="sarj-orb size-4 shrink-0 rounded-full" />
+            يفكّر… يبحث في {parcels.length} أرضًا…
+          </div>
+        )}
       </div>
 
       <form
