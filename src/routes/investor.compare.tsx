@@ -154,6 +154,7 @@ function Compare() {
           </PopoverContent>
         </Popover>
 
+        {hint && <span className="text-xs text-destructive">{hint}</span>}
         {items.map((i) => (
           <span key={i.parcel.parcel_id} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground">
             {i.parcel.district_ar}
@@ -162,8 +163,10 @@ function Compare() {
         ))}
       </div>
 
-      {items.length === 0 ? (
-        <p className="mt-8 rounded-2xl border bg-card p-8 text-center text-muted-foreground">اختر أرضين أو أكثر من قائمة «الأراضي» لبدء المقارنة.</p>
+      {items.length < 2 ? (
+        <p className="mt-8 rounded-2xl border bg-card p-8 text-center text-muted-foreground">
+          {items.length === 0 ? "اختر أرضين على الأقل من قائمة «الأراضي» لبدء المقارنة." : "اختر أرضًا ثانية لبدء المقارنة — أقل عدد للمقارنة أرضان."}
+        </p>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-2xl border bg-card">
           <table className="w-full text-sm">
