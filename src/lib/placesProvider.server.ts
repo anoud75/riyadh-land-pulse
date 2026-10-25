@@ -13,7 +13,10 @@ function cached<T>(key: string, fn: () => Promise<T>): Promise<T> {
 async function call(path: string, params: Record<string, string>) {
   const lov = process.env["LOVABLE_API_KEY"]; const key = process.env["MAPBOX_API_KEY"];
   if (!lov || !key) throw new Error("Mapbox secret token not configured");
-  const res = await fetch(`${GATEWAY}${path}?${new URLSearchParams(params)}`, { headers: { Authorization: `Bearer ${lov}`, "X-Connection-Api-Key": key } });
+  const url = `${GATEWAY}${path}?${new URLSearchParams(params)}`;
+  const init = { headers: { Authorization: `Bearer ${lov}`, "X-Connection-Api-Key": key } };
+  let res = await fetch(url, init);
+  for (let i = 0; i < 2 && (res.status === 403 || res.status === 429); i++) { await new Promise((r) => setTimeout(r, 800 * (i + 1))); res = await fetch(url, init); }
   if (!res.ok) throw new Error(`Mapbox ${path.split("/")[1]} failed [${res.status}]: ${(await res.text()).slice(0, 200)}`);
   return res.json() as Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
