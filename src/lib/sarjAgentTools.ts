@@ -58,7 +58,7 @@ export function filterAndRankParcels(parcels: Parcel[], f: RankInput) {
 }
 
 export function getParcelComparison(parcels: Parcel[], ids: string[]) {
-  const cands = getNegotiationCandidates(parcels.map((p) => (isAvailable(p) ? p : p)));
+  const cands = getNegotiationCandidates(parcels);
   return ids.slice(0, 4).map((id) => {
     const p = parcels.find((x) => x.parcel_id === id);
     if (!p) return { parcel_id: id, error: "غير موجودة" };
