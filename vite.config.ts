@@ -14,5 +14,9 @@ export default defineConfig({
   },
   // Pre-bundle icons up front so a first-time import doesn't re-optimize deps mid-session
   // (that produced mismatched React copies and a blank screen).
-  vite: { optimizeDeps: { include: ["lucide-react"] } },
+  vite: {
+    optimizeDeps: {
+      include: ["lucide-react", "@radix-ui/react-checkbox", "@radix-ui/react-dialog", "@radix-ui/react-popover", "cmdk"],
+    },
+  },
 });
