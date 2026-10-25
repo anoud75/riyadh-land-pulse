@@ -300,7 +300,7 @@ export async function runSarjAgent(input: {
   try {
     reply = (await result.output) as ConsultantReply;
   } catch (e) {
-    const raw = NoObjectGeneratedError.isInstance(e) ? e.text ?? "" : await result.text.catch(() => "");
+    const raw = NoObjectGeneratedError.isInstance(e) ? e.text ?? "" : await Promise.resolve(result.text).catch(() => "");
     try { reply = JSON.parse(raw) as ConsultantReply; } catch { reply = { prose: raw, ui_action: { type: "SHOW_MAP_DISTRICT", payload: [] } }; }
   }
   const final = enforceReply(reply, gate, parcelIds);
