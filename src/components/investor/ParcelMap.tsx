@@ -44,7 +44,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     const stats = districtStats(GEO, parcels, []);
     const byId = new Map(stats.map((s) => [s.id, s]));
     const districts = GEO.features.map((f) => { const s = byId.get(f.properties.id); return { ...f, id: f.properties.id, properties: { ...f.properties, color: s?.parcelIds.length ? districtColor(s?.medianPpm ?? null) : "#000000", op: s?.parcelIds.length ? 0.45 : 0.04, label: s?.parcelIds.length ? `${s?.name_ar} · ${s?.parcelIds.length}` : "" } }; });
-    const reach = selected && mode === "parcels" ? REACH_MINUTES.map((m, i) => poly(reachPolygon(selected.parcel_id, selected.lat, selected.lng, m).map(([a, b]) => [b, a] as [number, number]), { op: 0.08 + i * 0.07 })) : [];
+    const reach = selected && mode === "parcels" ? REACH_MINUTES.map((m, i) => poly(reachPolygon(selected.parcel_id, selected.lat, selected.lng, m).map(([a, b]) => [b, a] as [number, number]), { op: 0.015 + i * 0.012 })) : [];
     const comps = selected && mode === "parcels" ? competitorPoints(selected.parcel_id, selected.lat, selected.lng).map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [c[1], c[0]] } })) : [];
     const first = highlight?.[0];
     const hl = first && highlight ? [poly([...highlight.map(([a, b]) => [b, a] as [number, number]), [first[1], first[0]]])] : [];
@@ -115,7 +115,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       for (const { parcel, element } of ordered) {
         const active = parcel.parcel_id === selected?.parcel_id;
         const point = m.project([parcel.lng, parcel.lat]);
-        const inView = point.x > -100 && point.y > -60 && point.x < m.getContainer().clientWidth + 100 && point.y < m.getContainer().clientHeight + 60;
+        const inView = point.x > 85 && point.y > 145 && point.x < m.getContainer().clientWidth - 85 && point.y < m.getContainer().clientHeight - 105;
         const full = active || (m.getZoom() >= 10.25 && inView && !occupied.some((p) => Math.abs(p.x - point.x) < 172 && Math.abs(p.y - point.y) < 64));
         if (full) occupied.push(point);
         element.dataset['compact'] = String(!full);

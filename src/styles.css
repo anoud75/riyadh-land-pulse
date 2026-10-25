@@ -171,6 +171,9 @@
 .parcel-marker-anchor[data-compact="true"] .parcel-price-marker { width: 18px; height: 18px; padding: 0; border: 0; background: transparent; box-shadow: none; }
 .parcel-marker-anchor[data-compact="true"] .parcel-price-content { display: none; }
 .parcel-marker-anchor[data-compact="true"] .parcel-pin-dot { display: block; width: 14px; height: 14px; box-shadow: var(--map-marker-shadow); }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) { width: 158px; height: 50px; padding: 6px 10px; border: 1px solid var(--marker-tone); border-radius: 24px; background: var(--surface); box-shadow: var(--map-marker-shadow); }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) .parcel-price-content { display: flex; }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) .parcel-pin-dot { display: none; }
 .parcel-marker-anchor:has(:focus-visible), .parcel-marker-anchor:hover { z-index: 5 !important; }
 .parcel-price-marker[data-selected="true"] { background: var(--ink); color: var(--ink-foreground); border-color: var(--surface); }
 .parcel-price-marker[data-selected="true"] .parcel-price-detail { color: var(--ink-muted); }
