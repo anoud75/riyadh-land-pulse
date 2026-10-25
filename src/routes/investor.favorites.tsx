@@ -23,7 +23,7 @@ function Favorites() {
   return (
     <div>
       <h1 className="text-3xl font-bold">المفضلة</h1>
-      <p className="mt-2 text-muted-foreground">الأراضي التي ضغطت على ♡ فيها. أضفها للمقارنة من البطاقة.</p>
+      <p className="mt-2 text-muted-foreground">الأراضي التي ضغطت على ♡ فيها. تختار منها للمقارنة من صفحة المقارنة.</p>
       {list.length === 0 ? (
         <div className="mt-8 rounded-2xl border bg-card p-10 text-center text-muted-foreground">
           <Heart className="mx-auto mb-3 size-8" />
