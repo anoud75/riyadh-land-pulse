@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ChatChart } from "@/components/chat/ChatChart";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Send } from "lucide-react";
