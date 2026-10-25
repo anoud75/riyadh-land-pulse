@@ -55,6 +55,7 @@ export function ParcelCard({ p }: { p: Parcel }) {
       </dl>
       {p.coordinatesCorrected && <div className="mt-2 text-xs text-muted-foreground">الإحداثيات صُحّحت تلقائيًا</div>}
       <div className="mt-4"><CompareButton id={p.parcel_id} /></div>
+      </div>
     </Link>
   );
 }
