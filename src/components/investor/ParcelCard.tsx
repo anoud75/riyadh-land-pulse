@@ -34,8 +34,10 @@ export function ParcelCard({ p }: { p: Parcel }) {
     <Link
       to="/investor/parcels/$parcelId"
       params={{ parcelId: p.parcel_id }}
-      className="flex flex-col rounded-2xl border bg-card p-5 transition-colors hover:border-primary"
+      className="flex flex-col overflow-hidden rounded-2xl border bg-card transition-colors hover:border-primary"
     >
+      <ParcelSnapshot parcel={p} className="aspect-[16/7] w-full shrink-0" />
+      <div className="flex flex-1 flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-lg font-semibold">{p.district_ar}</h3>
