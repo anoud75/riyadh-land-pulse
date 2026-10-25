@@ -48,7 +48,13 @@ function MapPage() {
   const geo = useMemo(() => (footprint ? districtGeo(parcels, footprint) : null), [parcels, footprint]);
   useEffect(() => {
     if (!geo) return;
-    const go = () => mapRef.current?.flyTo(geo.center, 14, { duration: 1.2 });
+    const go = () => {
+      const m = mapRef.current;
+      if (!m) return;
+      // shift so the district sits under the lens, left of the numbers panel
+      const pt = m.project(geo.center, 14).add([160, 0]);
+      m.flyTo(m.unproject(pt, 14), 14, { duration: 1.2 });
+    };
     const t = [setTimeout(go, 50), setTimeout(go, 900)];
     return () => t.forEach(clearTimeout);
   }, [geo]);

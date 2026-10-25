@@ -26,9 +26,9 @@ export function FootprintOverlay({
       {/* soft fade on the map edges, clear lens in the middle */}
       <div
         className="pointer-events-none absolute inset-0 z-[500]"
-        style={{ background: "radial-gradient(circle at 50% 50%, transparent 90px, color-mix(in oklab, var(--background) 55%, transparent) 200px)" }}
+        style={{ background: "radial-gradient(circle at calc(50% - 160px) 50%, transparent 90px, color-mix(in oklab, var(--background) 55%, transparent) 200px)" }}
       />
-      <div className="pointer-events-none absolute inset-0 z-[600] flex items-center justify-center">
+      <div className="pointer-events-none absolute inset-0 z-[600] flex items-center justify-center pr-[320px]">
         <div className="w-[min(620px,62vh)] pt-6">
           <h2 className="text-center text-3xl font-bold [text-shadow:0_0_8px_var(--background)]">{data.district}</h2>
           <ThreeArmedFootprintSVG data={data} overlay />
