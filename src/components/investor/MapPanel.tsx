@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { GripHorizontal, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -9,6 +9,11 @@ export function MapPanel({ title, side, onMinimize, children }: {
   const panel = useRef<HTMLElement>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
   const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
+  useEffect(() => {
+    const resize = () => setPosition(null);
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
   return <aside ref={panel} className={`map-floating-panel map-panel-${side}`} aria-label={title}
     style={position ? { left: position.left, top: position.top, right: "auto", bottom: "auto" } : undefined}>
     <header className="map-panel-handle" onPointerDown={(e) => {

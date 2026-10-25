@@ -126,7 +126,7 @@ function FilterChip({
     return (
       <span className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-sm text-accent-foreground">
         {active}
-        <Button aria-label={`إزالة ${label}`} onClick={onClear}>
+        <Button variant="ghost" size="icon" className="size-6" aria-label={`إزالة ${label}`} onClick={onClear}>
           <X className="size-3.5" />
         </Button>
       </span>
@@ -134,6 +134,7 @@ function FilterChip({
   return (
     <span className="relative">
       <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         className="flex items-center gap-1 rounded-full border bg-surface px-3 py-1.5 text-sm shadow-sm hover:bg-secondary"
@@ -145,6 +146,7 @@ function FilterChip({
         <div className="absolute right-0 top-full z-10 mt-1 w-40 rounded-xl border bg-surface p-1 shadow-lg">
           {options.map((o) => (
             <Button
+              variant="ghost"
               key={o.k}
               onClick={() => {
                 onPick(o.k);
@@ -179,7 +181,7 @@ function Drawer({ p, onClose }: { p: Parcel; onClose: () => void }) {
             <span className="font-mono">{p.parcel_id}</span> · {AREA_AR[p.area_of_city]} الرياض
           </div>
         </div>
-        <Button onClick={onClose} aria-label="إغلاق">
+        <Button variant="ghost" size="icon" className="size-8" onClick={onClose} aria-label="إغلاق">
           <X className="size-5" />
         </Button>
       </div>

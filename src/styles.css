@@ -207,11 +207,12 @@
 .parcel-marker-anchor[data-compact="true"] .parcel-pin-dot { width: 16px; height: 16px; background: transparent; border-radius: 0; box-shadow: none; }
 .parcel-marker-anchor[data-compact="true"] .parcel-price-marker::after { display: none; }
 .parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) { border-radius: 8px; }
-.parcel-price-marker[data-selected="true"] .parcel-pin-halo { width: 50px; height: 50px; border-radius: 0; animation: none; background: transparent; border: 2px solid var(--marker-tone); transform: rotate(45deg); }
+.parcel-price-marker[data-selected="true"] .parcel-pin-halo { width: 62px; height: 62px; border-radius: 50%; animation: none; background: transparent; border: 1px dashed var(--marker-tone); transform: none; }
 @media (max-width: 760px) {
   .map-topbar { left: auto; right: 8px; top: 12px; transform: none; gap: 2px; }
   .map-floating-panel { top: auto; bottom: 145px; width: min(304px, calc(100vw - 32px)); height: min(430px, calc(100dvh - 240px)); }
   .map-panel-left { left: 16px; z-index: 13; }
   .map-panel-right { right: 16px; }
   .map-filter-tray { top: 70px; }
+  .map-style-switch { top: auto; bottom: 44px; left: 8px; flex-direction: column; }
 }
