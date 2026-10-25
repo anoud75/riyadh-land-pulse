@@ -12,6 +12,9 @@ import { aggregateDistricts, districtColor, type DistrictAgg } from "@/lib/mapSt
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, type DistrictCollection } from "@/lib/districtStats";
 import { MARKET_LISTINGS } from "@/lib/marketEngine";
+import type { OpenPlacesFile } from "@/lib/openPlaces";
+import { CATEGORY_AR } from "@/lib/siteSuitability";
+const OPEN_AR = CATEGORY_AR as Record<string, string>;
 
 const GEO = geoRaw as unknown as DistrictCollection;
 const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
@@ -28,10 +31,10 @@ export interface MapHandle {
 const poly = (ring: [number, number][], props: Record<string, unknown> = {}) => ({ type: "Feature" as const, properties: props, geometry: { type: "Polygon" as const, coordinates: [ring] } });
 const fc = (features: unknown[]) => ({ type: "FeatureCollection", features }) as GeoJSON.FeatureCollection;
 
-export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, highlight, showMarket = false }: {
+export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, highlight, showMarket = false, showOpen = false }: {
   parcels: Parcel[]; layer: MapLayer; mode: "parcels" | "districts"; selected: Parcel | null;
   onSelect: (p: Parcel | null) => void; onSelectDistrict: (d: DistrictAgg) => void;
-  mapRef: React.RefObject<MapHandle | null>; highlight?: [number, number][] | null; showMarket?: boolean;
+  mapRef: React.RefObject<MapHandle | null>; highlight?: [number, number][] | null; showMarket?: boolean; showOpen?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -74,7 +77,19 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       m.addLayer({ id: "hl-line", type: "line", source: "hl", paint: { "line-color": "#e0393e", "line-width": 3 } });
       m.addSource("market", { type: "geojson", data: fc([]) });
       m.addLayer({ id: "market", type: "circle", source: "market", paint: { "circle-radius": 6, "circle-color": "#374151", "circle-stroke-color": "#d1d5db", "circle-stroke-width": 3 } });
+      m.addSource("open", { type: "geojson", data: fc([]) });
+      m.addLayer({ id: "open", type: "circle", source: "open", minzoom: 11, paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2, 15, 5], "circle-opacity": 0.75,
+        "circle-color": ["match", ["get", "c"], "hospital", "#e11d48", "pharmacy", "#16a34a", "cafe", "#a16207", "restaurant", "#ea580c", "school", "#2563eb", "supermarket", "#0891b2", "mosque", "#0f766e", "park", "#65a30d", "gym", "#9333ea", "#64748b"] } }, "market");
       setGen((g) => g + 1);
+    });
+    m.on("click", "open", (e) => {
+      const f = e.features?.[0]; if (!f) return;
+      const pr = f.properties as { n: string; c: string };
+      const el = document.createElement("div"); el.dir = "rtl"; el.style.fontSize = "12px";
+      const t = document.createElement("div"); t.style.fontWeight = "600"; t.textContent = pr.n || "بلا اسم";
+      const s = document.createElement("div"); s.style.color = "#6b7280"; s.style.fontSize = "10px"; s.textContent = `${OPEN_AR[pr.c] ?? pr.c} · Overture Maps (لقطة 2026-10-21)`;
+      el.append(t, s);
+      new mapboxgl.Popup({ closeButton: false, maxWidth: "220px" }).setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number]).setDOMContent(el).addTo(m);
     });
     m.on("click", "market", (e) => {
       const f = e.features?.[0]; if (!f) return;
@@ -109,6 +124,19 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     vis(["d-fill", "d-line", "d-label"], mode === "districts");
   }, [data, mode, gen, showMarket]);
+
+  useEffect(() => {
+    const m = map.current; if (!m || !gen) return;
+    const src = () => m.getSource("open") as mapboxgl.GeoJSONSource | undefined;
+    if (!showOpen) { src()?.setData(fc([])); return; }
+    let live = true;
+    import("@/data/overturePlaces.json").then((mod) => {
+      if (!live) return;
+      const f = mod.default as unknown as OpenPlacesFile;
+      src()?.setData(fc(f.places.map(([lng, lat, c, n]) => ({ type: "Feature", properties: { c: f.categories[c], n }, geometry: { type: "Point", coordinates: [lng, lat] } }))));
+    });
+    return () => { live = false; };
+  }, [showOpen, gen]);
 
   useEffect(() => {
     const m = map.current;
