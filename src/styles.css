@@ -68,6 +68,18 @@
   --ink-muted: oklch(0.72 0.01 280);
   --ink-line: oklch(1 0 0 / 8%);
   --chart-blue: oklch(0.55 0.2 260);
+  --map-sale: #2563eb;
+  --map-lease: #0d9488;
+  --map-unavailable: #9ca3af;
+  --map-no-data: #d1d5db;
+  --map-scale-1: #dbeafe;
+  --map-scale-2: #93c5fd;
+  --map-scale-3: #3b82f6;
+  --map-scale-4: #1d4ed8;
+  --map-scale-5: #1e3a8a;
+  --map-near: #a3a3a3;
+  --map-above: #dc2626;
+  --map-marker-shadow: 0 3px 12px color-mix(in oklab, var(--ink) 18%, transparent);
 }
 
 @utility grid-bg {
@@ -124,3 +136,47 @@
   .sarj-print, .sarj-print * { visibility: visible; }
   .sarj-print { position: absolute; inset: 0; width: 100% !important; margin: 0; box-shadow: none; overflow: visible; }
 }
+
+.parcel-marker-anchor { width: 0; height: 0; }
+.parcel-price-marker {
+  --marker-tone: var(--map-sale);
+  position: absolute; top: 0; left: 0; transform: translate(-50%, -50%);
+  width: 158px; height: 50px; padding: 6px 10px; gap: 0;
+  border: 1px solid color-mix(in oklab, var(--marker-tone) 42%, var(--surface));
+  border-radius: 24px; background: var(--surface); color: var(--foreground);
+  box-shadow: var(--map-marker-shadow); font-family: var(--font-sans);
+  transition: box-shadow 180ms, background 180ms; overflow: visible;
+}
+.parcel-price-marker[data-tone="1"], .parcel-price-marker[data-tone="9"] { --marker-tone: var(--map-lease); }
+.parcel-price-marker[data-tone="2"] { --marker-tone: var(--map-unavailable); }
+.parcel-price-marker[data-tone="3"] { --marker-tone: var(--map-no-data); }
+.parcel-price-marker[data-tone="4"] { --marker-tone: var(--map-scale-1); }
+.parcel-price-marker[data-tone="5"] { --marker-tone: var(--map-scale-2); }
+.parcel-price-marker[data-tone="6"] { --marker-tone: var(--map-scale-3); }
+.parcel-price-marker[data-tone="7"] { --marker-tone: var(--map-scale-4); }
+.parcel-price-marker[data-tone="8"] { --marker-tone: var(--map-scale-5); }
+.parcel-price-marker[data-tone="10"] { --marker-tone: var(--map-near); }
+.parcel-price-marker[data-tone="11"] { --marker-tone: var(--map-above); }
+.parcel-price-marker:hover, .parcel-price-marker:focus-visible {
+  background: var(--surface); box-shadow: 0 0 0 3px color-mix(in oklab, var(--marker-tone) 25%, transparent), var(--map-marker-shadow);
+}
+.parcel-price-content { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.parcel-price-top { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; line-height: 17px; }
+.parcel-price-status { width: 6px; height: 6px; border-radius: 50%; background: var(--marker-tone); flex-shrink: 0; }
+.parcel-price-unit { font-size: 9px; font-weight: 400; }
+.parcel-price-detail { font-size: 10px; font-weight: 400; line-height: 12px; color: var(--muted-foreground); }
+.parcel-price-marker[data-unavailable="true"] { background: var(--secondary); }
+.parcel-pin-dot { display: none; width: 10px; height: 10px; border-radius: 50%; background: var(--marker-tone); border: 2px solid var(--surface); }
+.parcel-pin-halo { display: none; }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker { width: 18px; height: 18px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-content { display: none; }
+.parcel-marker-anchor[data-compact="true"] .parcel-pin-dot { display: block; width: 14px; height: 14px; box-shadow: var(--map-marker-shadow); }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) { width: 158px; height: 50px; padding: 6px 10px; border: 1px solid var(--marker-tone); border-radius: 24px; background: var(--surface); box-shadow: var(--map-marker-shadow); }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) .parcel-price-content { display: flex; }
+.parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) .parcel-pin-dot { display: none; }
+.parcel-marker-anchor:has(:focus-visible), .parcel-marker-anchor:hover { z-index: 5 !important; }
+.parcel-price-marker[data-selected="true"] { background: var(--ink); color: var(--ink-foreground); border-color: var(--surface); }
+.parcel-price-marker[data-selected="true"] .parcel-price-detail { color: var(--ink-muted); }
+.parcel-price-marker[data-selected="true"] .parcel-pin-halo { display: block; position: absolute; width: 78px; height: 78px; border: 1px solid var(--marker-tone); border-radius: 50%; z-index: -1; background: color-mix(in oklab, var(--marker-tone) 12%, transparent); animation: parcel-location-pulse 2.8s ease-out infinite; pointer-events: none; }
+@keyframes parcel-location-pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .parcel-price-marker[data-selected="true"] .parcel-pin-halo { animation: none; } }

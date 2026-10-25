@@ -2,8 +2,11 @@
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Button } from "@/components/ui/button";
+import { ParcelMapMarker } from "./ParcelMapMarker";
 import type { Parcel } from "@/data/types";
-import { parcelColor, parcelRadius, type MapLayer } from "@/lib/mapLayers";
+import { type MapLayer } from "@/lib/mapLayers";
 import { competitorPoints, reachPolygon, REACH_MINUTES } from "@/lib/reach";
 import { aggregateDistricts, districtColor, type DistrictAgg } from "@/lib/mapStats";
 import geoRaw from "@/data/riyadhDistricts.json";
@@ -21,11 +24,6 @@ export interface MapHandle {
   zoomOut: () => void;
 }
 
-const sq = (p: Parcel): [number, number][] => {
-  const h = parcelRadius(p);
-  const dLat = h / 111320, dLng = h / (111320 * Math.cos((p.lat * Math.PI) / 180));
-  return [[p.lng - dLng, p.lat - dLat], [p.lng + dLng, p.lat - dLat], [p.lng + dLng, p.lat + dLat], [p.lng - dLng, p.lat + dLat], [p.lng - dLng, p.lat - dLat]];
-};
 const poly = (ring: [number, number][], props: Record<string, unknown> = {}) => ({ type: "Feature" as const, properties: props, geometry: { type: "Polygon" as const, coordinates: [ring] } });
 const fc = (features: unknown[]) => ({ type: "FeatureCollection", features }) as GeoJSON.FeatureCollection;
 
@@ -37,6 +35,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("streets");
+  const [slots, setSlots] = useState<{ parcel: Parcel; element: HTMLDivElement; marker: mapboxgl.Marker }[]>([]);
   const [gen, setGen] = useState(0); // bumps after each style load so data is re-applied
   const cb = useRef({ onSelect, onSelectDistrict, parcels }); cb.current = { onSelect, onSelectDistrict, parcels };
 
@@ -44,12 +43,12 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     const aggs = aggregateDistricts(parcels);
     const stats = districtStats(GEO, parcels, []);
     const byId = new Map(stats.map((s) => [s.id, s]));
-    const districts = GEO.features.map((f) => { const s = byId.get(f.properties.id)!; return { ...f, id: f.properties.id, properties: { ...f.properties, color: s.parcelIds.length ? districtColor(s.medianPpm) : "#000000", op: s.parcelIds.length ? 0.45 : 0.04, label: s.parcelIds.length ? `${s.name_ar} · ${s.parcelIds.length}` : "" } }; });
-    const squares = parcels.map((p) => poly(sq(p), { id: p.parcel_id, color: parcelColor(p, layer, parcels), sel: selected?.parcel_id === p.parcel_id ? 1 : 0, label: `${p.district_ar} · ${p.parcel_id}` }));
-    const reach = selected && mode === "parcels" ? REACH_MINUTES.map((m, i) => poly(reachPolygon(selected.parcel_id, selected.lat, selected.lng, m).map(([a, b]) => [b, a] as [number, number]), { op: 0.08 + i * 0.07 })) : [];
+    const districts = GEO.features.map((f) => { const s = byId.get(f.properties.id); return { ...f, id: f.properties.id, properties: { ...f.properties, color: s?.parcelIds.length ? districtColor(s?.medianPpm ?? null) : "#000000", op: s?.parcelIds.length ? 0.45 : 0.04, label: s?.parcelIds.length ? `${s?.name_ar} · ${s?.parcelIds.length}` : "" } }; });
+    const reach = selected && mode === "parcels" ? REACH_MINUTES.map((m, i) => poly(reachPolygon(selected.parcel_id, selected.lat, selected.lng, m).map(([a, b]) => [b, a] as [number, number]), { op: 0.015 + i * 0.012 })) : [];
     const comps = selected && mode === "parcels" ? competitorPoints(selected.parcel_id, selected.lat, selected.lng).map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [c[1], c[0]] } })) : [];
-    const hl = highlight?.length ? [poly([...highlight.map(([a, b]) => [b, a] as [number, number]), [highlight[0]![1], highlight[0]![0]]])] : [];
-    return { aggs, districts, squares, reach, comps, hl };
+    const first = highlight?.[0];
+    const hl = first && highlight ? [poly([...highlight.map(([a, b]) => [b, a] as [number, number]), [first[1], first[0]]])] : [];
+    return { aggs, districts, reach, comps, hl };
   }, [parcels, layer, selected, mode, highlight]);
 
   useEffect(() => {
@@ -64,22 +63,16 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     };
     m.on("style.load", () => {
       const src = (id: string) => m.addSource(id, { type: "geojson", data: fc([]) });
-      ["districts", "squares", "reach", "comps", "hl"].forEach(src);
+      ["districts", "reach", "comps", "hl"].forEach(src);
       m.addLayer({ id: "d-fill", type: "fill", source: "districts", layout: { visibility: "none" }, paint: { "fill-color": ["get", "color"], "fill-opacity": ["get", "op"] } });
       m.addLayer({ id: "d-line", type: "line", source: "districts", layout: { visibility: "none" }, paint: { "line-color": "#ffffff", "line-width": 1, "line-opacity": 0.8 } });
       m.addLayer({ id: "d-label", type: "symbol", source: "districts", layout: { visibility: "none", "text-field": ["get", "label"], "text-size": 12, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"] }, paint: { "text-color": "#111", "text-halo-color": "#fff", "text-halo-width": 1.5 } });
       m.addLayer({ id: "reach", type: "fill", source: "reach", paint: { "fill-color": "#7c3aed", "fill-opacity": ["get", "op"], "fill-outline-color": "#6d28d9" } });
-      m.addLayer({ id: "sq", type: "fill", source: "squares", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.6 } });
-      m.addLayer({ id: "sq-line", type: "line", source: "squares", paint: { "line-color": ["case", ["==", ["get", "sel"], 1], "#ffffff", ["get", "color"]], "line-width": ["case", ["==", ["get", "sel"], 1], 3, 1.5] } });
       m.addLayer({ id: "comps", type: "circle", source: "comps", paint: { "circle-radius": 6, "circle-color": "#ffffff", "circle-stroke-color": "#111827", "circle-stroke-width": 2 } });
       m.addLayer({ id: "hl-fill", type: "fill", source: "hl", paint: { "fill-color": "#e0393e", "fill-opacity": 0.12 } });
       m.addLayer({ id: "hl-line", type: "line", source: "hl", paint: { "line-color": "#e0393e", "line-width": 3 } });
       setGen((g) => g + 1);
     });
-    const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 6 });
-    m.on("mousemove", "sq", (e) => { m.getCanvas().style.cursor = "pointer"; popup.setLngLat(e.lngLat).setText(String(e.features?.[0]?.properties?.["label"] ?? "")).addTo(m); });
-    m.on("mouseleave", "sq", () => { m.getCanvas().style.cursor = ""; popup.remove(); });
-    m.on("click", "sq", (e) => { const id = e.features?.[0]?.properties?.["id"]; const p = cb.current.parcels.find((x) => x.parcel_id === id); if (p) cb.current.onSelect(p); });
     m.on("click", "d-fill", (e) => {
       const f = GEO.features.find((x) => x.properties.id === Number(e.features?.[0]?.id)); if (!f) return;
       m.fitBounds(districtBounds(f), { padding: 60, duration: 900 });
@@ -95,21 +88,62 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     const m = map.current; if (!m || !gen) return;
     const set = (id: string, f: unknown[]) => (m.getSource(id) as mapboxgl.GeoJSONSource | undefined)?.setData(fc(f));
-    set("districts", data.districts); set("squares", data.squares); set("reach", data.reach); set("comps", data.comps); set("hl", data.hl);
+    set("districts", data.districts); set("reach", data.reach); set("comps", data.comps); set("hl", data.hl);
     const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     vis(["d-fill", "d-line", "d-label"], mode === "districts");
-    vis(["sq", "sq-line"], mode === "parcels");
   }, [data, mode, gen]);
 
-  useEffect(() => { if (selected && mode === "parcels") map.current?.flyTo({ center: [selected.lng, selected.lat], zoom: 15, duration: 800 }); }, [selected, mode]);
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    const next = parcels.map((parcel) => {
+      const element = document.createElement("div");
+      element.className = "parcel-marker-anchor";
+      const marker = new mapboxgl.Marker({ element, anchor: "center" }).setLngLat([parcel.lng, parcel.lat]).addTo(m);
+      return { parcel, element, marker };
+    });
+    setSlots(next);
+    return () => next.forEach(({ marker }) => marker.remove());
+  }, [parcels]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    const layout = () => {
+      const occupied: { x: number; y: number }[] = [];
+      const ordered = [...slots].sort((a, b) => Number(b.parcel.parcel_id === selected?.parcel_id) - Number(a.parcel.parcel_id === selected?.parcel_id) || Number(b.parcel.status === "available") - Number(a.parcel.status === "available") || a.parcel.parcel_id.localeCompare(b.parcel.parcel_id));
+      for (const { parcel, element } of ordered) {
+        const active = parcel.parcel_id === selected?.parcel_id;
+        const point = m.project([parcel.lng, parcel.lat]);
+        const inView = point.x > 85 && point.y > 145 && point.x < m.getContainer().clientWidth - 85 && point.y < m.getContainer().clientHeight - 105;
+        const full = active || (m.getZoom() >= 10.25 && inView && !occupied.some((p) => Math.abs(p.x - point.x) < 172 && Math.abs(p.y - point.y) < 64));
+        if (full) occupied.push(point);
+        element.dataset['compact'] = String(!full);
+        element.dataset['active'] = String(active);
+        element.style.display = mode === "parcels" ? "" : "none";
+        element.style.zIndex = active ? "4" : full ? "2" : "1";
+      }
+    };
+    layout();
+    m.on("move", layout);
+    return () => { m.off("move", layout); };
+  }, [slots, selected, mode]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!selected || mode !== "parcels" || !m) return;
+    const offset = m.getContainer().clientWidth > 700 ? -185 : -70;
+    m.flyTo({ center: [selected.lng, selected.lat], zoom: 15, offset: [offset, 0], duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 800 });
+  }, [selected, mode]);
 
   if (!TOKEN) return <div className="grid size-full place-items-center text-sm text-muted-foreground">الخريطة غير مهيأة: رمز Mapbox غير متوفر.</div>;
   return (
     <div className="relative size-full">
+      {slots.map(({ parcel, element }) => createPortal(<ParcelMapMarker parcel={parcel} parcels={parcels} layer={layer} selected={selected?.parcel_id === parcel.parcel_id} onSelect={() => onSelect(parcel)} />, element, parcel.parcel_id))}
       <div ref={box} className="absolute inset-0 h-full w-full" />
       <div className="absolute left-3 top-28 z-[5] flex overflow-hidden rounded-xl border bg-surface text-xs shadow-sm" dir="rtl">
         {(Object.keys(STYLES) as (keyof typeof STYLES)[]).map((k) => (
-          <button key={k} onClick={() => setStyleKey(k)} className={`px-3 py-1.5 ${styleKey === k ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>{STYLE_AR[k]}</button>
+          <Button key={k} size="sm" variant={styleKey === k ? "default" : "ghost"} aria-pressed={styleKey === k} onClick={() => setStyleKey(k)} className="rounded-none">{STYLE_AR[k]}</Button>
         ))}
       </div>
     </div>

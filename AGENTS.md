@@ -19,3 +19,4 @@
 - Admin dashboard figures come from pure functions in `src/lib/adminEngine.ts` (built on portfolioEngine/sarjAgentTools); pages never hard-code brief numbers — keeps them live and testable.
 - All maps use Mapbox GL JS (public connector token, lazy-loaded behind ClientOnly); Riyadh district boundaries live in `src/data/riyadhDistricts.json` and per-district figures come from pure `src/lib/districtStats.ts` — one map engine, real boundaries, testable numbers.
 - Investor maps never receive inquiries, so demand metrics (waiting/gap) are team-only — keeps buyer data out of the investor view.
+- Investor parcel markers use React portals into Mapbox markers with screen-space label collision handling; marks represent locations, not cadastral boundaries — keeps controls accessible and avoids fabricated parcel shapes.
