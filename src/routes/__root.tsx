@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { PortfolioProvider } from "../context/PortfolioProvider";
+import { reloadOnce } from "../lib/lazyWithReload";
 
 function NotFoundComponent() {
   return (
@@ -120,14 +121,11 @@ function RootComponent() {
   // After a new deploy, old page chunks disappear; reload once to fetch the fresh ones.
   useEffect(() => {
     const onErr = (e: Event) => {
-      if (sessionStorage.getItem("chunk-reload")) return;
       e.preventDefault();
-      sessionStorage.setItem("chunk-reload", "1");
-      window.location.reload();
+      reloadOnce();
     };
     window.addEventListener("vite:preloadError", onErr);
-    const t = setTimeout(() => sessionStorage.removeItem("chunk-reload"), 10000);
-    return () => { window.removeEventListener("vite:preloadError", onErr); clearTimeout(t); };
+    return () => window.removeEventListener("vite:preloadError", onErr);
   }, []);
 
 
