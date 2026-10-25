@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import orbAsset from "@/assets/sarj-orb.mp4.asset.json";
+import orbMp4 from "@/assets/sarj-orb.mp4.asset.json";
+import orbWebm from "@/assets/sarj-orb.webm.asset.json";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,7 +32,6 @@ export function SarjOrb({ className }: { className?: string }) {
         <video
           ref={ref}
           className="sarj-orb-video"
-          src={orbAsset.url}
           autoPlay
           muted
           loop
