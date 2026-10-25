@@ -22,7 +22,7 @@ export function GapDiverging({ gaps }: { gaps: GapCell[] }) {
                     className={`absolute inset-y-0 rounded transition-all ${neg ? "bg-destructive/80" : g.landType === "residential" ? "bg-chart-blue" : "bg-primary"}`}
                     style={neg ? { left: `${50 - w}%`, width: `${w}%` } : { left: "50%", width: `${w}%` }}
                   />
-                  <span className={`absolute top-0 text-[11px] font-mono leading-5 ${neg ? "right-[52%]" : "left-[52%]"}`} style={neg ? { right: "auto", left: `${Math.max(1, 50 - w - 9)}%` } : { left: `${Math.min(88, 50 + w + 1)}%` }}>
+                  <span className={`absolute top-0 text-[11px] font-mono leading-5`} style={neg ? { left: `${Math.max(1, 50 - w - 9)}%` } : { left: `${Math.min(88, 50 + w + 1)}%` }}>
                     {LAND_AR[g.landType]} {g.netGap > 0 ? `+${g.netGap}` : g.netGap}
                   </span>
                 </div>
