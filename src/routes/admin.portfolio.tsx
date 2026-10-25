@@ -12,7 +12,7 @@ import { ChartCard, ChipGroup } from "@/components/admin/chartKit";
 const ChatMap = lazy(() => import("@/components/chat/ChatMap"));
 
 export const Route = createFileRoute("/admin/portfolio")({
-  validateSearch: (s: Record<string, unknown>): { focus?: string } => (typeof s.focus === "string" && /^SRE-\d+$/.test(s.focus) ? { focus: s.focus } : {}),
+  validateSearch: (s: Record<string, unknown>): { focus?: string } => (typeof s['focus'] === "string" && /^SRE-\d+$/.test(s['focus']) ? { focus: s['focus'] } : {}),
   head: () => ({
     meta: [
       { title: "المحفظة — لوحة فريق سرج" },
