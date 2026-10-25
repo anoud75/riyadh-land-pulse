@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { lazyWithReload } from "@/lib/lazyWithReload";
+import { SarjOrb } from "@/components/SarjOrb";
 import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
@@ -185,7 +186,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
         <div className="flex min-h-0 flex-1">
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6">
-              <div className="sarj-orb sarj-orb-hero size-28 rounded-full" />
+              <SarjOrb className="sarj-orb-hero size-28" />
               <Composer value={input} onChange={setInput} onSend={() => send(input)} busy={busy} inputRef={inputRef} big placeholder={cfg.placeholder} />
               <div className="mt-6 w-full max-w-2xl text-xs text-muted-foreground">اقتراحات للبحث في المحادثة</div>
               <div className="mt-3 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
@@ -243,7 +244,7 @@ function Thinking({ parcels }: { parcels: number }) {
     <div className="space-y-2 text-sm" aria-live="polite">
       {steps.slice(0, i + 1).map((s, k) => (
         <div key={s} className={`flex items-center gap-3 transition-opacity ${k === i ? "" : "opacity-40"}`}>
-          {k === i ? <span className="sarj-orb size-5 shrink-0 rounded-full" /> : <span className="grid size-5 shrink-0 place-items-center text-xs text-primary">✓</span>}
+          {k === i ? <SarjOrb className="size-5 shrink-0" /> : <span className="grid size-5 shrink-0 place-items-center text-xs text-primary">✓</span>}
           <span className={k === i ? "text-foreground" : "text-muted-foreground"}>{s}</span>
         </div>
       ))}
