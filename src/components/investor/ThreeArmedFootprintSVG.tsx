@@ -2,9 +2,9 @@ import type { DistrictFootprint } from "@/data/districtSeries";
 
 const BLUE = "var(--chart-blue)";
 const PURPLE = "var(--primary)";
-const C = 300; // centre
-const START = 40; // arms start this far from centre
-const LEN = 230; // arm length
+const C = 320; // centre
+const START = 100; // arms start outside the district lens so bars of neighbouring arms never touch
+const LEN = 190; // arm length
 
 /** Unit vectors for the three arms (SVG y grows downwards). */
 const arm = (deg: number) => {
@@ -52,28 +52,28 @@ export function ThreeArmedFootprintSVG({ data, overlay = false }: { data: Distri
   const step = (n: number) => LEN / n;
 
   return (
-    <svg viewBox="0 0 600 600" className={`w-full text-foreground ${overlay ? "[&_polygon]:transition-all [&_polygon]:duration-500" : ""}`} role="img" aria-label={`بصمة حي ${data.district}`}>
+    <svg viewBox="0 0 640 640" className={`w-full text-foreground ${overlay ? "" : ""}`} role="img" aria-label={`بصمة حي ${data.district}`}>
       {[UR, UL, DN].map((a, i) => {
         const [x1, y1] = pt(a, START);
         const [x2, y2] = pt(a, START + LEN);
         return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeOpacity=".25" />;
       })}
-      <circle cx={C} cy={C} r={overlay ? START + 30 : START - 8} fill={overlay ? "none" : "var(--accent)"} stroke={overlay ? "currentColor" : "none"} strokeOpacity=".5" strokeWidth={2} />
+      <circle cx={C} cy={C} r={START - 12} fill={overlay ? "none" : "var(--accent)"} stroke={overlay ? "currentColor" : "none"} strokeOpacity=".5" strokeWidth={2} />
       {!overlay && <text x={C} y={C - 6} textAnchor="middle" fontSize="15" fontWeight="700" fill="currentColor">{data.district}</text>}
       {!overlay && <text x={C} y={C + 12} textAnchor="middle" fontSize="11" fill="currentColor" opacity=".6">{data.year}</text>}
 
       {/* Upper-right: price/m² by year — residential vs commercial; selected year full opacity */}
-      <Bars a={UR} width={60} max={priceMax} colors={[BLUE, PURPLE]}
+      <Bars a={UR} width={44} max={priceMax} colors={[BLUE, PURPLE]}
         rows={data.price.map((p) => [p.residential, p.commercial, p.year === data.year])} />
       {data.price.map((p, i) => i % 2 === 1 || p.year === data.year ? (
-        <Label key={p.year} a={UR} along={START + step(8) * (i + 0.5)} side={-72} size={9}>{String(p.year).slice(2)}</Label>
+        <Label key={p.year} a={UR} along={START + step(8) * (i + 0.5)} side={-56} size={9}>{String(p.year).slice(2)}</Label>
       ) : null)}
       <Label a={UR} along={START + LEN + 22} size={12}>سعر المتر</Label>
 
       {/* Upper-left: closed deals by days on market — sale vs lease */}
-      <Bars a={UL} width={60} max={dealMax} colors={[BLUE, PURPLE]} rows={data.deals.map((d) => [d.sale, d.lease])} />
+      <Bars a={UL} width={44} max={dealMax} colors={[BLUE, PURPLE]} rows={data.deals.map((d) => [d.sale, d.lease])} />
       {data.deals.map((d, i) => (
-        <Label key={d.label} a={UL} along={START + step(5) * (i + 0.5)} side={72} size={9}>{d.label}</Label>
+        <Label key={d.label} a={UL} along={START + step(5) * (i + 0.5)} side={56} size={9}>{d.label}</Label>
       ))}
       <Label a={UL} along={START + LEN + 22} size={12}>أيام الإغلاق</Label>
       {data.medianDays != null && (() => {
@@ -88,7 +88,7 @@ export function ThreeArmedFootprintSVG({ data, overlay = false }: { data: Distri
       })()}
 
       {/* Down: population pyramid — male vs female */}
-      <Bars a={DN} width={90} max={popMax} colors={[BLUE, PURPLE]} rows={data.population.map((p) => [p.male, p.female])} />
+      <Bars a={DN} width={58} max={popMax} colors={[BLUE, PURPLE]} rows={data.population.map((p) => [p.male, p.female])} />
       {data.population.map((p, i) => (
         <Label key={p.band} a={DN} along={START + step(7) * (i + 0.5)} side={0} size={8}>{p.band}</Label>
       ))}
