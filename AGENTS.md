@@ -14,3 +14,4 @@
 - `PortfolioProvider` (src/context) is the single live store for parcels and inquiries; views derive stats from it so investor and admin views update together.
 - Segments with fewer than 3 closed deals never expose medians — the analysis must not present one-deal numbers as facts.
 - District footprint is an overlay on /investor/map driven by the `footprint` search param; the old /investor/footprint route only redirects — keeps one live map.
+- District footprint series use GASTAT tables baked into `src/data/districtSeries.ts` (price index + Riyadh population) with a per-value source tag — keeps every number traceable to سرج, GASTAT, or estimate.
