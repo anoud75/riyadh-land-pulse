@@ -36,7 +36,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
 }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("satellite");
+  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("streets");
   const [gen, setGen] = useState(0); // bumps after each style load so data is re-applied
   const cb = useRef({ onSelect, onSelectDistrict, parcels }); cb.current = { onSelect, onSelectDistrict, parcels };
 
@@ -55,7 +55,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     if (!box.current || !TOKEN) return;
     mapboxgl.accessToken = TOKEN;
-    const m = new mapboxgl.Map({ container: box.current, style: STYLES.satellite, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
+    const m = new mapboxgl.Map({ container: box.current, style: STYLES.streets, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
     map.current = m;
     mapRef.current = {
       flyTo: (lat, lng, zoom, offsetX = 0) => m.flyTo({ center: [lng, lat], zoom, offset: [-offsetX, 0], duration: 1100 }),
