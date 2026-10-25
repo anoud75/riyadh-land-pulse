@@ -59,6 +59,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
     const m = new mapboxgl.Map({ container: box.current, style: "mapbox://styles/mapbox/light-v11", center: [command.center[1], command.center[0]], zoom: command.zoom - 1, attributionControl: true });
     m.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-left");
     map.current = m;
+    const ro = new ResizeObserver(() => m.resize()); ro.observe(box.current);
     m.on("load", () => {
       m.addSource("districts", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       m.addLayer({ id: "d-fill", type: "fill", source: "districts", paint: { "fill-color": ["get", "color"], "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.75, 14, 0.25] } });
@@ -92,7 +93,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
       m.on("click", "p", (e) => { const id = e.features?.[0]?.properties?.["id"]; if (id) pickRef.current?.(String(id)); });
       setReady(true);
     });
-    return () => { m.remove(); map.current = null; setReady(false); };
+    return () => { ro.disconnect(); m.remove(); map.current = null; setReady(false); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const statRef = useRef(statById); statRef.current = statById;

@@ -57,6 +57,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     mapboxgl.accessToken = TOKEN;
     const m = new mapboxgl.Map({ container: box.current, style: STYLES.streets, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
     map.current = m;
+    const ro = new ResizeObserver(() => m.resize()); ro.observe(box.current);
     mapRef.current = {
       flyTo: (lat, lng, zoom, offsetX = 0) => m.flyTo({ center: [lng, lat], zoom, offset: [-offsetX, 0], duration: 1100 }),
       zoomIn: () => m.zoomIn(), zoomOut: () => m.zoomOut(),
@@ -86,7 +87,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       const agg = aggregateDistricts(cb.current.parcels).find((d) => d.district_ar === name);
       if (agg) cb.current.onSelectDistrict(agg);
     });
-    return () => { m.remove(); map.current = null; mapRef.current = null; };
+    return () => { ro.disconnect(); m.remove(); map.current = null; mapRef.current = null; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { if (gen && map.current) map.current.setStyle(STYLES[styleKey]); }, [styleKey]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -106,7 +107,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   return (
     <div className="relative size-full">
       <div ref={box} className="absolute inset-0" />
-      <div className="absolute bottom-6 left-3 z-[5] flex overflow-hidden rounded-xl border bg-surface text-xs shadow-sm" dir="rtl">
+      <div className="absolute left-3 top-28 z-[5] flex overflow-hidden rounded-xl border bg-surface text-xs shadow-sm" dir="rtl">
         {(Object.keys(STYLES) as (keyof typeof STYLES)[]).map((k) => (
           <button key={k} onClick={() => setStyleKey(k)} className={`px-3 py-1.5 ${styleKey === k ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>{STYLE_AR[k]}</button>
         ))}

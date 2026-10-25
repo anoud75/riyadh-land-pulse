@@ -25,6 +25,7 @@ export default function PinMap({ lat, lng, onChange, parcels = [], radiusKm }: {
     const m = new mapboxgl.Map({ container: box.current, style: "mapbox://styles/mapbox/streets-v12", center: start, zoom: 10.5 });
     m.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-left");
     map.current = m;
+    const ro = new ResizeObserver(() => m.resize()); ro.observe(box.current);
     const mk = new mapboxgl.Marker({ color: "#7c5cff", draggable: true }).setLngLat(start).addTo(m);
     mk.on("dragend", () => { const ll = mk.getLngLat(); cb.current(r4(ll.lat), r4(ll.lng)); });
     marker.current = mk;
@@ -37,7 +38,7 @@ export default function PinMap({ lat, lng, onChange, parcels = [], radiusKm }: {
       m.addSource("parcels", { type: "geojson", data: { type: "FeatureCollection", features: parcels.filter((p) => Number.isFinite(p.lat)).map((p) => ({ type: "Feature", properties: { label: `${p.district_ar} · ${p.parcel_id}` }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })) } });
       m.addLayer({ id: "parcels", type: "circle", source: "parcels", paint: { "circle-radius": 3, "circle-color": "#8d8d9b", "circle-opacity": 0.7 } });
     });
-    return () => { m.remove(); map.current = null; };
+    return () => { ro.disconnect(); m.remove(); map.current = null; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
