@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { getNearbyParcels, getParcelInsight } from "@/lib/investorEngine";
-import { Fact, PriceLine } from "@/components/investor/ParcelCard";
+import { PriceLine } from "@/components/investor/ParcelCard";
 import { pct, sar } from "@/components/investor/format";
 import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { ParcelSnapshot } from "@/components/investor/ParcelSnapshot";
@@ -44,13 +44,13 @@ function Detail() {
       </div>
       <div className="mt-6 rounded-2xl border bg-card p-6">
         <PriceLine p={p} />
-        <dl className="mt-5 grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
-          <Fact k="سعر المتر" v={p.missingPrice ? "غير مسجل" : `${sar(p.price_per_sqm_sar)} ريال`} />
-          <Fact k="المساحة" v={`${sar(p.area_sqm)} م²`} />
-          <Fact k="عرض الشارع" v={`${p.street_width_m} م`} />
-          <Fact k="في السوق" v={`${p.days_on_market} يومًا`} />
-          <Fact k="تاريخ العرض" v={p.listed_date} />
-        </dl>
+        <p className="mt-4 leading-8 text-foreground/90">
+          أرض {LAND_AR[p.land_type]} {p.listing_type === "sale" ? "للبيع" : "للإيجار"} في حي {p.district_ar} ب{AREA_AR[p.area_of_city]} الرياض،
+          مساحتها {sar(p.area_sqm)} م² وتطل على شارع بعرض {p.street_width_m} م
+          {p.street_width_m >= 30 ? " (واجهة على شارع رئيسي)" : ""}.
+          {p.missingPrice ? " السعر غير مسجل بعد." : ` سعر المتر ${sar(p.price_per_sqm_sar)} ريال.`}
+          {" "}معروضة منذ {p.listed_date} ({p.days_on_market} يومًا في السوق).
+        </p>
       </div>
 
       <div className="mt-8 overflow-hidden rounded-2xl border">
@@ -59,7 +59,7 @@ function Detail() {
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         <section className="rounded-2xl border bg-card p-6">
-          <h2 className="text-lg font-semibold">لماذا رُشّحت لك</h2>
+          <h2 className="text-lg font-semibold">قراءة السوق والتفاوض</h2>
           {s.insufficientSample ? (
             <p className="mt-3 text-sm text-muted-foreground">عينة غير كافية: أُغلقت {s.closedDeals} صفقة فقط في شريحة {segLabel}، فلا يُعرض لها وسيط.</p>
           ) : (
@@ -67,17 +67,20 @@ function Detail() {
               <li>
                 <div className="font-mono text-2xl text-primary">{pct(ins.priceDeltaPct) ?? "—"}</div>
                 <div className="text-muted-foreground">
-                  {ins.priceDeltaPct == null ? "لا سعر مسجل للمقارنة." : `سعر المتر ${sar(p.price_per_sqm_sar)} ريال مقابل وسيط ${sar(s.medianPricePerSqm)} ريال من ${s.closedDeals} صفقات مغلقة في الشريحة نفسها.`}
+                  {ins.priceDeltaPct == null ? "لا سعر مسجل للمقارنة." : `عن وسيط ${sar(s.medianPricePerSqm)} ريال للمتر من ${s.closedDeals} صفقات مغلقة في الشريحة.`}
                 </div>
               </li>
               <li>
-                <div className="font-mono text-2xl text-primary">{p.days_on_market} <span className="text-base text-muted-foreground">مقابل {s.medianClosingDays} يومًا</span></div>
-                <div className="text-muted-foreground">أيام العرض مقابل وسيط أيام الإغلاق (×{ins.domMultiplier}). أرض واقفة فوق وسيطها بهذا القدر تعني هامش تفاوض أوسع.</div>
+                <div className="font-mono text-2xl text-primary">×{ins.domMultiplier}</div>
+                <div className="text-muted-foreground">
+                  مدة العرض مقارنة بوسيط الإغلاق ({s.medianClosingDays} يومًا).
+                  {ins.domMultiplier != null && ins.domMultiplier > 1 ? " بقاؤها أطول من المعتاد يعني هامش تفاوض أوسع." : " ما زالت ضمن المدة المعتادة للإغلاق."}
+                </div>
               </li>
             </ul>
           )}
         </section>
-        <ParcelHighlights parcel={p} priceDeltaPct={s.insufficientSample ? null : ins.priceDeltaPct} />
+        <ParcelHighlights parcel={p} />
       </div>
       {p.land_type === "residential" && <div className="mt-6"><MarketInsightCard insight={buildMarketInsight(p, parcels)} /></div>}
 
