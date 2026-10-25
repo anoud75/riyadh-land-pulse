@@ -8,10 +8,10 @@ import { initialInquiries, initialParcels } from "@/data";
 interface Msg { role: "user" | "assistant"; text: string }
 const SUGGEST = ["أين العجز والفائض؟", "من ينتظر ردًا ولدينا له أرض؟", "تقرير رأس المال الراكد"];
 
-export function TeamAssistant() {
+export function TeamAssistant({ inline = false }: { inline?: boolean }) {
   const { parcels, inquiries } = usePortfolio();
   const ask = useServerFn(askSarjAgent);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(inline);
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -42,7 +42,7 @@ export function TeamAssistant() {
       </button>
     );
   return (
-    <section dir="rtl" className="fixed bottom-5 left-5 z-50 flex h-[min(560px,75vh)] w-[min(380px,90vw)] flex-col rounded-3xl border bg-surface shadow-xl" aria-label="مساعد الفريق">
+    <section dir="rtl" className={inline ? "flex h-[70vh] w-full flex-col rounded-3xl border bg-surface" : "fixed bottom-5 left-5 z-50 flex h-[min(560px,75vh)] w-[min(380px,90vw)] flex-col rounded-3xl border bg-surface shadow-xl"} aria-label="مساعد الفريق">
       <header className="flex items-center justify-between border-b px-4 py-3">
         <div><div className="text-xs text-muted-foreground">يرى الأراضي والاستفسارات</div><div className="font-semibold">مساعد الفريق</div></div>
         <button aria-label="تصغير" onClick={() => setOpen(false)} className="grid size-7 place-items-center rounded-full bg-secondary"><Minus className="size-4" /></button>
