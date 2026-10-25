@@ -76,7 +76,7 @@ function PanelBody({ children }: { children: ReactNode }) {
       <div className="map-panel-scroll" ref={scroll}>{children}</div>
       {geo.over && (
         <div className="map-scroll-track" ref={track} aria-hidden="true"
-          onPointerDown={(e) => { if ((e.target as HTMLElement).dataset.thumb) return; jump(e.clientY); }}>
+          onPointerDown={(e) => { if ((e.target as HTMLElement).dataset["thumb"]) return; jump(e.clientY); }}>
           <div data-thumb="1" className="map-scroll-thumb"
             style={{ height: geo.thumb, transform: `translateY(${geo.max ? (geo.top / geo.max) * (geo.track - geo.thumb) : 0}px)` }}
             onPointerDown={(e) => {
