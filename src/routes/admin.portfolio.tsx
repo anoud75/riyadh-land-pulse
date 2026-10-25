@@ -31,7 +31,7 @@ const STATUS_AR: Record<string, string> = { available: "متاحة", reserved: "
 type Key = "parcel_id" | "days_on_market" | "price_per_sqm_sar" | "area_sqm";
 
 function Portfolio() {
-  const { parcels } = usePortfolio();
+  const { parcels, inquiries } = usePortfolio();
   const { focus } = Route.useSearch();
   const navigate = Route.useNavigate();
   const sc = getScatter(parcels);
@@ -96,7 +96,7 @@ function Portfolio() {
             <div className="h-[380px] overflow-hidden rounded-xl border">
               <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>
                 <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>
-                  <ChatMap command={focus ? mapCommand(parcels, { parcel_ids: [focus] }) : { ...mapCommand(parcels, { parcel_ids: stagnant.map((p) => p.id) }), action: "highlight" }} parcels={parcels.filter((p) => pts.some((x) => x.id === p.parcel_id))} onPick={pick} />
+                  <ChatMap command={focus ? mapCommand(parcels, { parcel_ids: [focus] }) : { ...mapCommand(parcels, { parcel_ids: stagnant.map((p) => p.id) }), action: "highlight" }} parcels={parcels.filter((p) => pts.some((x) => x.id === p.parcel_id))} onPick={pick} inquiries={inquiries} />
                 </Suspense>
               </ClientOnly>
             </div>
