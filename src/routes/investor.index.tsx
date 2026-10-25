@@ -7,24 +7,27 @@ import { CompareButton, Fact, ParcelCard, PriceLine } from "@/components/investo
 import { sar } from "@/components/investor/format";
 
 type Search = {
-  all?: boolean;
-  area?: string;
-  land?: string;
-  deal?: string;
-  budget?: number;
-  street?: number;
-  sort?: "newest" | "price" | "street" | "days";
+  all?: boolean | undefined;
+  area?: string | undefined;
+  land?: string | undefined;
+  deal?: string | undefined;
+  budget?: number | undefined;
+  street?: number | undefined;
+  sort?: "newest" | "price" | "street" | "days" | undefined;
 };
+
+const str = (v: unknown) => (typeof v === "string" ? v : undefined);
+const num = (v: unknown) => (Number(v) > 0 ? Number(v) : undefined);
 
 export const Route = createFileRoute("/investor/")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    all: s.all === true || s.all === "true" ? true : undefined,
-    area: typeof s.area === "string" ? s.area : undefined,
-    land: typeof s.land === "string" ? s.land : undefined,
-    deal: typeof s.deal === "string" ? s.deal : undefined,
-    budget: Number(s.budget) > 0 ? Number(s.budget) : undefined,
-    street: Number(s.street) > 0 ? Number(s.street) : undefined,
-    sort: ["newest", "price", "street", "days"].includes(String(s.sort)) ? (s.sort as Search["sort"]) : undefined,
+    all: s["all"] === true || s["all"] === "true" ? true : undefined,
+    area: str(s["area"]),
+    land: str(s["land"]),
+    deal: str(s["deal"]),
+    budget: num(s["budget"]),
+    street: num(s["street"]),
+    sort: ["newest", "price", "street", "days"].includes(String(s["sort"])) ? (s["sort"] as Search["sort"]) : undefined,
   }),
   head: () => ({
     meta: [
