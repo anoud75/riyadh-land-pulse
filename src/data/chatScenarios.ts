@@ -1,6 +1,7 @@
 import type { Inquiry, Parcel } from "./types";
 import type { UiPayload } from "@/lib/agentUi";
 import * as T from "@/lib/sarjAgentTools";
+import * as V from "@/lib/agentViz";
 
 export interface ChatMsg { role: "user" | "assistant"; text: string; ui?: UiPayload | null; uis?: UiPayload[]; suggestions?: string[] }
 export interface Scenario { id: string; title: string; build: (p: Parcel[], i: Inquiry[]) => ChatMsg[] }
@@ -17,7 +18,7 @@ export const INVESTOR_SCENARIOS: Scenario[] = [
       const r = T.filterAndRankParcels(P, { area_of_city: "South", land_type: "commercial", listing_type: "lease", max_budget_sar: 1_000_000, priority_mode: "logistics_trucks" });
       return [
         { role: "user", text: "أبغى أرض لمستودع جنوب الرياض، إيجار، ميزانيتي مليون ريال سنويًا، ويهمني دخول الشاحنات" },
-        { role: "assistant", text: `وجدت ${r.matched} أراضٍ تجارية للإيجار جنوب الرياض ضمن المليون. رتبتها بعرض الشارع لأنه ما يحدد دخول الشاحنات: ${r.parcels.map((p) => `${p.parcel_id} (${p.street_width_m} م)`).join("، ")}.`, ui: { kind: "cards", parcelIds: r.parcels.map((p) => p.parcel_id) } },
+        { role: "assistant", text: `وجدت ${r.matched} أراضٍ تجارية للإيجار جنوب الرياض ضمن المليون. رتبتها بعرض الشارع لأنه ما يحدد دخول الشاحنات: ${r.parcels.map((p) => `${p.parcel_id} (${p.street_width_m} م)`).join("، ")}.`, ui: { kind: "cards", parcelIds: r.parcels.map((p) => p.parcel_id) }, uis: [{ kind: "cards", parcelIds: r.parcels.map((p) => p.parcel_id) }, { kind: "chart", chart: V.buildComparisonChart(P, r.parcels.map((p) => p.parcel_id), "street_width") }, { kind: "map", command: V.mapCommand(P, { parcel_ids: r.parcels.map((p) => p.parcel_id) }) }] },
       ];
     },
   },
@@ -76,6 +77,17 @@ export const ADMIN_SCENARIOS: Scenario[] = [
       return [
         { role: "user", text: "تقرير رأس المال الراكد" },
         { role: "assistant", text: `${r.count} أراضٍ راكدة بقيمة ${n(r.total_value_sar)} ريال (${r.rule}). معزولة لجودة البيانات: ${r.quarantined.map((q) => q.parcel_id).join("، ")}.`, ui: { kind: "cards", parcelIds: r.parcels.map((p) => p.parcel_id).slice(0, 6) } },
+      ];
+    },
+  },
+  {
+    id: "north-report",
+    title: "تقرير الفريق للشمال مع الخريطة",
+    build: (P, I) => {
+      const r = V.buildRegionReport(P, I, "North");
+      return [
+        { role: "user", text: "جهّز لي تقرير الشمال وافتح الخريطة عليه" },
+        { role: "assistant", text: `جهّزت ${r.title} في اللوحة الجانبية، وقرّبت الخريطة على شمال الرياض.\n${r.sections[0]!.text}`, ui: { kind: "report", ...r }, uis: [{ kind: "report", ...r }, { kind: "chart", chart: V.buildGapChart(P, I) }, { kind: "map", command: V.mapCommand(P, { area_of_city: "North" }) }] },
       ];
     },
   },
