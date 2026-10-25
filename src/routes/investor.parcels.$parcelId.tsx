@@ -7,6 +7,7 @@ import { pct, sar } from "@/components/investor/format";
 import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { ParcelSnapshot } from "@/components/investor/ParcelSnapshot";
 import { buildMarketInsight } from "@/lib/marketEngine";
+import { ParcelHighlights } from "@/components/investor/ParcelHighlights";
 
 export const Route = createFileRoute("/investor/parcels/$parcelId")({
   head: ({ params }) => ({
@@ -76,16 +77,7 @@ function Detail() {
             </ul>
           )}
         </section>
-        <section className="rounded-2xl border bg-card p-6">
-          <h2 className="text-lg font-semibold">ما لم يتحقق منه</h2>
-          <ul className="mt-4 list-disc space-y-2 pr-5 text-sm text-muted-foreground">
-            <li>الاستخدام النظامي وحدود القطعة مأخوذة من سجل سرج، ولم يُتحقق منهما لدى الأمانة.</li>
-            <li>نطاق الوصول تقدير على شبكة الطرق في ظروف سير معتادة.</li>
-            <li>الوسائط محسوبة من الصفقات المغلقة في سجل سرج وحدها.</li>
-            {p.missingPrice && <li className="text-destructive">السعر غير مسجل، ولا يدخل أي ترتيب أو وسيط.</li>}
-            {p.coordinatesCorrected && <li>الإحداثيات كانت مقلوبة في السجل وصُحّحت تلقائيًا.</li>}
-          </ul>
-        </section>
+        <ParcelHighlights parcel={p} priceDeltaPct={s.insufficientSample ? null : ins.priceDeltaPct} />
       </div>
       {p.land_type === "residential" && <div className="mt-6"><MarketInsightCard insight={buildMarketInsight(p, parcels)} /></div>}
 
