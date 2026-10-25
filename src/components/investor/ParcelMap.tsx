@@ -11,8 +11,8 @@ import { districtBounds, districtStats, type DistrictCollection } from "@/lib/di
 
 const GEO = geoRaw as unknown as DistrictCollection;
 const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
-const STYLES = { satellite: "mapbox://styles/mapbox/satellite-streets-v12", streets: "mapbox://styles/mapbox/streets-v12", light: "mapbox://styles/mapbox/light-v11" } as const;
-const STYLE_AR: Record<keyof typeof STYLES, string> = { satellite: "قمر صناعي", streets: "شوارع", light: "فاتحة" };
+const STYLES = { streets: "mapbox://styles/mapbox/streets-v12", light: "mapbox://styles/mapbox/light-v11" } as const;
+const STYLE_AR: Record<keyof typeof STYLES, string> = { streets: "شوارع", light: "فاتحة" };
 
 /** Imperative handle the map page uses to move the camera. */
 export interface MapHandle {
