@@ -14,11 +14,11 @@ const GROUNDING = `القاعدة الحاسمة: لا تحسب أي وسيط أ
 const INVESTOR_SYS = `أنت "محلّل المواقع" لدى سرج العقارية، تخدم مستثمرًا يبحث عن أرض في الرياض.
 ${GROUNDING}
 حوّل طلب المستخدم إلى فلاتر واستدعِ filterAndRankParcels. اختر priority_mode: الشاحنات/المستودع/الدخول → logistics_trucks، التفاوض/الخصم/راكدة → negotiation_margin، الأرخص → lowest_price، مستشفى/عيادة → healthcare_reachability.
-للمقارنة استدعِ getParcelComparison. ليس لديك أي وصول لاستفسارات أو أسماء أو أرقام جوالات.`;
+لهامش التفاوض أو "تقرير هامش التفاوض" استدعِ getNegotiationMarginReport. لأسئلة السوق والوسطاء والأحياء استدعِ getMarketContext. للمقارنة استدعِ getParcelComparison. ليس لديك أي وصول لاستفسارات أو أسماء أو أرقام جوالات.`;
 
 const ADMIN_SYS = `أنت "مساعد الفريق" لدى سرج العقارية، تخدم فريق المبيعات الداخلي.
 ${GROUNDING}
-أدواتك: getSupplyDemandGaps للعجز والفائض، getActionableWaitingInquiries للاستفسارات الجديدة المنتظرة، getStagnantCapitalReport للأراضي الراكدة.`;
+أدواتك: getSupplyDemandGaps للعجز والفائض، getActionableWaitingInquiries للاستفسارات الجديدة المنتظرة، getStagnantCapitalReport للأراضي الراكدة، diagnoseRegion لتشخيص خسارة النفاد مقابل فائض العرض في منطقة، getExcludedWaitingBuyers لمن يُستبعد من المطابقة لعدم وجود مخزون (اذكرهم صراحة بالاسم وأيام الانتظار عند المطابقة).`;
 
 const area = z.enum(["North", "South", "East", "West", "Central"]).nullable();
 
@@ -27,7 +27,14 @@ export interface AgentResult {
   parcelIds: string[];
   filters: { area: string | null; landType: string | null; dealType: string | null; minStreet: number | null; maxBudget: number | null } | null;
   tools: string[];
+  ui: UiPayload | null;
 }
+
+export type UiPayload =
+  | { kind: "cards"; parcelIds: string[] }
+  | { kind: "negotiation_report"; funnel: { analyzed: number; in_budget: number; recommended: number }; parcelIds: string[]; multipliers: Record<string, number | null> }
+  | { kind: "diagnosis"; data: ReturnType<typeof T.diagnoseRegion> }
+  | { kind: "excluded"; rows: { inquiry_id: string; name: string; segment: string; wait_days: number }[] };
 
 export async function runSarjAgent(input: {
   mode: "investor" | "admin";
@@ -42,6 +49,7 @@ export async function runSarjAgent(input: {
   const parcelIds = new Set<string>();
   const used: string[] = [];
   let filters: AgentResult["filters"] = null;
+  let ui: UiPayload | null = null;
   const note = (name: string) => used.push(name);
 
   const investorTools = {
@@ -59,6 +67,7 @@ export async function runSarjAgent(input: {
         note("filterAndRankParcels");
         const r = T.filterAndRankParcels(parcels, f);
         r.parcels.forEach((p) => parcelIds.add(p.parcel_id));
+        ui = { kind: "cards", parcelIds: r.parcels.map((p) => p.parcel_id).slice(0, 6) };
         filters = { area: f.area_of_city, landType: f.land_type, dealType: f.listing_type, minStreet: f.min_street_width_m, maxBudget: f.max_budget_sar };
         return r;
       },
@@ -69,8 +78,26 @@ export async function runSarjAgent(input: {
       execute: async ({ parcel_ids }) => {
         note("getParcelComparison");
         parcel_ids.forEach((id) => parcelIds.add(id));
+        ui = { kind: "cards", parcelIds: parcel_ids.slice(0, 4) };
         return T.getParcelComparison(parcels, parcel_ids);
       },
+    }),
+    getNegotiationMarginReport: tool({
+      description: "Negotiation margin report (تقرير هامش التفاوض): funnel analyzed -> in budget -> recommended, ranked by days-on-market multiplier. Sale parcels only.",
+      inputSchema: z.object({ area_of_city: area, land_type: z.enum(["residential", "commercial"]).nullable(), max_budget_sar: z.number().nullable(), top: z.number().nullable() }),
+      execute: async (f) => {
+        note("getNegotiationMarginReport");
+        const r = T.getNegotiationMarginReport(parcels, f);
+        r.recommended.forEach((p) => parcelIds.add(p.parcel_id));
+        ui = { kind: "negotiation_report", funnel: r.funnel, parcelIds: r.recommended.map((p) => p.parcel_id), multipliers: Object.fromEntries(r.recommended.map((p) => [p.parcel_id, p.dom_multiplier])) };
+        filters = { area: f.area_of_city, landType: f.land_type, dealType: "sale", minStreet: null, maxBudget: f.max_budget_sar };
+        return r;
+      },
+    }),
+    getMarketContext: tool({
+      description: "Segment medians (price/sqm, closing days, concession) and available parcels per district. Use for general market questions.",
+      inputSchema: z.object({ area_of_city: area }),
+      execute: async (f) => (note("getMarketContext"), T.getMarketContext(parcels, f)),
     }),
   };
 
@@ -86,6 +113,26 @@ export async function runSarjAgent(input: {
         description: "New inquiries awaiting response, with matching parcels in budget or a flag explaining why none fit.",
         inputSchema: z.object({}),
         execute: async () => (note("getActionableWaitingInquiries"), T.getActionableWaitingInquiries(parcels, inquiries)),
+      }),
+      diagnoseRegion: tool({
+        description: "Diagnose a region: commercial stockout loss (buyers with zero inventory, sum of budgets) vs residential oversupply (parcels vs inquiries, median closing days, concession %).",
+        inputSchema: z.object({ area_of_city: z.enum(["North", "South", "East", "West", "Central"]) }),
+        execute: async ({ area_of_city }) => {
+          note("diagnoseRegion");
+          const d = T.diagnoseRegion(parcels, inquiries, area_of_city);
+          ui = { kind: "diagnosis", data: d };
+          return d;
+        },
+      }),
+      getExcludedWaitingBuyers: tool({
+        description: "New inquiries excluded from matching because their segment has zero inventory, with wait days since the inquiry.",
+        inputSchema: z.object({}),
+        execute: async () => {
+          note("getExcludedWaitingBuyers");
+          const r = T.getExcludedWaitingBuyers(parcels, inquiries);
+          ui = { kind: "excluded", rows: r.map((q) => ({ inquiry_id: q.inquiry_id, name: q.investor_name, segment: q.segment, wait_days: q.wait_days })) };
+          return r;
+        },
       }),
       getStagnantCapitalReport: tool({
         description: "Available parcels over 90 days on market priced above segment median, plus quarantined data anomalies.",
@@ -118,5 +165,5 @@ export async function runSarjAgent(input: {
     },
   });
   const text = await result.text;
-  return { text, parcelIds: [...parcelIds].slice(0, 8), filters, tools: used };
+  return { text, parcelIds: [...parcelIds].slice(0, 8), filters, tools: used, ui };
 }
