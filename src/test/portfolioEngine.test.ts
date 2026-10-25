@@ -28,7 +28,7 @@ describe("portfolio engine", () => {
   });
 
   it("flags inquiries without a budget", () => {
-    const i = cleanInquiry({ ...initialInquiries[0], budget_sar: null });
+    const i = cleanInquiry({ ...initialInquiries[0]!, budget_sar: null });
     expect(i.missingBudget).toBe(true);
   });
 
