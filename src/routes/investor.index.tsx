@@ -94,7 +94,7 @@ function Lands() {
         className="mt-5 flex gap-2 rounded-2xl border bg-surface p-2"
       >
         <input value={intent} onChange={(e) => setIntent(e.target.value)} placeholder="اكتبه بجملة واحدة: أرض تجارية شمال الرياض بميزانية 3 ملايين…" className="flex-1 bg-transparent px-3 outline-none" />
-        <button className="rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground">اسألي</button>
+        <button type="submit" aria-label="إرسال" className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground"><Send className="size-4" /></button>
       </form>
       <div className="mt-4 flex flex-wrap gap-2">
         {CHIPS.map((c) => (
