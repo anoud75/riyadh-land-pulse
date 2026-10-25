@@ -28,8 +28,8 @@ export default function ParcelMap({
   return (
     <MapContainer center={RIYADH} zoom={11} className="size-full" scrollWheelZoom>
       <TileLayer
-        attribution='&copy; OpenStreetMap &copy; CARTO'
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        attribution='Tiles &copy; Esri'
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
       />
       {selected &&
         REACH_MINUTES.map((m, i) => (
