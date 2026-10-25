@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Check, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown, Trophy, X } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { scoreLands, WEIGHT_LABELS } from "@/lib/weightedCompare";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { compareParcels, type ParcelInsight } from "@/lib/investorEngine";
@@ -66,6 +68,8 @@ function Compare() {
   const [places, setPlaces] = useState<OpenPlacesFile | null>(null);
   const [openP, setOpenP] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
+  const [step, setStep] = useState(0);
+  const [weights, setWeights] = useState<Record<string, number>>({});
 
   useEffect(() => {
     import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile));
@@ -109,110 +113,208 @@ function Compare() {
     setKeys((s) => (all ? s.filter((k) => !gk.includes(k)) : [...new Set([...s, ...gk])]));
   };
 
+  const ranked = rows.filter((r) => r.best);
+  const wOf = (k: string) => weights[k] ?? 3;
+  const setW = (k: string, v: number) => setWeights((s) => ({ ...s, [k]: v }));
+  const totalW = ranked.reduce((s, r) => s + wOf(r.key), 0);
+  const results = useMemo(() => {
+    const vals: Record<string, Record<string, number | null>> = {};
+    for (const i of items) {
+      const c = ctx[i.parcel.parcel_id]!;
+      vals[i.parcel.parcel_id] = Object.fromEntries(ranked.map((r) => [r.key, r.best!(i, c)]));
+    }
+    return scoreLands(items.map((i) => i.parcel.parcel_id), ranked.map((r) => ({ key: r.key, label: r.label, dir: r.dir ?? 1, weight: wOf(r.key) })), vals);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, ctx, keys, weights]);
+  const byId = Object.fromEntries(items.map((i) => [i.parcel.parcel_id, i]));
+  const STEPS = ["الأراضي", "المعايير", "الأهمية", "النتيجة"];
+  const canGo = (s: number) => s === 0 || (items.length >= 2 && (s === 1 || ranked.length > 0));
+  const WeightSelect = ({ k }: { k: string }) => (
+    <select value={wOf(k)} onChange={(e) => setW(k, Number(e.target.value))} aria-label="الأهمية" className="rounded-md border bg-background px-2 py-1 text-xs">
+      {WEIGHT_LABELS.map((l, n) => <option key={n} value={n}>{n} · {l}</option>)}
+    </select>
+  );
+
   return (
     <div>
       <h1 className="text-3xl font-bold">المقارنة</h1>
-      <p className="mt-2 text-muted-foreground">اختر الأراضي والمعايير، وتظهر علامة «الأفضل» حيث يصحّ الترتيب.</p>
+      <p className="mt-2 text-muted-foreground">خذ وقتك: اختر الأراضي، ثم المعايير، ثم حدّد أهمية كل معيار لك، وشاهد الأنسب.</p>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <Popover open={openP} onOpenChange={setOpenP}>
-          <PopoverTrigger className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm hover:border-primary">
-            الأراضي ({items.length}/{MAX_COMPARE}) <ChevronDown className="size-4" />
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-80 p-0">
-            <Command>
-              <CommandInput placeholder="ابحث بالحي أو الرقم…" />
-              <CommandList>
-                <CommandEmpty>لا نتائج</CommandEmpty>
-                <CommandGroup>
-                  {parcels.map((p) => {
-                    const on = compareIds.includes(p.parcel_id);
-                    return (
-                      <CommandItem key={p.parcel_id} value={`${p.district_ar} ${p.parcel_id}`} onSelect={() => pick(p.parcel_id)}>
-                        <Check className={`size-4 ${on ? "opacity-100 text-primary" : "opacity-0"}`} />
-                        <span className="flex-1">{p.district_ar} · {LAND_AR[p.land_type]}</span>
-                        <span className="font-mono text-xs text-muted-foreground">{p.parcel_id}</span>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+      <ol className="mt-6 flex flex-wrap gap-2">
+        {STEPS.map((s, n) => (
+          <li key={s}>
+            <button disabled={!canGo(n)} onClick={() => setStep(n)} className={`rounded-full border px-4 py-2 text-sm disabled:opacity-40 ${step === n ? "border-primary bg-primary text-primary-foreground" : n < step ? "border-primary text-primary" : "bg-card"}`}>
+              {n + 1}. {s}
+            </button>
+          </li>
+        ))}
+      </ol>
 
-        <Popover>
-          <PopoverTrigger className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm hover:border-primary">
-            المعايير ({keys.length}) <ChevronDown className="size-4" />
-          </PopoverTrigger>
-          <PopoverContent align="start" className="max-h-[420px] w-80 overflow-y-auto">
-            {GROUPS.map((g) => (
-              <div key={g} className="mb-3">
-                <button onClick={() => toggleGroup(g)} className="mb-1 text-xs font-semibold text-primary">{g}</button>
-                {ROWS.filter((r) => r.group === g).map((r) => (
-                  <label key={r.key} className="flex cursor-pointer items-center gap-2 py-1 text-sm">
-                    <Checkbox checked={keys.includes(r.key)} onCheckedChange={() => toggleKey(r.key)} />
-                    {r.label}
-                  </label>
+      <div className="mt-6 rounded-2xl border bg-card p-6">
+        {step === 0 && (
+          <div>
+            <h2 className="text-lg font-semibold">اختر من ٢ إلى ٥ أراضٍ</h2>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Popover open={openP} onOpenChange={setOpenP}>
+                <PopoverTrigger className="inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm hover:border-primary">
+                  الأراضي ({items.length}/{MAX_COMPARE}) <ChevronDown className="size-4" />
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-80 p-0">
+                  <Command>
+                    <CommandInput placeholder="ابحث بالحي أو الرقم…" />
+                    <CommandList>
+                      <CommandEmpty>لا نتائج</CommandEmpty>
+                      <CommandGroup>
+                        {parcels.map((p) => {
+                          const on = compareIds.includes(p.parcel_id);
+                          return (
+                            <CommandItem key={p.parcel_id} value={`${p.district_ar} ${p.parcel_id}`} onSelect={() => pick(p.parcel_id)}>
+                              <Check className={`size-4 ${on ? "opacity-100 text-primary" : "opacity-0"}`} />
+                              <span className="flex-1">{p.district_ar} · {LAND_AR[p.land_type]}</span>
+                              <span className="font-mono text-xs text-muted-foreground">{p.parcel_id}</span>
+                            </CommandItem>
+                          );
+                        })}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              {hint && <span className="text-xs text-destructive">{hint}</span>}
+              {items.map((i) => (
+                <span key={i.parcel.parcel_id} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground">
+                  {i.parcel.district_ar} · {i.parcel.parcel_id}
+                  <button aria-label={`إزالة ${i.parcel.district_ar}`} onClick={() => toggleCompare(i.parcel.parcel_id)}><X className="size-3" /></button>
+                </span>
+              ))}
+            </div>
+            {items.length < 2 && <p className="mt-4 text-sm text-muted-foreground">{items.length === 0 ? "اختر أرضين على الأقل." : "اختر أرضًا ثانية — أقل عدد للمقارنة أرضان."}</p>}
+          </div>
+        )}
+
+        {step === 1 && (
+          <div>
+            <h2 className="text-lg font-semibold">ما المعايير التي تهمك؟</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {GROUPS.map((g) => (
+                <div key={g} className="rounded-xl border p-3">
+                  <button onClick={() => toggleGroup(g)} className="mb-2 text-sm font-semibold text-primary">{g}</button>
+                  {ROWS.filter((r) => r.group === g).map((r) => (
+                    <label key={r.key} className="flex cursor-pointer items-center gap-2 py-1 text-sm">
+                      <Checkbox checked={keys.includes(r.key)} onCheckedChange={() => toggleKey(r.key)} />
+                      <span className="flex-1">{r.label}</span>
+                      {!r.best && <span className="text-[10px] text-muted-foreground">للعرض فقط</span>}
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {ranked.length === 0 && <p className="mt-4 text-sm text-destructive">اختر معيارًا واحدًا قابلًا للترتيب على الأقل.</p>}
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <h2 className="text-lg font-semibold">كم يهمك كل معيار؟</h2>
+            <p className="mt-1 text-sm text-muted-foreground">٠ = غير مهم، ٥ = أساسي. النسبة توضح وزن المعيار في النتيجة.</p>
+            <div className="mt-4 space-y-4">
+              {ranked.map((r) => {
+                const w = wOf(r.key);
+                const share = totalW ? Math.round((w / totalW) * 100) : 0;
+                return (
+                  <div key={r.key} className="grid items-center gap-3 sm:grid-cols-[1fr_200px_140px]">
+                    <div>
+                      <div className="text-sm font-medium">{r.label}</div>
+                      <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${share}%` }} /></div>
+                    </div>
+                    <Slider min={0} max={5} step={1} value={[w]} onValueChange={(v) => setW(r.key, v[0] ?? 0)} aria-label={r.label} />
+                    <div className="text-sm"><span className="font-semibold">{WEIGHT_LABELS[w]}</span> <span className="text-muted-foreground">· {share}%</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {step === 3 && results.length > 0 && (() => {
+          const win = results[0]!;
+          const wp = byId[win.id]!.parcel;
+          const tie = results[1] && results[1].score === win.score;
+          return (
+            <div>
+              <div className="rounded-2xl border border-primary/40 bg-primary/5 p-5">
+                <div className="flex items-center gap-2 text-sm text-primary"><Trophy className="size-4" /> {tie ? "تعادل في المرتبة الأولى" : "الأنسب لك حسب معاييرك"}</div>
+                <div className="mt-2 text-2xl font-bold">أرض {wp.parcel_id} في حي {wp.district_ar}</div>
+                <div className="mt-1 text-sm text-muted-foreground">نسبة التوافق {win.score} من 100{win.reasons.length > 0 && <> · تفوّقت في: {win.reasons.join("، ")}</>}</div>
+                {win.skipped.length > 0 && <div className="mt-1 text-xs text-muted-foreground">لم تُحتسب لعدم توفر البيانات: {win.skipped.join("، ")}</div>}
+              </div>
+
+              <div className="mt-5 space-y-2">
+                {results.map((r, n) => (
+                  <div key={r.id} className="grid grid-cols-[2rem_1fr_3rem] items-center gap-3 text-sm">
+                    <span className="font-mono text-muted-foreground">{n + 1}</span>
+                    <div>
+                      <div>{byId[r.id]!.parcel.district_ar} <span className="font-mono text-xs text-muted-foreground">{r.id}</span>{r.skipped.length > 0 && <span className="text-[10px] text-muted-foreground"> · بيانات ناقصة: {r.skipped.join("، ")}</span>}</div>
+                      <div className="mt-1 h-2 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${r.score}%` }} /></div>
+                    </div>
+                    <span className="font-mono font-semibold">{r.score}</span>
+                  </div>
                 ))}
               </div>
-            ))}
-          </PopoverContent>
-        </Popover>
 
-        {hint && <span className="text-xs text-destructive">{hint}</span>}
-        {items.map((i) => (
-          <span key={i.parcel.parcel_id} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground">
-            {i.parcel.district_ar}
-            <button aria-label={`إزالة ${i.parcel.district_ar}`} onClick={() => toggleCompare(i.parcel.parcel_id)}><X className="size-3" /></button>
-          </span>
-        ))}
-      </div>
-
-      {items.length < 2 ? (
-        <p className="mt-8 rounded-2xl border bg-card p-8 text-center text-muted-foreground">
-          {items.length === 0 ? "اختر أرضين على الأقل من قائمة «الأراضي» لبدء المقارنة." : "اختر أرضًا ثانية لبدء المقارنة — أقل عدد للمقارنة أرضان."}
-        </p>
-      ) : (
-        <div className="mt-6 overflow-x-auto rounded-2xl border bg-card">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="p-4" />
-                {items.map((i) => (
-                  <th key={i.parcel.parcel_id} className="p-4 text-right align-top">
-                    <div className="text-lg font-semibold">{i.parcel.district_ar}</div>
-                    <div className="font-mono text-xs text-muted-foreground">{i.parcel.parcel_id}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, idx) => {
-                const b = bestOf(r);
-                const newGroup = idx === 0 || rows[idx - 1]!.group !== r.group;
-                return [
-                  newGroup && (
-                    <tr key={`g-${r.group}`} className="bg-muted/50"><td colSpan={items.length + 1} className="px-4 py-2 text-xs font-semibold text-muted-foreground">{r.group}</td></tr>
-                  ),
-                  <tr key={r.key} className="border-b last:border-0">
-                    <td className="p-4 text-muted-foreground" title={r.note}>{r.label}{r.note && <div className="text-[10px]">تقدير</div>}</td>
-                    {items.map((i) => {
-                      const c = ctx[i.parcel.parcel_id]!;
-                      const isBest = b != null && r.best!(i, c) === b;
+              <div className="mt-6 overflow-x-auto rounded-xl border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="p-3 text-right">المعيار</th>
+                      <th className="p-3 text-right">الأهمية</th>
+                      {results.map((r) => (
+                        <th key={r.id} className="p-3 text-right align-top">
+                          <div className="font-semibold">{byId[r.id]!.parcel.district_ar}</div>
+                          <div className="font-mono text-xs text-muted-foreground">{r.id}</div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => {
+                      const b = bestOf(row);
                       return (
-                        <td key={i.parcel.parcel_id} className={`p-4 font-mono ${isBest ? "text-primary" : ""}`}>
-                          {r.value(i, c)} {isBest && <span className="font-sans text-xs">● الأفضل</span>}
-                        </td>
+                        <tr key={row.key} className="border-b last:border-0">
+                          <td className="p-3 text-muted-foreground" title={row.note}>{row.label}{row.note && <div className="text-[10px]">تقدير</div>}</td>
+                          <td className="p-3">{row.best ? <WeightSelect k={row.key} /> : <span className="text-[10px] text-muted-foreground">للعرض فقط</span>}</td>
+                          {results.map((r) => {
+                            const i = byId[r.id]!;
+                            const c = ctx[r.id]!;
+                            const isBest = b != null && row.best!(i, c) === b;
+                            const cell = r.cells[row.key];
+                            return (
+                              <td key={r.id} className={`p-3 font-mono ${isBest ? "text-primary" : ""}`}>
+                                {row.value(i, c)} {isBest && <span className="font-sans text-xs">● الأفضل</span>}
+                                {row.best && wOf(row.key) > 0 && <div className="font-sans text-[10px] text-muted-foreground">{cell?.points == null ? "لم يُحتسب" : `${cell.points} نقطة`}</div>}
+                              </td>
+                            );
+                          })}
+                        </tr>
                       );
                     })}
-                  </tr>,
-                ];
-              })}
-            </tbody>
-          </table>
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">غيّر الأهمية من الجدول مباشرة وستتحدث النتيجة فورًا.</p>
+            </div>
+          );
+        })()}
+
+        <div className="mt-6 flex flex-wrap justify-between gap-2">
+          <div className="flex gap-2">
+            {step > 0 && <button onClick={() => setStep(step - 1)} className="rounded-full border px-4 py-2 text-sm">السابق</button>}
+            {step === 3 && <button onClick={() => setStep(2)} className="rounded-full border px-4 py-2 text-sm">عدّل الأهمية</button>}
+            {step === 3 && <button onClick={() => { setWeights({}); setKeys(DEFAULT_KEYS); setStep(0); }} className="rounded-full border px-4 py-2 text-sm">ابدأ من جديد</button>}
+          </div>
+          {step < 3 && <button disabled={!canGo(step + 1)} onClick={() => setStep(step + 1)} className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground disabled:opacity-40">{step === 2 ? "اعرض النتيجة" : "التالي"}</button>}
         </div>
-      )}
+      </div>
       <p className="mt-3 text-xs text-muted-foreground">الخدمات: Overture Maps · الكثافة السكانية: {POP_ESTIMATE_NOTE}</p>
     </div>
   );

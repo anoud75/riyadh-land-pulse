@@ -12,11 +12,11 @@ Turn the comparison page into a guided 4-step flow, so you can take your time an
 2. **المعايير** — tick the criteria to compare (location, price, market, population, services). Only criteria that can be ranked (e.g. price, price per m², size, street width, gap from median, population, each service) count toward the score; descriptive ones (district, type) appear in the table but are marked «للعرض فقط».
 3. **الأهمية** — each chosen ranked criterion gets a weight slider from 0 to 5 (default 3), with words: غير مهم · مهم قليلًا · مهم · مهم جدًا · أساسي. A live bar shows each criterion's share of the total (e.g. السعر 30%).
 4. **النتيجة**
-   - A winner card at the top: «الأنسب لك حسب معاييرك: أرض SRE-xxx في حي …» with its match score out of 100 and the 2–3 reasons that made it win (its strongest weighted criteria).
-   - A ranking of all chosen lands with score bars.
-   - A breakdown table: for each criterion, every land's value, its points, and the weight — the best value highlighted.
-   - Clear notes when a land is missing data (no price, sample too small): that criterion is skipped for it, not guessed, and the score says so.
-   - Buttons: «عدّل الأهمية» and «ابدأ من جديد».
+  - A winner card at the top: «الأنسب لك حسب معاييرك: أرض SRE-xxx في حي …» with its match score out of 100 and the 2–3 reasons that made it win (its strongest weighted criteria).
+  - A ranking of all chosen lands with score bars.
+  - A breakdown table: for each criterion, every land's value, its points, and the weight — the best value highlighted.
+  - Clear notes when a land is missing data (no price, sample too small): that criterion is skipped for it, not guessed, and the score says so.
+  - Buttons: «عدّل الأهمية» and «ابدأ من جديد». لا يقدر يعدل الويت من الجدول دون الحاجه انه يرجع من اول جديد 
 
 You can go back to any earlier step at any time; choices are kept.
 
