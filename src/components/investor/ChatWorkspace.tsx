@@ -30,7 +30,7 @@ const STARTERS = [
 
 export function ChatWorkspace() {
   const { parcels, investorName } = usePortfolio();
-  const first = (investorName || "العنود").split(" ")[0];
+  const first = (investorName || "العنود").split(" ")[0] ?? "العنود";
   const preloaded = useMemo<Thread[]>(() => [
     ...INVESTOR_SCENARIOS.map((s, i) => ({ id: s.id, title: s.title, group: (i === 0 ? "اليوم" : i === 1 ? "اليوم" : "أمس") as Thread["group"], msgs: s.build(parcels, []) })),
     ...MORE_HISTORY.map((h, i) => ({ id: `h${i}`, title: h.title, group: h.group, msgs: [{ role: "user" as const, text: h.q }] })),
