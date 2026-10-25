@@ -37,6 +37,7 @@
   --color-ink-muted: var(--ink-muted);
   --color-ink-line: var(--ink-line);
   --color-surface: var(--surface);
+  --color-chart-blue: var(--chart-blue);
 }
 
 :root {
@@ -66,6 +67,7 @@
   --ink-foreground: oklch(0.97 0 0);
   --ink-muted: oklch(0.72 0.01 280);
   --ink-line: oklch(1 0 0 / 8%);
+  --chart-blue: oklch(0.55 0.2 260);
 }
 
 @utility grid-bg {
