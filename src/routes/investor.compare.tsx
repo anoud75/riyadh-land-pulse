@@ -71,6 +71,12 @@ function Compare() {
     import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile));
   }, []);
 
+  useEffect(() => {
+    if (!hint) return;
+    const t = setTimeout(() => setHint(null), 3000);
+    return () => clearTimeout(t);
+  }, [hint]);
+
   const ctx = useMemo(() => {
     const out: Record<string, Ctx> = {};
     for (const i of items) {
