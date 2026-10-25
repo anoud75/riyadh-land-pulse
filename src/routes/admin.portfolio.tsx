@@ -31,7 +31,7 @@ const STATUS_AR: Record<string, string> = { available: "متاحة", reserved: "
 type Key = "parcel_id" | "days_on_market" | "price_per_sqm_sar" | "area_sqm";
 
 function Portfolio() {
-  const { parcels } = usePortfolio();
+  const { parcels, inquiries } = usePortfolio();
   const { focus } = Route.useSearch();
   const navigate = Route.useNavigate();
   const sc = getScatter(parcels);
@@ -91,7 +91,7 @@ function Portfolio() {
       >
         <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
           {view === "chart" ? (
-            <DeltaScatter points={pts} stagnantDays={STAGNANT_DAYS} selected={focus ?? null} onPick={pick} />
+            <DeltaScatter points={pts} stagnantDays={STAGNANT_DAYS} selected={focus ?? null} onPick={pick} inquiries={inquiries} />
           ) : (
             <div className="h-[380px] overflow-hidden rounded-xl border">
               <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>

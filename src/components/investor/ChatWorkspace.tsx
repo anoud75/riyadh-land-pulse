@@ -328,7 +328,7 @@ function RichCard({ p, mode }: { p: Parcel; mode: Mode }) {
 }
 
 function SidePanel({ panel, mode, onClose, onAsk }: { panel: NonNullable<Panel>; mode: Mode; onClose: () => void; onAsk: (q: string) => void }) {
-  const { parcels } = usePortfolio();
+  const { parcels, inquiries } = usePortfolio();
   const title = panel.kind === "map" ? `الخريطة · ${panel.command.label}` : panel.kind === "nego" ? "تقرير هامش التفاوض" : panel.ui.title;
   const visible = useMemo(() => parcels.filter((p) => isAvailable(p) || (panel.kind === "map" && panel.command.parcelIds.includes(p.parcel_id))), [parcels, panel]);
   return (
@@ -345,7 +345,7 @@ function SidePanel({ panel, mode, onClose, onAsk }: { panel: NonNullable<Panel>;
           <div className="relative min-h-0 flex-1 border-t">
             <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>
               <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">يحمّل الخريطة…</div>}>
-                <ChatMap command={panel.command} parcels={visible} onPick={(id) => onAsk(mode === "admin" ? `من المشترين يناسبه ${id}؟` : `حدّثني عن ${id}`)} />
+                <ChatMap command={panel.command} parcels={visible} inquiries={mode === "admin" ? inquiries : undefined} onPick={(id) => onAsk(mode === "admin" ? `من المشترين يناسبه ${id}؟` : `حدّثني عن ${id}`)} />
               </Suspense>
             </ClientOnly>
           </div>
