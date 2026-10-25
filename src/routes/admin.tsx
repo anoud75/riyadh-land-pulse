@@ -38,8 +38,6 @@ function Page() {
             </div>
           ))}
         </div>
-      </main>
-        </div>
         <h2 className="mt-12 text-xl font-semibold">أحدث الاستفسارات</h2>
         <div className="mt-4 divide-y rounded-2xl border bg-card">
           {[...inquiries].sort((a, b) => b.date.localeCompare(a.date) || b.inquiry_id.localeCompare(a.inquiry_id)).slice(0, 6).map((i) => (
@@ -49,5 +47,7 @@ function Page() {
             </div>
           ))}
         </div>
+      </main>
+    </div>
   );
 }
