@@ -80,7 +80,7 @@ function Layout() {
       <div className="min-w-0 flex-1">
         <header className="flex items-center justify-between border-b bg-surface px-6 py-3">
           <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="القائمة"><Menu className="size-5" /></button>
-          <div className="text-xs text-muted-foreground">{parcels.length} أرضًا في المحفظة · لقطة البيانات 11 أغسطس 2026</div>
+          <div className="text-xs text-muted-foreground">تحديث  11 أغسطس 2026</div>
           <ViewSwitcher />
         </header>
         {open && <div className="flex flex-col border-b bg-surface p-4 md:hidden" onClick={() => setOpen(false)}>{nav}</div>}
