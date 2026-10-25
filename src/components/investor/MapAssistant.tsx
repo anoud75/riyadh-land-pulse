@@ -89,17 +89,6 @@ export function MapAssistant({
 
   return (
     <section className="flex h-full flex-col bg-surface" aria-label="المساعد">
-      <header className="border-b px-4 py-3">
-        <div className="text-xs text-muted-foreground">المساعد</div>
-        <div className="mt-0.5 flex items-center gap-2">
-          <Sparkles className="size-5 text-primary" />
-          <span className="font-semibold">محلّل المواقع</span>
-          <span className="mr-auto flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-map-lease" />
-            يقرأ {parcels.length} أرضًا
-          </span>
-        </div>
-      </header>
 
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4">
         {msgs.map((m) =>
