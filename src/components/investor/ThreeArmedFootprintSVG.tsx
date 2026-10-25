@@ -45,22 +45,22 @@ function Label({ a, along, side = 0, children, size = 11, anchor = "middle" }: {
   return <text x={x} y={y} fontSize={size} textAnchor={anchor} dominantBaseline="middle" fill="currentColor">{children}</text>;
 }
 
-export function ThreeArmedFootprintSVG({ data }: { data: DistrictFootprint }) {
+export function ThreeArmedFootprintSVG({ data, overlay = false }: { data: DistrictFootprint; overlay?: boolean }) {
   const priceMax = Math.max(...data.price.flatMap((p) => [p.residential, p.commercial]));
   const dealMax = Math.max(1, ...data.deals.flatMap((d) => [d.sale, d.lease]));
   const popMax = Math.max(...data.population.flatMap((p) => [p.male, p.female]));
   const step = (n: number) => LEN / n;
 
   return (
-    <svg viewBox="0 0 600 600" className="w-full text-foreground" role="img" aria-label={`بصمة حي ${data.district}`}>
+    <svg viewBox="0 0 600 600" className={`w-full text-foreground ${overlay ? "[&_polygon]:transition-all [&_polygon]:duration-500" : ""}`} role="img" aria-label={`بصمة حي ${data.district}`}>
       {[UR, UL, DN].map((a, i) => {
         const [x1, y1] = pt(a, START);
         const [x2, y2] = pt(a, START + LEN);
         return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeOpacity=".25" />;
       })}
-      <circle cx={C} cy={C} r={START - 8} fill="var(--accent)" />
-      <text x={C} y={C - 6} textAnchor="middle" fontSize="15" fontWeight="700" fill="currentColor">{data.district}</text>
-      <text x={C} y={C + 12} textAnchor="middle" fontSize="11" fill="currentColor" opacity=".6">{data.year}</text>
+      <circle cx={C} cy={C} r={overlay ? START + 30 : START - 8} fill={overlay ? "none" : "var(--accent)"} stroke={overlay ? "currentColor" : "none"} strokeOpacity=".5" strokeWidth={2} />
+      {!overlay && <text x={C} y={C - 6} textAnchor="middle" fontSize="15" fontWeight="700" fill="currentColor">{data.district}</text>}
+      {!overlay && <text x={C} y={C + 12} textAnchor="middle" fontSize="11" fill="currentColor" opacity=".6">{data.year}</text>}
 
       {/* Upper-right: price/m² by year — residential vs commercial; selected year full opacity */}
       <Bars a={UR} width={60} max={priceMax} colors={[BLUE, PURPLE]}
