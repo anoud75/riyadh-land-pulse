@@ -204,8 +204,11 @@
 .map-panel-right .map-panel-body { overflow: hidden; }
 .parcel-price-marker { border-radius: 8px; }
 .parcel-price-marker::after { content: ""; position: absolute; bottom: -5px; left: calc(50% - 4px); width: 8px; height: 8px; background: inherit; border-right: 1px solid var(--marker-tone); border-bottom: 1px solid var(--marker-tone); transform: rotate(45deg); }
-.parcel-pin-dot { border-radius: 0; background: transparent; border: 1.5px solid var(--marker-tone); }
-.parcel-marker-anchor[data-compact="true"] .parcel-pin-dot { width: 16px; height: 16px; background: transparent; border-radius: 0; box-shadow: none; }
+.parcel-pin-dot { position: relative; border-radius: 50%; background: transparent; border: 1px solid var(--marker-tone); }
+.parcel-pin-dot::before, .parcel-pin-dot::after { content: ""; position: absolute; background: var(--marker-tone); }
+.parcel-pin-dot::before { width: 22px; height: 1px; left: -4px; top: 6px; }
+.parcel-pin-dot::after { height: 22px; width: 1px; top: -4px; left: 6px; }
+.parcel-marker-anchor[data-compact="true"] .parcel-pin-dot { width: 16px; height: 16px; background: transparent; border-radius: 50%; box-shadow: none; }
 .parcel-marker-anchor[data-compact="true"] .parcel-price-marker::after { display: none; }
 .parcel-marker-anchor[data-compact="true"] .parcel-price-marker:is(:hover, :focus-visible) { border-radius: 8px; }
 .parcel-price-marker[data-selected="true"] .parcel-pin-halo { width: 62px; height: 62px; border-radius: 50%; animation: none; background: transparent; border: 1px dashed var(--marker-tone); transform: none; }
