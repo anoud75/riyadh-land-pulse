@@ -3,7 +3,7 @@ import { FootprintOverlay } from "@/components/investor/FootprintOverlay";
 import { districtGeo } from "@/lib/districtGeo";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Minus, Plus, Sparkles, X } from "lucide-react";
-import type { Map as LeafletMap } from "leaflet";
+import type { MapHandle } from "@/components/investor/ParcelMap";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, type Area, type Parcel } from "@/data/types";
 import { LAYER_LABELS, LEGENDS, type MapLayer } from "@/lib/mapLayers";
@@ -42,7 +42,7 @@ function MapPage() {
   const [selected, setSelected] = useState<Parcel | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [legendOpen, setLegendOpen] = useState(true);
-  const mapRef = useRef<LeafletMap | null>(null);
+  const mapRef = useRef<MapHandle | null>(null);
   const { footprint } = Route.useSearch();
   const navigate = useNavigate({ from: "/investor/map" });
   const [year, setYear] = useState(2026);
@@ -53,8 +53,7 @@ function MapPage() {
       const m = mapRef.current;
       if (!m) return;
       // shift so the district sits under the lens, left of the numbers panel
-      const pt = m.project(geo.center, 14).add([160, 0]);
-      m.flyTo(m.unproject(pt, 14), 14, { duration: 1.2 });
+      m.flyTo(geo.center[0], geo.center[1], 14, 160);
     };
     const t = [setTimeout(go, 50), setTimeout(go, 900)];
     return () => t.forEach(clearTimeout);
@@ -65,7 +64,7 @@ function MapPage() {
   const loading = <div className="grid size-full place-items-center text-sm text-muted-foreground">جارٍ تحميل الخريطة…</div>;
 
   const onSelectDistrict = (d: DistrictAgg) => {
-    mapRef.current?.flyTo([d.lat, d.lng], 13, { duration: 0.8 });
+    mapRef.current?.flyTo(d.lat, d.lng, 13);
   };
 
   return (
@@ -174,7 +173,7 @@ function MapPage() {
         {/* right: parcel inspection */}
         {footprint ? (
           <FootprintOverlay parcels={parcels} district={footprint} year={year} onDistrict={setFootprint} onYear={setYear}
-            onClose={() => { setFootprint(); mapRef.current?.flyTo([24.7136, 46.6753], 11, { duration: 1 }); }} />
+            onClose={() => { setFootprint(); mapRef.current?.flyTo(24.7136, 46.6753, 11); }} />
         ) : (
           selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} onFootprint={(d) => { setSelected(null); setFootprint(d); }} />
         )}
