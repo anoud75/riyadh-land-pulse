@@ -30,7 +30,7 @@ const STARTERS = [
 
 export function ChatWorkspace() {
   const { parcels, investorName } = usePortfolio();
-  const first = (investorName || "العنود").split(" ")[0] ?? "العنود";
+  const first = /[\u0600-\u06FF]/.test(investorName) ? (investorName.split(" ")[0] ?? "العنود") : "العنود";
   const preloaded = useMemo<Thread[]>(() => [
     ...INVESTOR_SCENARIOS.map((s, i) => ({ id: s.id, title: s.title, group: (i === 0 ? "اليوم" : i === 1 ? "اليوم" : "أمس") as Thread["group"], msgs: s.build(parcels, []) })),
     ...MORE_HISTORY.map((h, i) => ({ id: `h${i}`, title: h.title, group: h.group, msgs: [{ role: "user" as const, text: h.q }] })),
@@ -112,7 +112,7 @@ export function ChatWorkspace() {
             ))}
           </div>
           <div className="m-3 flex items-center gap-3 rounded-2xl border p-3">
-            <span className="grid size-9 place-items-center rounded-full bg-accent font-semibold text-accent-foreground">{first[0]}</span>
+            <span className="grid size-9 place-items-center rounded-full bg-accent font-semibold text-accent-foreground">{/[\u0600-\u06FF]/.test(first) ? first[0] : "ع"}</span>
             <div><div className="text-sm font-semibold">{investorName || "العنود السميل"}</div><div className="text-xs text-muted-foreground">مستثمرة</div></div>
           </div>
         </aside>
