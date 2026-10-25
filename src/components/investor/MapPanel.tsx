@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { GripHorizontal, Sparkles, Minus } from "lucide-react";
-import { Button } "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 /** Viewport-bounded panel dragging; the map keeps its native gesture handling. */
 export function MapPanel({ title, side, onMinimize, children, hidden = false, className = "", icon = false }: {
