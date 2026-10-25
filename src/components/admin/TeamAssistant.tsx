@@ -4,9 +4,11 @@ import { Minus, Send, Sparkles } from "lucide-react";
 import { askSarjAgent } from "@/lib/sarjAgent.functions";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { initialInquiries, initialParcels } from "@/data";
+import { AgentUiBlock } from "@/components/AgentChat";
+import type { UiPayload } from "@/lib/agentUi";
 
-interface Msg { role: "user" | "assistant"; text: string }
-const SUGGEST = ["أين العجز والفائض؟", "من ينتظر ردًا ولدينا له أرض؟", "تقرير رأس المال الراكد"];
+interface Msg { role: "user" | "assistant"; text: string; ui?: UiPayload | null }
+const SUGGEST = ["أين العجز والفائض؟", "من ينتظر ردًا ولدينا له أرض؟", "تقرير رأس المال الراكد", "شخّص الشمال", "من نستبعد من المطابقة؟"];
 
 export function TeamAssistant({ inline = false }: { inline?: boolean }) {
   const { parcels, inquiries } = usePortfolio();
@@ -32,7 +34,7 @@ export function TeamAssistant({ inline = false }: { inline?: boolean }) {
       },
     }).catch(() => null);
     setBusy(false);
-    setMsgs((m) => [...m, { role: "assistant", text: r?.ok ? r.text : (r?.error ?? "تعذّر الوصول إلى الوكيل.") }]);
+    setMsgs((m) => [...m, { role: "assistant", text: r?.ok ? r.text : (r?.error ?? "تعذّر الوصول إلى الوكيل."), ui: r?.ok ? r.ui : null }]);
   };
 
   if (!open)
@@ -54,7 +56,7 @@ export function TeamAssistant({ inline = false }: { inline?: boolean }) {
           </div>
         )}
         {msgs.map((m, i) => (
-          <div key={i} className={m.role === "user" ? "mr-auto w-fit max-w-[85%] rounded-2xl bg-secondary px-3 py-2" : "whitespace-pre-line leading-relaxed"}>{m.text}</div>
+          <div key={i} className={m.role === "user" ? "mr-auto w-fit max-w-[85%] rounded-2xl bg-secondary px-3 py-2" : "whitespace-pre-line leading-relaxed"}>{m.text}{m.ui && <AgentUiBlock ui={m.ui} />}</div>
         ))}
         {busy && <div className="text-xs text-muted-foreground">يستدعي أدوات المحفظة…</div>}
       </div>
