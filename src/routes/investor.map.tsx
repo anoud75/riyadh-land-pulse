@@ -192,7 +192,7 @@ function MapPage() {
                 </div>
               ))}
               <div className="pt-1 text-muted-foreground">
-                {mode === "districts" ? "حجم الدائرة = عدد الأراضي" : "حجم القطعة = المساحة"}
+                {mode === "districts" ? "الرقم = عدد أراضي سرج في الحي · حدود الأحياء الرسمية" : "حجم القطعة = المساحة"}
               </div>
             </div>
           ) : (
