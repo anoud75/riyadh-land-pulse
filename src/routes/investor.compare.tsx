@@ -87,6 +87,15 @@ function Compare() {
     return r.dir === 1 ? Math.max(...vals) : Math.min(...vals);
   };
   const toggleKey = (k: string) => setKeys((s) => (s.includes(k) ? s.filter((x) => x !== k) : [...s, k]));
+  const MAX_COMPARE = 5;
+  const atLimit = compareIds.length >= MAX_COMPARE;
+  const pick = (id: string) => {
+    if (!compareIds.includes(id) && atLimit) {
+      setHint("أقصى عدد للمقارنة هو ٥ أراضٍ — أزل واحدة أولًا.");
+      return;
+    }
+    toggleCompare(id);
+  };
   const toggleGroup = (g: string) => {
     const gk = ROWS.filter((r) => r.group === g).map((r) => r.key);
     const all = gk.every((k) => keys.includes(k));
