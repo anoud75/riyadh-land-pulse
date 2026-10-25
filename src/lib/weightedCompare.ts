@@ -3,7 +3,7 @@ export type Criterion = { key: string; label: string; dir: 1 | -1; weight: numbe
 export type CellScore = { value: number | null; points: number | null };
 export type LandScore = { id: string; score: number; cells: Record<string, CellScore>; skipped: string[]; reasons: string[] };
 
-export const WEIGHT_LABELS = ["غير مهم", "مهم قليلًا", "مهم", "مهم جدًا", "مهم جدًا جدًا", "أساسي"];
+export const WEIGHT_LABELS = ["غير مهم", "مهم قليلًا", "متوسط الأهمية", "مهم", "مهم جدًا", "أساسي"];
 
 /** values[id][key] = raw value (null = missing). Returns lands sorted best first. */
 export function scoreLands(ids: string[], criteria: Criterion[], values: Record<string, Record<string, number | null>>): LandScore[] {
