@@ -99,6 +99,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
   useEffect(() => { if (ready) (map.current!.getSource("districts") as mapboxgl.GeoJSONSource).setData(districtsFc as GeoJSON.FeatureCollection); }, [ready, districtsFc]);
   useEffect(() => { if (ready) (map.current!.getSource("parcels") as mapboxgl.GeoJSONSource).setData(parcelsFc as GeoJSON.FeatureCollection); }, [ready, parcelsFc]);
 
+  const cmdKey = JSON.stringify(command);
   // Follow the assistant's command: district outline, radius, fly / fit.
   useEffect(() => {
     const m = map.current; if (!ready || !m) return;
@@ -111,7 +112,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
       const b = new mapboxgl.LngLatBounds(); hl.forEach((p) => b.extend([p.lng, p.lat]));
       m.fitBounds(b, { padding: 50, maxZoom: 14, duration: 1200 });
     } else m.flyTo({ center: [command.center[1], command.center[0]], zoom: command.zoom, duration: 1200 });
-  }, [ready, command]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, cmdKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!TOKEN) return <div className="grid h-full place-items-center p-6 text-center text-sm text-muted-foreground">الخريطة غير مهيأة: رمز Mapbox غير متوفر.</div>;
 
