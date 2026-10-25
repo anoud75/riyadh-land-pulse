@@ -33,10 +33,8 @@ function Layout() {
   const badge = (n: number) => <span className="rounded-full bg-background px-2 font-mono text-xs">{n}</span>;
   const nav = (
     <>
-      <div className="flex items-center justify-between">
-        <Link to="/"><Logo className="h-8" /></Link>
-      </div>
-      <label className="mt-6 flex items-center gap-2 rounded-xl border bg-surface px-3 py-2 text-sm text-muted-foreground">
+      <Link to="/" className="block w-full"><Logo className="h-auto w-full" /></Link>
+      <label className="mt-5 flex items-center gap-2 rounded-xl border bg-surface px-3 py-2 text-sm text-muted-foreground">
         <Search className="size-4" /><input placeholder="ابحث" className="w-full bg-transparent outline-none" />
       </label>
       <nav className="mt-6 space-y-1">

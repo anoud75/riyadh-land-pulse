@@ -30,8 +30,8 @@ function Layout() {
   const badge = (t: string | number) => <span className="rounded-full bg-background px-2 font-mono text-xs">{t}</span>;
   const nav = (
     <>
-      <Link to="/"><Logo className="h-8" /></Link>
-      <nav className="mt-8 space-y-1">
+      <Link to="/" className="block w-full"><Logo className="h-auto w-full" /></Link>
+      <nav className="mt-6 space-y-1">
         <Link to="/admin" activeOptions={{ exact: true }} activeProps={active} className={item}><span className="flex items-center gap-2"><Sun className="size-4" />اليوم</span></Link>
         <Link to="/admin/assistant" activeProps={active} className={item}><span className="flex items-center gap-2"><Bot className="size-4" />المساعد</span></Link>
         <Link to="/admin/portfolio" activeProps={active} className={item}><span className="flex items-center gap-2"><Briefcase className="size-4" />المحفظة</span>{badge(parcels.length)}</Link>
