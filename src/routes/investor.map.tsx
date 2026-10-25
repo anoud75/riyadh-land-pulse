@@ -89,7 +89,7 @@ function MapPage() {
           <Button size="sm" variant={showOpen ? "default" : "ghost"} aria-pressed={showOpen} onClick={() => setShowOpen(!showOpen)}>خدمات</Button>
         </div>}
 
-        {chatOpen && <MapPanel title="مساعد سرج" side="right" onMinimize={() => setChatOpen(false)}><MapAssistant parcels={parcels} onApplyFilters={(f) => { setFilters(f); setMode("parcels"); }} onFocusParcel={(p) => { setSelected(p); setDetailsOpen(true); setMode("parcels"); }} /></MapPanel>}
+        <MapPanel title="مساعد سرج" side="right" hidden={!chatOpen} onMinimize={() => setChatOpen(false)}><MapAssistant parcels={parcels} onApplyFilters={(f) => { setFilters(f); setMode("parcels"); }} onFocusParcel={(p) => { setSelected(p); setDetailsOpen(true); setMode("parcels"); }} /></MapPanel>
         {selected && mode === "parcels" && detailsOpen && <MapPanel title="تفاصيل الأرض" side="left" onMinimize={() => setDetailsOpen(false)}><Drawer p={selected} onClose={() => setSelected(null)} /></MapPanel>}
 
         <div className="map-bottom-dock" dir="rtl">

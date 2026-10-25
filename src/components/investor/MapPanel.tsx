@@ -3,8 +3,8 @@ import { GripHorizontal, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /** Viewport-bounded panel dragging; the map keeps its native gesture handling. */
-export function MapPanel({ title, side, onMinimize, children }: {
-  title: string; side: "left" | "right"; onMinimize: () => void; children: ReactNode;
+export function MapPanel({ title, side, onMinimize, children, hidden = false }: {
+  title: string; side: "left" | "right"; onMinimize: () => void; children: ReactNode; hidden?: boolean;
 }) {
   const panel = useRef<HTMLElement>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
@@ -14,7 +14,7 @@ export function MapPanel({ title, side, onMinimize, children }: {
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
   }, []);
-  return <aside ref={panel} className={`map-floating-panel map-panel-${side}`} aria-label={title}
+  return <aside ref={panel} className={`map-floating-panel map-panel-${side}`} aria-label={title} hidden={hidden}
     style={position ? { left: position.left, top: position.top, right: "auto", bottom: "auto" } : undefined}>
     <header className="map-panel-handle" onPointerDown={(e) => {
       if ((e.target as HTMLElement).closest("button") || e.button !== 0) return;

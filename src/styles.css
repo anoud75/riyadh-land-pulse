@@ -196,6 +196,7 @@
 .map-snapshot-label { position: absolute; bottom: 10px; right: 16px; font-size: 10px; color: var(--muted-foreground); background: var(--surface); padding: 2px 6px; border-radius: 4px; }
 .map-floating-panel { position: absolute; top: 100px; z-index: 12; width: 304px; height: min(590px, calc(100dvh - 240px)); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--map-panel-shadow); background: var(--surface); overflow: hidden; display: flex; flex-direction: column; }
 .map-panel-left { left: 16px; }
+.map-floating-panel[hidden] { display: none; }
 .map-panel-right { right: 16px; }
 .map-panel-handle { touch-action: none; cursor: grab; user-select: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--secondary); }
 .map-panel-handle:active { cursor: grabbing; }

@@ -118,7 +118,7 @@ export function MapAssistant({
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {m.more.map((id) => {
                       const p = parcels.find((x) => x.parcel_id === id);
-                      return p ? <Button key={id} onClick={() => onFocusParcel(p)} className="rounded-full bg-secondary px-2.5 py-1 text-xs hover:bg-accent">{p.district_ar} · {id}</Button> : null;
+                      return p ? <Button variant="secondary" key={id} onClick={() => onFocusParcel(p)} className="rounded-full px-2.5 py-1 text-xs hover:bg-accent">{p.district_ar} · {id}</Button> : null;
                     })}
                   </div>
                 ) : null}
@@ -195,7 +195,7 @@ function AssistantParcelCard({ id, onOpen }: { id: string; onOpen: (p: Parcel) =
         </p>
       )}
       <div className="mt-2 flex gap-2">
-        <Button onClick={() => onOpen(p)} className="rounded-full bg-secondary px-3 py-1 text-xs hover:bg-accent">
+        <Button variant="secondary" onClick={() => onOpen(p)} className="rounded-full px-3 py-1 text-xs hover:bg-accent">
           الموقع على الخريطة
         </Button>
         <Link
