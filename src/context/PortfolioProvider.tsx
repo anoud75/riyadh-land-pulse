@@ -111,7 +111,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     return inquiry;
   };
   const toggleCompare = (id: string) =>
-    setCompareIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id].slice(-4)));
+    setCompareIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id].slice(-5)));
   const [revealLog, setRevealLog] = useState<RevealEntry[]>([]);
   const [offers, setOffers] = useState<OfferEntry[]>([]);
   const revealPhone = (inquiry_id: string) =>
