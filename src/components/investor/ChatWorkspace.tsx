@@ -3,7 +3,7 @@ import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Briefcase, Columns2, ExternalLink, FileText, GitCompare, Inbox, LandPlot, Map as MapIcon, PanelRight, Plus, Printer, Search, Send, Sparkle, Sun, UserRound, Users, X } from "lucide-react";
+import { BarChart3, Briefcase, Columns2, ExternalLink, FileText, GitCompare, Inbox, LandPlot, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, Sun, UserRound, Users, X } from "lucide-react";
 import logo from "@/assets/sarj_logo.png.asset.json";
 import { askSarjAgent } from "@/lib/sarjAgent.functions";
 import { usePortfolio } from "@/context/PortfolioProvider";
