@@ -11,6 +11,8 @@ export const Route = createFileRoute("/who_/name")({
       { name: "description", content: "ادخل إلى منصة سرج باسمك فقط." },
       { property: "og:title", content: "ما اسمك؟ — سرج" },
       { property: "og:description", content: "الدخول باسمك فقط." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,

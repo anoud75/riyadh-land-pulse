@@ -16,6 +16,6 @@
 - [x] Investor map services toggle for nearby places
 
 ## Movable map workspace
-- [ ] Quiet light Mapbox canvas, price badges and location reticles (no invented boundaries).
-- [ ] Draggable/collapsible assistant, parcel details and filter controls.
-- [ ] Verify selection, dragging, filters, districts, assistant and narrow screens.
+- [x] Quiet light Mapbox canvas, price badges and location reticles (no invented boundaries).
+- [x] Draggable/collapsible assistant, parcel details and filter controls.
+- [x] Verify selection, dragging, filters, districts, assistant and narrow screens.

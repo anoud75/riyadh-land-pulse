@@ -11,6 +11,8 @@ export const Route = createFileRoute("/admin/inquiries")({
       { name: "description", content: "عمر الاستفسارات، مسار التحويل، وكشف الأرقام مع سجل تدقيق." },
       { property: "og:title", content: "الاستفسارات — لوحة فريق سرج" },
       { property: "og:description", content: "متابعة الاستفسارات وكشف الأرقام بسجل." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Inquiries,

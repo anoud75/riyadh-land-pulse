@@ -15,6 +15,8 @@ export const Route = createFileRoute("/admin/")({
       { name: "description", content: "أولويات اليوم مرتبة بالإيراد: فجوات الطلب، الأراضي الراكدة والاستفسارات المطابقة." },
       { property: "og:title", content: "اليوم — لوحة فريق سرج" },
       { property: "og:description", content: "أولويات اليوم مرتبة بالإيراد." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Today,

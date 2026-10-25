@@ -10,6 +10,8 @@ export const Route = createFileRoute("/who")({
       { name: "description", content: "اختر مسارك في منصة سرج: باحث عن أرض أو فريق سرج." },
       { property: "og:title", content: "من أنت؟ — سرج" },
       { property: "og:description", content: "باحث عن أرض أو فريق سرج." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,
