@@ -184,7 +184,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
         <div className="flex min-h-0 flex-1">
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6">
-              <div className="sarj-orb size-28 rounded-full" />
+              <div className="sarj-orb sarj-orb-hero size-28 rounded-full" />
               <Composer value={input} onChange={setInput} onSend={() => send(input)} busy={busy} inputRef={inputRef} big placeholder={cfg.placeholder} />
               <div className="mt-6 w-full max-w-2xl text-xs text-muted-foreground">اقتراحات للبحث في المحادثة</div>
               <div className="mt-3 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
