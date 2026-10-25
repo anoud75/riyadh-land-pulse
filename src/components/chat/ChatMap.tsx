@@ -20,7 +20,7 @@ export default function ChatMap({ command, parcels, onPick }: { command: MapComm
     <MapContainer center={command.center} zoom={command.zoom} className="h-full w-full" scrollWheelZoom>
       <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap &copy; CARTO" />
       <Driver command={command} parcels={parcels} />
-      {command.radiusKm && <Circle center={command.center} radius={command.radiusKm * 1000} pathOptions={{ color: "var(--primary)", fillOpacity: 0.08, weight: 1.5 }} />}
+      {command.radiusKm && <Circle center={command.center} radius={command.radiusKm * 1000} pathOptions={{ color: "#7c5cff", fillOpacity: 0.08, weight: 1.5 }} />}
       {parcels.map((p) => {
         const on = hl.has(p.parcel_id);
         return (
