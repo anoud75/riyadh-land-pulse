@@ -43,6 +43,8 @@ interface Ctx {
   myInquiries: MyInquiry[];
   compareIds: string[];
   toggleCompare: (id: string) => void;
+  favoriteIds: string[];
+  toggleFavorite: (id: string) => void;
   role: Role;
   setRole: (r: Role) => void;
   investorName: string;
@@ -112,6 +114,16 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   };
   const toggleCompare = (id: string) =>
     setCompareIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id].slice(-5)));
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  useEffect(() => {
+    try { setFavoriteIds(JSON.parse(localStorage.getItem("sarj.favorites") ?? "[]")); } catch { /* ignore */ }
+  }, []);
+  const toggleFavorite = (id: string) =>
+    setFavoriteIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      localStorage.setItem("sarj.favorites", JSON.stringify(next));
+      return next;
+    });
   const [revealLog, setRevealLog] = useState<RevealEntry[]>([]);
   const [offers, setOffers] = useState<OfferEntry[]>([]);
   const revealPhone = (inquiry_id: string) =>
@@ -134,11 +146,11 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       parcels, inquiries, addParcel, addInquiry, submitInvestorInquiry, myInquiries,
-      compareIds, toggleCompare, role, setRole, investorName, setInvestorName,
+      compareIds, toggleCompare, favoriteIds, toggleFavorite, role, setRole, investorName, setInvestorName,
       revealLog, revealPhone, offers, sendOffer, locationRequests, requestLocation, completeLocation,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [parcels, inquiries, myInquiries, compareIds, role, investorName, revealLog, offers, locationRequests],
+    [parcels, inquiries, myInquiries, compareIds, favoriteIds, role, investorName, revealLog, offers, locationRequests],
   );
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>;
 }
