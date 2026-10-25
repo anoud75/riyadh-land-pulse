@@ -68,7 +68,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     };
     m.on("style.load", () => {
       const src = (id: string) => m.addSource(id, { type: "geojson", data: fc([]) });
-      ["districts", "reach", "comps", "hl"].forEach(src);
+      ["districts", "reach", "comps"].forEach(src);
       m.addLayer({ id: "d-fill", type: "fill", source: "districts", layout: { visibility: "none" }, paint: { "fill-color": ["get", "color"], "fill-opacity": ["get", "op"] } });
       m.addLayer({ id: "d-line", type: "line", source: "districts", layout: { visibility: "none" }, paint: { "line-color": "#ffffff", "line-width": 1, "line-opacity": 0.8 } });
       m.addLayer({ id: "d-label", type: "symbol", source: "districts", layout: { visibility: "none", "text-field": ["get", "label"], "text-size": 12, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"] }, paint: { "text-color": "#111", "text-halo-color": "#fff", "text-halo-width": 1.5 } });
@@ -120,7 +120,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     const m = map.current; if (!m || !gen) return;
     const set = (id: string, f: unknown[]) => (m.getSource(id) as mapboxgl.GeoJSONSource | undefined)?.setData(fc(f));
-    set("districts", data.districts); set("reach", data.reach); set("comps", data.comps); set("hl", data.hl);
+    set("districts", data.districts); set("reach", data.reach); set("comps", data.comps);
     set("market", showMarket ? MARKET_LISTINGS.map((l) => ({ type: "Feature", properties: { title: l.title, price: l.price, kind: l.kind }, geometry: { type: "Point", coordinates: [l.lng, l.lat] } })) : []);
     const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     vis(["d-fill", "d-line", "d-label"], mode === "districts");
