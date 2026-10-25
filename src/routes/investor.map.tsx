@@ -31,7 +31,7 @@ export const Route = createFileRoute("/investor/map")({
     links: [{ rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }],
   }),
   validateSearch: (s: Record<string, unknown>): { footprint?: string } =>
-    typeof s.footprint === "string" ? { footprint: s.footprint } : {},
+    typeof s["footprint"] === "string" ? { footprint: s["footprint"] as string } : {},
   component: MapPage,
 });
 
