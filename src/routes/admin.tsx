@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { BarChart3, Bot, Briefcase, Inbox, Menu, PlusSquare, Send, Sun } from "lucide-react";
 import { Logo } from "@/components/SiteHeader";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/admin")({
 function Layout() {
   const { parcels, inquiries } = usePortfolio();
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const unanswered = inquiries.filter((i) => i.status === "new").length;
   const item = "flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary";
   const active = { className: "bg-secondary font-medium" };
@@ -57,7 +58,7 @@ function Layout() {
         {open && <div className="flex flex-col border-b bg-surface p-4 md:hidden" onClick={() => setOpen(false)}>{nav}</div>}
         <main className="mx-auto max-w-6xl px-6 py-10"><Outlet /></main>
       </div>
-      <TeamAssistant />
+      {pathname !== "/admin/assistant" && <TeamAssistant />}
     </div>
   );
 }
