@@ -88,7 +88,7 @@ export function DeltaScatter({ points, stagnantDays, selected, onPick }: { point
         {xt.map((d) => <text key={d} x={x(d)} y={H - B + 18} textAnchor="middle" className="fill-muted-foreground font-mono text-[11px]">{d}</text>)}
         <line x1={x(stagnantDays)} x2={x(stagnantDays)} y1={T} y2={H - B} className="stroke-destructive/60" strokeDasharray="5 4" />
         <text x={x(stagnantDays) + 4} y={H - B - 6} className="fill-destructive text-[10px]">حد الركود {stagnantDays} يومًا</text>
-        <text x={(L + W - R) / 2} y={H - 6} textAnchor="middle" className="fill-muted-foreground text-[12px]">أيام العرض في السوق ←</text>
+        <text x={(L + W - R) / 2} y={H - 6} textAnchor="middle" className="fill-muted-foreground text-[12px]">أيام العرض في السوق →</text>
         <text x={14} y={(T + H - B) / 2} textAnchor="middle" transform={`rotate(-90 14 ${(T + H - B) / 2})`} className="fill-muted-foreground text-[12px]">فرق سعر المتر عن الوسيط</text>
         {points.map((p) => {
           const on = selected === p.id;
@@ -190,7 +190,7 @@ export function VelocityBubbles({ segs, selected, onPick }: { segs: SegmentStats
             <text x={x(maxDays * f)} y={H - B + 18} textAnchor="middle" className="fill-muted-foreground font-mono text-[11px]">{Math.round(maxDays * f)}</text>
           </g>
         ))}
-        <text x={(L + W - R) / 2} y={H - 6} textAnchor="middle" className="fill-muted-foreground text-[12px]">أيام حتى الإغلاق (الوسيط) ← أبطأ</text>
+        <text x={(L + W - R) / 2} y={H - 6} textAnchor="middle" className="fill-muted-foreground text-[12px]">أيام حتى الإغلاق (الوسيط) — أبطأ →</text>
         <text x={16} y={(T + H - B) / 2} textAnchor="middle" transform={`rotate(-90 16 ${(T + H - B) / 2})`} className="fill-muted-foreground text-[12px]">سعر المتر (الوسيط، ريال) ← أغلى</text>
         {solid.sort((a, b) => b.closedDeals - a.closedDeals).map((s) => {
           const k = segKey(s), on = selected === k;

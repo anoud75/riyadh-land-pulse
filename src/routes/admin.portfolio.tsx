@@ -78,7 +78,7 @@ function Portfolio() {
       <h1 className="text-3xl font-bold">المحفظة <span className="font-mono text-lg text-muted-foreground">{parcels.length}</span></h1>
       <ChartCard
         title="أيّ الأراضي أغلى من السوق وتأخّر بيعها؟"
-        howTo={`كل نقطة أرض متاحة. كلما اتجهت يسارًا طالت مدة عرضها، وكلما ارتفعت زاد سعر مترها عن وسيط الأراضي المشابهة التي بيعت. المربع الأحمر: أكثر من ${STAGNANT_DAYS} يومًا وسعر أعلى من السوق — هذه تحتاج مراجعة سعر.`}
+        howTo={`كل نقطة أرض متاحة. كلما اتجهت يمينًا طالت مدة عرضها، وكلما ارتفعت زاد سعر مترها عن وسيط الأراضي المشابهة التي بيعت. المربع الأحمر: أكثر من ${STAGNANT_DAYS} يومًا وسعر أعلى من السوق — هذه تحتاج مراجعة سعر.`}
         legend={[{ label: `تحتاج مراجعة سعر (${stagnant.length})`, className: "bg-destructive" }, { label: "باقي الأراضي", className: "bg-chart-blue/70" }]}
         filters={filters}
         source={`${pts.length} أرضًا متاحة مسعّرة في شرائح فيها 3 صفقات مغلقة فأكثر · الوسيط من سجلّ سرج`}

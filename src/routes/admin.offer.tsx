@@ -91,7 +91,7 @@ function Offer() {
               const on = picked.includes(p.parcel_id);
               return (
                 <button key={p.parcel_id} onClick={() => toggle(p.parcel_id)} className={`overflow-hidden rounded-2xl border bg-card text-right transition ${on ? "ring-2 ring-primary" : "hover:shadow-md"}`}>
-                  <div className="relative h-28 bg-gradient-to-br from-accent to-secondary">
+                  <div className="relative h-28 overflow-hidden bg-gradient-to-br from-accent to-secondary">
                     <div className="absolute inset-0 opacity-70"><MiniMap highlight={[p.parcel_id]} /></div>
                     <span className={`absolute left-3 top-3 grid size-7 place-items-center rounded-full border-2 ${on ? "border-primary bg-primary text-primary-foreground" : "border-card bg-card/80"}`}>{on && <Check className="size-4" />}</span>
                     {!matches.length && <span className="absolute right-3 top-3 rounded-full bg-card px-2 py-0.5 text-[11px]">بديل</span>}
