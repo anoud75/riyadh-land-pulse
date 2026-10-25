@@ -5,6 +5,7 @@ import { getNearbyParcels, getParcelInsight } from "@/lib/investorEngine";
 import { CompareButton, Fact, PriceLine } from "@/components/investor/ParcelCard";
 import { pct, sar } from "@/components/investor/format";
 import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
+import { ParcelSnapshot } from "@/components/investor/ParcelSnapshot";
 import { buildMarketInsight } from "@/lib/marketEngine";
 
 export const Route = createFileRoute("/investor/parcels/$parcelId")({
@@ -50,6 +51,10 @@ function Detail() {
           <Fact k="في السوق" v={`${p.days_on_market} يومًا`} />
           <Fact k="تاريخ العرض" v={p.listed_date} />
         </dl>
+      </div>
+
+      <div className="mt-8 overflow-hidden rounded-2xl border">
+        <ParcelSnapshot parcel={p} size="wide" className="aspect-[21/9] w-full" />
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">

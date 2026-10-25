@@ -3,6 +3,7 @@ import type { Parcel } from "@/data/types";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { sar, STATUS_AR } from "./format";
+import { ParcelSnapshot } from "./ParcelSnapshot";
 
 export function CompareButton({ id }: { id: string }) {
   const { compareIds, toggleCompare } = usePortfolio();
@@ -34,8 +35,10 @@ export function ParcelCard({ p }: { p: Parcel }) {
     <Link
       to="/investor/parcels/$parcelId"
       params={{ parcelId: p.parcel_id }}
-      className="flex flex-col rounded-2xl border bg-card p-5 transition-colors hover:border-primary"
+      className="flex flex-col overflow-hidden rounded-2xl border bg-card transition-colors hover:border-primary"
     >
+      <ParcelSnapshot parcel={p} className="aspect-[16/7] w-full shrink-0" />
+      <div className="flex flex-1 flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-lg font-semibold">{p.district_ar}</h3>
@@ -53,6 +56,7 @@ export function ParcelCard({ p }: { p: Parcel }) {
       </dl>
       {p.coordinatesCorrected && <div className="mt-2 text-xs text-muted-foreground">الإحداثيات صُحّحت تلقائيًا</div>}
       <div className="mt-4"><CompareButton id={p.parcel_id} /></div>
+      </div>
     </Link>
   );
 }

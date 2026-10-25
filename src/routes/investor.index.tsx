@@ -4,6 +4,7 @@ import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, LAND_AR, DEAL_AR, type Parcel } from "@/data/types";
 import { isAvailable, isPriced } from "@/lib/portfolioEngine";
 import { CompareButton, Fact, ParcelCard, PriceLine } from "@/components/investor/ParcelCard";
+import { ParcelSnapshot } from "@/components/investor/ParcelSnapshot";
 import { sar } from "@/components/investor/format";
 
 type Search = {
@@ -130,7 +131,7 @@ function Lands() {
       </div>
 
       {showFeatured && featured && (
-        <Link to="/investor/parcels/$parcelId" params={{ parcelId: featured.parcel_id }} className="mt-6 grid gap-6 rounded-2xl border bg-card p-6 hover:border-primary md:grid-cols-[1fr_auto]">
+        <Link to="/investor/parcels/$parcelId" params={{ parcelId: featured.parcel_id }} className="mt-6 grid gap-6 rounded-2xl border bg-card p-6 hover:border-primary md:grid-cols-[1fr_auto_16rem]">
           <div>
             <div className="text-xs text-primary">مرشّحة</div>
             <h2 className="mt-1 text-2xl font-bold">{featured.district_ar}</h2>
@@ -143,6 +144,7 @@ function Lands() {
             <Fact k="الشارع" v={`${featured.street_width_m} م`} />
             <Fact k="في السوق" v={`${featured.days_on_market} يومًا`} />
           </dl>
+          <ParcelSnapshot parcel={featured} className="hidden min-h-36 w-full rounded-xl md:block" />
         </Link>
       )}
 
