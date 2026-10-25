@@ -29,8 +29,9 @@ describe("parcelSnapshot", () => {
     const decoded = decodePolyline(encodePolyline(pts));
     expect(decoded.length).toBe(33);
     for (let i = 0; i < pts.length; i++) {
-      expect(Math.abs(decoded[i][0] - pts[i][0])).toBeLessThan(0.002);
-      expect(Math.abs(decoded[i][1] - pts[i][1])).toBeLessThan(0.002);
+      const d = decoded[i]!;
+      expect(Math.abs(d[0] - pts[i]![0])).toBeLessThan(0.002);
+      expect(Math.abs(d[1] - pts[i]![1])).toBeLessThan(0.002);
     }
   });
 
