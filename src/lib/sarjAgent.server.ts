@@ -96,11 +96,12 @@ export async function runSarjAgent(input: {
       },
     }),
     controlMap: tool({
-      description: "Open and move the map inside the chat: zoom into a district (Arabic or English name) or a region, highlight parcel ids, draw a radius in km, or show all Riyadh (all fields null).",
-      inputSchema: z.object({ district: z.string().nullable(), area_of_city: area, parcel_ids: z.array(z.string()).nullable(), radius_km: z.number().nullable() }),
+      description: "Open and move the map inside the chat: zoom into a district (Arabic or English name) or a region, highlight parcel ids, draw a radius in km, or show all Riyadh (all fields null). color_by colors every Riyadh district by a metric (district-level view)." + (inquiries ? " Metrics: available, median_ppm, waiting, gap, dom." : " Metrics: available, median_ppm, dom."),
+      inputSchema: z.object({ district: z.string().nullable(), area_of_city: area, parcel_ids: z.array(z.string()).nullable(), radius_km: z.number().nullable(), color_by: z.enum(["available", "median_ppm", "waiting", "gap", "dom"]).nullable() }),
       execute: async (f) => {
         note("controlMap");
-        const command = V.mapCommand(parcels, f);
+        const demand = f.color_by === "waiting" || f.color_by === "gap";
+        const command = { ...V.mapCommand(parcels, f), district: f.district ?? null, choropleth: demand && !inquiries ? "available" as const : f.color_by ?? null };
         emit({ kind: "map", command });
         return { shown: command.label, parcels: command.parcelIds.length };
       },
