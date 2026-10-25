@@ -39,7 +39,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
 }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("streets");
+  const [styleKey, setStyleKey] = useState<keyof typeof STYLES>("light");
   const [slots, setSlots] = useState<{ parcel: Parcel; element: HTMLDivElement; marker: mapboxgl.Marker }[]>([]);
   const [gen, setGen] = useState(0); // bumps after each style load so data is re-applied
   const cb = useRef({ onSelect, onSelectDistrict, parcels }); cb.current = { onSelect, onSelectDistrict, parcels };
@@ -57,7 +57,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     if (!box.current || !TOKEN) return;
     mapboxgl.accessToken = TOKEN;
-    const m = new mapboxgl.Map({ container: box.current, style: STYLES.streets, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
+    const m = new mapboxgl.Map({ container: box.current, style: STYLES.light, center: [46.6753, 24.7136], zoom: 10.5, maxZoom: 19 });
     map.current = m;
     const ro = new ResizeObserver(() => m.resize()); ro.observe(box.current);
     mapRef.current = {
@@ -116,7 +116,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     const m = map.current; if (!m || !gen) return;
     const set = (id: string, f: unknown[]) => (m.getSource(id) as mapboxgl.GeoJSONSource | undefined)?.setData(fc(f));
-    set("districts", data.districts); set("reach", data.reach); set("comps", data.comps);
+    set("districts", data.districts); set("reach", []); set("comps", []);
     set("market", showMarket ? MARKET_LISTINGS.map((l) => ({ type: "Feature", properties: { title: l.title, price: l.price, kind: l.kind }, geometry: { type: "Point", coordinates: [l.lng, l.lat] } })) : []);
     const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     vis(["d-fill", "d-line", "d-label"], mode === "districts");
@@ -174,7 +174,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     const m = map.current;
     if (!selected || mode !== "parcels" || !m) return;
-    const offset = m.getContainer().clientWidth > 700 ? -185 : -70;
+    const offset = 0;
     m.flyTo({ center: [selected.lng, selected.lat], zoom: 15, offset: [offset, 0], duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 800 });
   }, [selected, mode]);
 
@@ -183,7 +183,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     <div className="relative size-full">
       {slots.map(({ parcel, element }) => createPortal(<ParcelMapMarker parcel={parcel} parcels={parcels} layer={layer} selected={selected?.parcel_id === parcel.parcel_id} onSelect={() => onSelect(parcel)} />, element, parcel.parcel_id))}
       <div ref={box} className="absolute inset-0 h-full w-full" />
-      <div className="absolute left-3 top-28 z-[5] flex overflow-hidden rounded-xl border bg-surface text-xs shadow-sm" dir="rtl">
+      <div className="absolute left-4 top-5 z-[5] flex overflow-hidden rounded-lg border bg-surface text-xs shadow-sm" dir="rtl">
         {(Object.keys(STYLES) as (keyof typeof STYLES)[]).map((k) => (
           <Button key={k} size="sm" variant={styleKey === k ? "default" : "ghost"} aria-pressed={styleKey === k} onClick={() => setStyleKey(k)} className="rounded-none">{STYLE_AR[k]}</Button>
         ))}
