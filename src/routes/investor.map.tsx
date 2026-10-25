@@ -43,6 +43,7 @@ function MapPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [legendOpen, setLegendOpen] = useState(true);
   const [showMarket, setShowMarket] = useState(false);
+  const [showOpen, setShowOpen] = useState(false);
   const mapRef = useRef<MapHandle | null>(null);
   const { footprint } = Route.useSearch();
   const navigate = useNavigate({ from: "/investor/map" });
@@ -83,6 +84,7 @@ function MapPage() {
               mapRef={mapRef}
               highlight={geo?.outline ?? null}
               showMarket={showMarket}
+              showOpen={showOpen}
             />
           </Suspense>
         </ClientOnly>
@@ -146,6 +148,10 @@ function MapPage() {
             <button onClick={() => setShowMarket((v) => !v)} aria-pressed={showMarket}
               className={`rounded-full border px-3 py-1.5 text-sm shadow-sm ${showMarket ? "bg-ink text-ink-foreground" : "bg-surface text-muted-foreground"}`}>
               عقارات السوق المحيطة
+            </button>
+            <button onClick={() => setShowOpen((v) => !v)} aria-pressed={showOpen} title="مقاهٍ ومطاعم ومستشفيات وصيدليات ومدارس… تظهر عند التقريب"
+              className={`rounded-full border px-3 py-1.5 text-sm shadow-sm ${showOpen ? "bg-ink text-ink-foreground" : "bg-surface text-muted-foreground"}`}>
+              أماكن مفتوحة (Overture)
             </button>
           </div>
         </div>

@@ -124,7 +124,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
     (m.getSource("focus") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: d ? [d as unknown as GeoJSON.Feature] : [] });
     (m.getSource("radius") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: command.radiusKm ? [circle(command.center, command.radiusKm)] : [] });
     (m.getSource("iso") as mapboxgl.GeoJSONSource).setData(command.isochrone ?? { type: "FeatureCollection", features: [] });
-    (m.getSource("pois") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: (command.pois ?? []).map((p) => ({ type: "Feature", properties: { category: p.category, label: `${CAT_AR[p.category] ?? ""} · ${p.name}` }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })) });
+    (m.getSource("pois") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: (command.pois ?? []).map((p) => ({ type: "Feature", properties: { category: p.category, label: `${CAT_AR[p.category] ?? ""} · ${p.name || "بلا اسم"}${"source" in p && p.source ? ` · ${p.source}` : ""}` }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })) });
     const hl = parcels.filter((p) => command.parcelIds.includes(p.parcel_id));
     if (d) m.fitBounds(districtBounds(d), { padding: 50, duration: 1200 });
     else if (command.action === "highlight" && hl.length > 1) {

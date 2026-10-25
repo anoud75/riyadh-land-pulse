@@ -5,7 +5,7 @@ import type { PlaceCategory, SiteResult, UseCase } from "./siteSuitability";
 export interface ChartPoint { label: string; value: number; value2?: number; id?: string }
 export interface ChartSpec { type: "bar" | "diverging" | "scatter"; title: string; unit: string; series: ChartPoint[]; xLabel?: string; yLabel?: string; source: string }
 export interface ReportSection { heading: string; text: string; table?: { headers: string[]; rows: (string | number | null)[][] }; chart?: ChartSpec }
-export interface MapPoi { name: string; category: PlaceCategory; lng: number; lat: number }
+export interface MapPoi { name: string; category: PlaceCategory; lng: number; lat: number; source?: string }
 export interface MapCommand {
   action: "focus" | "fit_all" | "highlight" | "radius"; center: [number, number]; zoom: number; parcelIds: string[]; radiusKm: number | null; label: string;
   /** Color districts by this metric (district-level view). */
