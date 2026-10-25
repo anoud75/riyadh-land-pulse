@@ -18,6 +18,7 @@ interface Msg {
   text: string;
   top?: string | null;
   chips?: string[];
+  more?: string[];
 }
 
 const GREETING =
@@ -88,7 +89,7 @@ export function MapAssistant({
         <div className="text-xs text-muted-foreground">المساعد</div>
         <div className="mt-0.5 flex items-center gap-2">
           <span className="grid size-7 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">س</span>
-          <span className="font-semibold">اسأل عن أي أرض</span>
+          <span className="font-semibold">محلّل المواقع</span>
           <span className="mr-auto flex items-center gap-1 text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-emerald-500" />
             يقرأ {parcels.length} أرضًا
@@ -106,8 +107,16 @@ export function MapAssistant({
             <div key={m.id} className="flex gap-2">
               <span className="mt-1 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">س</span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm leading-relaxed">{m.text}</p>
+                <p className="whitespace-pre-line text-sm leading-relaxed">{m.text}</p>
                 {m.top && <AssistantParcelCard id={m.top} onOpen={onFocusParcel} />}
+                {m.more?.length ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {m.more.map((id) => {
+                      const p = parcels.find((x) => x.parcel_id === id);
+                      return p ? <button key={id} onClick={() => onFocusParcel(p)} className="rounded-full bg-secondary px-2.5 py-1 text-xs hover:bg-accent">{p.district_ar} · {id}</button> : null;
+                    })}
+                  </div>
+                ) : null}
                 {m.chips?.length ? (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {m.chips.map((c) => (
@@ -125,6 +134,7 @@ export function MapAssistant({
             </div>
           ),
         )}
+        {busy && <div className="text-xs text-muted-foreground">يستدعي أدوات المحفظة…</div>}
       </div>
 
       <form
