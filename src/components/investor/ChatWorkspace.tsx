@@ -276,6 +276,7 @@ function AssistantTurn({ m, mode, agent, onPanel, onAsk }: { m: ChatMsg; mode: M
 
       {list.map((u, i) => {
         if (u.kind === "cards") return <div key={i} className="mt-5 grid gap-3 md:grid-cols-2">{u.parcelIds.map((id) => parcels.find((p) => p.parcel_id === id)).filter(Boolean).map((p) => <RichCard key={p!.parcel_id} p={p!} mode={mode} />)}</div>;
+        if (u.kind === "market_insight") { const mp = parcels.find((p) => p.parcel_id === u.parcelId); return mp ? <div key={i} className="mt-5"><MarketInsightCard insight={buildMarketInsight(mp, parcels)} /></div> : null; }
         if (u.kind === "chart") return <div key={i} className="mt-5"><ChatChart spec={u.chart} onPick={(id) => onPanel({ kind: "map", command: mapCommand(parcels, { parcel_ids: [id] }) })} /></div>;
         if (u.kind === "negotiation_report") return <PanelLink key={i} icon={BarChart3} title="تقرير هامش التفاوض" sub={`${u.funnel.recommended} مرشّحة من ${u.funnel.analyzed}`} onClick={() => onPanel({ kind: "nego", ui: u })} />;
         if (u.kind === "report") return <PanelLink key={i} icon={FileText} title={u.title} sub={`${u.sections.length} أقسام · افتح للطباعة أو الحفظ PDF`} onClick={() => onPanel({ kind: "report", ui: u })} />;

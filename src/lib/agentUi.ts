@@ -26,4 +26,5 @@ export type UiPayload =
   | { kind: "chart"; chart: ChartSpec }
   | { kind: "report"; title: string; sections: ReportSection[] }
   | { kind: "map"; command: MapCommand }
-  | { kind: "suitability"; useCase: UseCase; category: PlaceCategory | null; results: SiteResult[]; source: string };
+  | { kind: "suitability"; useCase: UseCase; category: PlaceCategory | null; results: SiteResult[]; source: string }
+  | { kind: "market_insight"; parcelId: string };

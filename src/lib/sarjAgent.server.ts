@@ -158,6 +158,19 @@ export async function runSarjAgent(input: {
       inputSchema: z.object({ area_of_city: area }),
       execute: async (f) => (note("getMarketContext"), T.getMarketContext(parcels, f)),
     }),
+    getMarketBenchmark: tool({
+      description: "Asking-rent benchmark from the imported Aqar listing sample for a residential parcel. Use when the user wants to build apartments/units to rent or asks about rental return. Quote the returned text verbatim; never compute a yield percentage.",
+      inputSchema: z.object({ parcel_id: z.string() }),
+      execute: async ({ parcel_id }) => {
+        note("getMarketBenchmark");
+        const p = parcels.find((x) => x.parcel_id === parcel_id);
+        if (!p) return { error: "parcel not found" };
+        const { buildMarketInsight } = await import("./marketEngine");
+        const ins = buildMarketInsight(p, parcels);
+        if (ins.applicable) emit({ kind: "market_insight", parcelId: parcel_id });
+        return { text: ins.text, count: ins.benchmark.count, scope: ins.benchmark.scope, source: ins.benchmark.source, note: "أسعار عرض من عينة مستوردة، ليست صفقات ولا عائدًا محسوبًا." };
+      },
+    }),
     analyzeSite: tool({
       description: "Score 1-4 Riyadh districts for a use case using real nearby places and driving times (Mapbox). use_case=business (open a hospital/pharmacy/cafe/restaurant/school/supermarket/gym: competitor gap), living (live there: services drive times + price vs Riyadh), commercial (retail footfall). Opens the map with place pins and 10/20-minute driving areas.",
       inputSchema: z.object({
