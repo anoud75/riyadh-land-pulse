@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { stepCountIs, streamText, tool, type ModelMessage } from "ai";
+import { stepCountIs, streamText, tool, type LanguageModel, type ModelMessage } from "ai";
 import { z } from "zod";
 import { initialInquiries, initialParcels } from "@/data";
 import type { Inquiry, Parcel } from "@/data/types";
@@ -107,7 +107,7 @@ export async function runSarjAgent(input: {
   });
   const messages: ModelMessage[] = input.messages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
   const result = streamText({
-    model: provider.responses(MODEL),
+    model: provider.responses(MODEL) as unknown as LanguageModel, // duplicate @ai-sdk/provider versions differ only in types
     system: input.mode === "investor" ? INVESTOR_SYS : ADMIN_SYS,
     messages,
     tools: input.mode === "investor" ? investorTools : adminTools(),
