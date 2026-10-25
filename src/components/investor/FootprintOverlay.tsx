@@ -29,14 +29,14 @@ export function FootprintOverlay({
         style={{ background: "radial-gradient(circle at 50% 50%, transparent 90px, color-mix(in oklab, var(--background) 55%, transparent) 200px)" }}
       />
       <div className="pointer-events-none absolute inset-0 z-[600] flex items-center justify-center">
-        <div className="w-[min(640px,70vh)]">
-          <h2 className="text-center text-3xl font-bold drop-shadow">{data.district}</h2>
+        <div className="w-[min(620px,62vh)] pt-6">
+          <h2 className="text-center text-3xl font-bold [text-shadow:0_0_8px_var(--background)]">{data.district}</h2>
           <ThreeArmedFootprintSVG data={data} overlay />
         </div>
       </div>
 
       {/* district picker */}
-      <div className="absolute inset-x-0 top-28 z-[1000] flex justify-center px-4">
+      <div className="absolute inset-x-0 top-20 z-[1000] flex justify-center px-4">
         <div className="flex flex-wrap justify-center gap-1.5 rounded-full border bg-surface/95 p-1 shadow-sm">
           {FOOTPRINT_DISTRICTS.map((d) => (
             <button key={d.ar} onClick={() => onDistrict(d.ar)} aria-pressed={d.ar === data.district}
@@ -49,7 +49,7 @@ export function FootprintOverlay({
       </div>
 
       {/* year selector */}
-      <div className="absolute inset-x-0 bottom-24 z-[1000] flex justify-center">
+      <div className="absolute inset-x-0 bottom-5 z-[1000] flex justify-center">
         <div className="flex items-center gap-1 rounded-full border bg-surface/95 p-1 shadow-sm">
           <span className="px-2 text-xs text-muted-foreground">السنة</span>
           {YEARS.map((y) => (
@@ -62,7 +62,7 @@ export function FootprintOverlay({
       </div>
 
       {/* numbers panel */}
-      <aside className="absolute bottom-28 right-4 top-44 z-[1001] w-[min(300px,85vw)] space-y-4 overflow-y-auto rounded-3xl border bg-surface/95 p-4 text-sm shadow-xl">
+      <aside className="absolute bottom-20 right-4 top-36 z-[1001] w-[min(300px,85vw)] space-y-4 overflow-y-auto rounded-3xl border bg-surface/95 p-4 text-sm shadow-xl">
         <div>
           <div className="text-xs text-muted-foreground">{data.parcelsInDistrict} أرض · {data.closedDeals} صفقة مغلقة</div>
           <div className="mt-2 font-medium">سعر المتر {year}</div>

@@ -48,8 +48,9 @@ function MapPage() {
   const geo = useMemo(() => (footprint ? districtGeo(parcels, footprint) : null), [parcels, footprint]);
   useEffect(() => {
     if (!geo) return;
-    const t = setTimeout(() => mapRef.current?.flyTo(geo.center, 13, { duration: 1.2 }), 50);
-    return () => clearTimeout(t);
+    const go = () => mapRef.current?.flyTo(geo.center, 14, { duration: 1.2 });
+    const t = [setTimeout(go, 50), setTimeout(go, 900)];
+    return () => t.forEach(clearTimeout);
   }, [geo]);
   const setFootprint = (d?: string) => navigate({ search: d ? { footprint: d } : {} });
 
@@ -98,7 +99,7 @@ function MapPage() {
               ))}
             </div>
           </div>
-          <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
+          <div className={`pointer-events-auto flex flex-wrap items-center justify-center gap-2 ${footprint ? "hidden" : ""}`}>
             <FilterChip
               label="المنطقة"
               active={filters.area ? `${AREA_ADJ[filters.area]} الرياض` : filters.excludeArea ? `خارج ${AREA_ADJ[filters.excludeArea]} الرياض` : null}
@@ -158,7 +159,7 @@ function MapPage() {
         )}
 
         {/* bottom: executive ticker */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[1000] flex justify-center px-4">
+        <div className={`pointer-events-none absolute inset-x-0 bottom-4 z-[1000] flex justify-center px-4 ${footprint ? "hidden" : ""}`}>
           <MapTicker parcels={parcels} />
         </div>
 
