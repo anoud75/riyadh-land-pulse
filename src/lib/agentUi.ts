@@ -2,7 +2,7 @@ import type { diagnoseRegion } from "./sarjAgentTools";
 
 export interface ChartPoint { label: string; value: number; value2?: number; id?: string }
 export interface ChartSpec { type: "bar" | "diverging" | "scatter"; title: string; unit: string; series: ChartPoint[]; xLabel?: string; yLabel?: string; source: string }
-export interface ReportSection { heading: string; text: string; table?: { headers: string[]; rows: (string | number)[][] }; chart?: ChartSpec }
+export interface ReportSection { heading: string; text: string; table?: { headers: string[]; rows: (string | number | null)[][] }; chart?: ChartSpec }
 export interface MapCommand { action: "focus" | "fit_all" | "highlight" | "radius"; center: [number, number]; zoom: number; parcelIds: string[]; radiusKm: number | null; label: string }
 
 /** Structured payload the agent returns next to its prose; built by tools on the server. */
