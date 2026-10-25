@@ -99,6 +99,7 @@ export function getScatter(parcels: Parcel[]) {
     .filter((c) => c.priceDeltaPct != null)
     .map((c) => ({
       id: c.parcel.parcel_id, district: c.parcel.district_ar, days: c.parcel.days_on_market,
+      area: c.parcel.area_of_city, landType: c.parcel.land_type, dealType: c.parcel.listing_type,
       delta: c.priceDeltaPct!, stagnant: c.parcel.days_on_market > STAGNANT_DAYS && c.priceDeltaPct! > 0,
     }));
   return { points: pts, stagnantCount: pts.filter((p) => p.stagnant).length };
@@ -149,3 +150,38 @@ export function getSegmentVelocity(parcels: Parcel[]) {
   }
   return out;
 }
+
+/* ---------- location pin ---------- */
+/** Suggest district + area from the nearest existing parcel to a dropped pin. */
+export function nearestDistrict(parcels: Parcel[], lat: number, lng: number) {
+  let best: Parcel | null = null, bestKm = Infinity;
+  for (const p of parcels) {
+    if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
+    const d = haversineKm({ lat, lng }, p);
+    if (d < bestKm) { bestKm = d; best = p; }
+  }
+  return best ? { district_ar: best.district_ar, district_en: best.district_en, area_of_city: best.area_of_city, km: Math.round(bestKm * 10) / 10 } : null;
+}
+
+/* ---------- offers ---------- */
+/** Plain-Arabic reasons a parcel fits (or misses) an inquiry. */
+export function matchReasons(parcel: Parcel, inquiry: Inquiry) {
+  const ok: string[] = [], warn: string[] = [];
+  if (parcel.area_of_city === inquiry.area_of_city_wanted) ok.push("في المنطقة المطلوبة"); else warn.push("خارج المنطقة المطلوبة");
+  if (parcel.land_type === inquiry.land_type_wanted) ok.push(parcel.land_type === "commercial" ? "أرض تجارية كما طلب" : "أرض سكنية كما طلب"); else warn.push("نوع الأرض مختلف");
+  if (parcel.listing_type === inquiry.prefers) ok.push(parcel.listing_type === "sale" ? "للبيع كما يفضّل" : "للإيجار كما يفضّل"); else warn.push("نوع الصفقة مختلف");
+  const left = inquiry.budget_sar != null && parcel.total_price_sar != null ? inquiry.budget_sar - parcel.total_price_sar : null;
+  if (left != null) (left >= 0 ? ok : warn).push(left >= 0 ? `ضمن الميزانية ويتبقى ${left.toLocaleString("en-US")} ريال` : `تتجاوز الميزانية بـ ${(-left).toLocaleString("en-US")} ريال`);
+  if (/compound|مجمع/i.test(inquiry.wants_to)) (parcel.area_sqm >= COMPOUND_MIN_SQM ? ok : warn).push(parcel.area_sqm >= COMPOUND_MIN_SQM ? "مساحة تكفي لمجمع سكني" : `المساحة أقل من ${COMPOUND_MIN_SQM.toLocaleString("en-US")} م² اللازمة لمجمع`);
+  return { ok, warn, budgetLeft: left };
+}
+
+/** Closest alternatives when nothing matches: same area & type, any deal/budget, cheapest first. */
+export function closestAlternatives(parcels: Parcel[], inquiry: Inquiry, limit = 3) {
+  return parcels
+    .filter((p) => isAvailable(p) && isPriced(p) && p.land_type === inquiry.land_type_wanted)
+    .sort((a, b) => Number(b.area_of_city === inquiry.area_of_city_wanted) - Number(a.area_of_city === inquiry.area_of_city_wanted) || (a.total_price_sar! - b.total_price_sar!))
+    .slice(0, limit);
+}
+
+export const waitDaysOf = (i: Inquiry) => daysBetween(i.date, SNAPSHOT_DATE);

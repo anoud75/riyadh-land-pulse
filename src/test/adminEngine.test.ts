@@ -23,3 +23,24 @@ describe("admin engine", () => {
     for (const s of getSegmentVelocity(P)) if (s.closedDeals < 3) expect(s.medianClosingDays).toBeNull();
   });
 });
+
+import { matchReasons, nearestDistrict, getScatter as gs } from "@/lib/adminEngine";
+describe("pin, match reasons, filters", () => {
+  it("nearestDistrict returns the parcel's own district at its coordinates", () => {
+    const p = P.find((x) => x.status === "available")!;
+    expect(nearestDistrict(P, p.lat, p.lng)?.district_ar).toBe(p.district_ar);
+  });
+  it("matchReasons shows remaining budget", () => {
+    const p = P.find((x) => x.total_price_sar === 3_000_000) ?? P.find((x) => x.total_price_sar)!;
+    const inq = { ...I[0]!, area_of_city_wanted: p.area_of_city, land_type_wanted: p.land_type, prefers: p.listing_type, budget_sar: p.total_price_sar! + 500_000, wants_to: "x" };
+    const r = matchReasons(p, inq);
+    expect(r.budgetLeft).toBe(500_000);
+    expect(r.warn).toEqual([]);
+  });
+  it("scatter filter by area keeps stagnant total consistent", () => {
+    const s = gs(P);
+    const byArea = (["North", "South", "East", "West", "Central"] as const).reduce((n, a) => n + s.points.filter((p) => p.area === a && p.stagnant).length, 0);
+    expect(byArea).toBe(s.stagnantCount);
+    expect(s.stagnantCount).toBe(10);
+  });
+});
