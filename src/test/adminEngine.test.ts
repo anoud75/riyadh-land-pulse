@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialInquiries as I, P as P } from "@/data";
+import { initialInquiries as I, initialParcels as P } from "@/data";
 import { boundsCheck, getFeasibility, getScatter, getSegmentVelocity, previewParcelImpact, totalPrice } from "@/lib/adminEngine";
 
 describe("admin engine", () => {
