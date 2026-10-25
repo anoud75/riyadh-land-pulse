@@ -4,7 +4,6 @@ import { districtGeo } from "@/lib/districtGeo";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Minus, Plus, Sparkles, X } from "lucide-react";
 import type { MapHandle } from "@/components/investor/ParcelMap";
-import { CATEGORY_AR } from "@/lib/siteSuitability";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, type Area, type Parcel } from "@/data/types";
 import { LAYER_LABELS, LEGENDS, type MapLayer } from "@/lib/mapLayers";
