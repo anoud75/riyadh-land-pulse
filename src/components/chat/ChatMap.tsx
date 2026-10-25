@@ -1,3 +1,4 @@
+/// <reference types="geojson" />
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -7,7 +8,7 @@ import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, findDistrict, metricValue, METRIC_AR, type DistrictCollection, type DistrictMetric, type DistrictStat } from "@/lib/districtStats";
 
 const GEO = geoRaw as unknown as DistrictCollection;
-const TOKEN = import.meta.env.VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN as string | undefined;
+const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
 const PALETTE = ["#efeafd", "#cdbdfa", "#a48cf3", "#7c5cff", "#4f33c4"];
 const DIVERGE = ["#2f7d5b", "#9fd3b8", "#f1f1f4", "#f2a7a0", "#c2413a"];
 
@@ -21,7 +22,7 @@ function circle(center: [number, number], km: number) {
 }
 
 /** Mapbox map the assistant drives: districts colored by a metric when zoomed out, parcels when zoomed in. Browser only; lazy-loaded. */
-export default function ChatMap({ command, parcels, onPick, inquiries }: { command: MapCommand; parcels: Parcel[]; onPick?: (id: string) => void; inquiries?: Inquiry[] }) {
+export default function ChatMap({ command, parcels, onPick, inquiries }: { command: MapCommand; parcels: Parcel[]; onPick?: (id: string) => void; inquiries?: Inquiry[] | undefined }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [ready, setReady] = useState(false);

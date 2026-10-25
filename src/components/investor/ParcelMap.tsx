@@ -1,3 +1,4 @@
+/// <reference types="geojson" />
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -9,7 +10,7 @@ import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, type DistrictCollection } from "@/lib/districtStats";
 
 const GEO = geoRaw as unknown as DistrictCollection;
-const TOKEN = import.meta.env.VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN as string | undefined;
+const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
 const STYLES = { satellite: "mapbox://styles/mapbox/satellite-streets-v12", streets: "mapbox://styles/mapbox/streets-v12", light: "mapbox://styles/mapbox/light-v11" } as const;
 const STYLE_AR: Record<keyof typeof STYLES, string> = { satellite: "قمر صناعي", streets: "شوارع", light: "فاتحة" };
 

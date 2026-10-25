@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import type { Parcel } from "@/data/types";
 
 const RIYADH: [number, number] = [24.7136, 46.6753];
-const TOKEN = import.meta.env.VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN as string | undefined;
+const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
 const r4 = (n: number) => Math.round(n * 1e4) / 1e4;
 
 function ring(c: [number, number], km: number): [number, number][] {
