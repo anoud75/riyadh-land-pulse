@@ -8,9 +8,10 @@ import type { Parcel } from "@/data/types";
  * If the image fails to load (offline / token blocked) it falls back to a
  * token-colored gradient block so the card never shows a broken image.
  */
-export function ParcelSnapshot({ parcel, className }: { parcel: Parcel; className?: string }) {
+export function ParcelSnapshot({ parcel, size = "card", className }: { parcel: Parcel; size?: "card" | "wide"; className?: string }) {
   const [failed, setFailed] = useState(false);
-  const url = failed ? null : snapshotUrl(parcel, { width: 600, height: 300 });
+  const dims = size === "wide" ? { width: 1200, height: 512 } : { width: 600, height: 300 };
+  const url = failed ? null : snapshotUrl(parcel, dims);
   return (
     <div className={`relative overflow-hidden bg-secondary ${className ?? ""}`}>
       {url ? (
