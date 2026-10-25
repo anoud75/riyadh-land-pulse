@@ -11,6 +11,7 @@ export const Route = createFileRoute("/investor/chats")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }],
   }),
   component: Chats,
 });

@@ -118,3 +118,9 @@
   animation: sarj-orb-breathe 4.5s ease-in-out infinite;
 }
 @keyframes sarj-orb-breathe { 50% { transform: scale(1.04); box-shadow: 0 0 80px 18px color-mix(in oklab, var(--primary) 30%, transparent), inset -10px -14px 30px color-mix(in oklab, var(--primary) 45%, transparent); } }
+
+@media print {
+  body * { visibility: hidden; }
+  .sarj-print, .sarj-print * { visibility: visible; }
+  .sarj-print { position: absolute; inset: 0; width: 100% !important; margin: 0; box-shadow: none; overflow: visible; }
+}

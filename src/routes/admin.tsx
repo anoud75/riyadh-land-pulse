@@ -46,6 +46,7 @@ function Layout() {
       </div>
     </>
   );
+  if (pathname === "/admin/assistant") return <Outlet />;
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-l bg-surface p-4 md:flex">{nav}</aside>
@@ -58,7 +59,7 @@ function Layout() {
         {open && <div className="flex flex-col border-b bg-surface p-4 md:hidden" onClick={() => setOpen(false)}>{nav}</div>}
         <main className="mx-auto max-w-6xl px-6 py-10"><Outlet /></main>
       </div>
-      {pathname !== "/admin/assistant" && <TeamAssistant />}
+      <TeamAssistant />
     </div>
   );
 }
