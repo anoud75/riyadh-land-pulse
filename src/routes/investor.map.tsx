@@ -1,13 +1,18 @@
 import { createFileRoute, ClientOnly, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useState } from "react";
-import { X } from "lucide-react";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { ChevronDown, Minus, Plus, X } from "lucide-react";
+import type { Map as LeafletMap } from "leaflet";
 import { usePortfolio } from "@/context/PortfolioProvider";
-import { AREA_AR, DEAL_AR, LAND_AR, type Parcel } from "@/data/types";
+import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, type Area, type Parcel } from "@/data/types";
 import { LAYER_LABELS, LEGENDS, type MapLayer } from "@/lib/mapLayers";
+import { applyMapFilters, DISTRICT_LEGEND, EMPTY_FILTERS, type DistrictAgg, type MapFilters } from "@/lib/mapStats";
+import { AREA_ADJ } from "@/lib/assistant";
 import { getParcelInsight } from "@/lib/investorEngine";
 import { FOOTPRINT_DISTRICTS } from "@/data/districtSeries";
-import { CompareButton, Fact, PriceLine } from "@/components/investor/ParcelCard";
-import { pct, sar, STATUS_AR } from "@/components/investor/format";
+import { CompareButton, PriceLine } from "@/components/investor/ParcelCard";
+import { MapAssistant } from "@/components/investor/MapAssistant";
+import { MapTicker } from "@/components/investor/MapTicker";
+import { pct, sar } from "@/components/investor/format";
 
 const ParcelMap = lazy(() => import("@/components/investor/ParcelMap"));
 
@@ -15,9 +20,11 @@ export const Route = createFileRoute("/investor/map")({
   head: () => ({
     meta: [
       { title: "الخريطة — سرج" },
-      { name: "description", content: "أراضي سرج على خريطة الرياض مع نطاقات الوصول والمنافسين." },
+      { name: "description", content: "أراضي سرج على خريطة الرياض مع نطاقات الوصول والمنافسين وبصمة الحي." },
       { property: "og:title", content: "الخريطة — سرج" },
       { property: "og:description", content: "خريطة الأراضي ونطاق الوصول." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }],
   }),
@@ -27,77 +34,294 @@ export const Route = createFileRoute("/investor/map")({
 function MapPage() {
   const { parcels } = usePortfolio();
   const [layer, setLayer] = useState<MapLayer>("deal");
+  const [mode, setMode] = useState<"parcels" | "districts">("parcels");
+  const [filters, setFilters] = useState<MapFilters>(EMPTY_FILTERS);
   const [selected, setSelected] = useState<Parcel | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+
+  const filtered = useMemo(() => applyMapFilters(parcels, filters), [parcels, filters]);
   const loading = <div className="grid size-full place-items-center text-sm text-muted-foreground">جارٍ تحميل الخريطة…</div>;
+
+  const onSelectDistrict = (d: DistrictAgg) => {
+    mapRef.current?.flyTo([d.lat, d.lng], 13, { duration: 0.8 });
+  };
 
   return (
     <div className="-mx-6 -my-10">
-      <div className="flex flex-wrap items-center gap-2 border-b bg-surface px-6 py-3">
-        <h1 className="ml-4 text-lg font-bold">الخريطة</h1>
-        {(Object.keys(LAYER_LABELS) as MapLayer[]).map((l) => (
-          <button key={l} onClick={() => setLayer(l)} aria-pressed={layer === l}
-            className={`rounded-full border px-3 py-1 text-sm ${layer === l ? "bg-foreground text-background" : "bg-surface hover:bg-secondary"}`}>
-            {LAYER_LABELS[l]}
-          </button>
-        ))}
-        <div className="mr-auto flex flex-wrap gap-3 text-xs text-muted-foreground">
-          {LEGENDS[layer].map((g) => (
-            <span key={g.label} className="flex items-center gap-1"><span className="size-2.5 rounded-full" style={{ background: g.color }} />{g.label}</span>
-          ))}
-        </div>
-      </div>
-      <div className="relative h-[calc(100vh-7.5rem)] min-h-[480px]">
+      <div className="relative h-[calc(100vh-7.5rem)] min-h-[560px] overflow-hidden">
         <ClientOnly fallback={loading}>
           <Suspense fallback={loading}>
-            <ParcelMap parcels={parcels} layer={layer} selected={selected} onSelect={setSelected} />
+            <ParcelMap
+              parcels={filtered}
+              layer={layer}
+              mode={mode}
+              selected={selected}
+              onSelect={setSelected}
+              onSelectDistrict={onSelectDistrict}
+              mapRef={mapRef}
+            />
           </Suspense>
         </ClientOnly>
-        {selected && <Drawer p={selected} onClose={() => setSelected(null)} />}
+
+        {/* top controls */}
+        <div className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex flex-col items-center gap-2 px-4">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-full border bg-surface px-2 py-1.5 shadow-sm">
+            <span className="px-2 text-xs text-muted-foreground">لقطة البيانات 11 أغسطس 2026</span>
+            <div className="flex rounded-full bg-secondary p-0.5">
+              {(["parcels", "districts"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => {
+                    setMode(m);
+                    setSelected(null);
+                  }}
+                  aria-pressed={mode === m}
+                  className={`rounded-full px-4 py-1 text-sm ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                >
+                  {m === "parcels" ? "الأراضي" : "الأحياء"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
+            <FilterChip
+              label="المنطقة"
+              active={filters.area ? `${AREA_ADJ[filters.area]} الرياض` : filters.excludeArea ? `خارج ${AREA_ADJ[filters.excludeArea]} الرياض` : null}
+              options={AREAS.map((a) => ({ k: a, l: `${AREA_ADJ[a]} الرياض` }))}
+              onPick={(k) => setFilters({ ...filters, area: k as Area, excludeArea: null })}
+              onClear={() => setFilters({ ...filters, area: null, excludeArea: null })}
+            />
+            <FilterChip
+              label="نوع الأرض"
+              active={filters.landType ? LAND_AR[filters.landType] : null}
+              options={LAND_TYPES.map((l) => ({ k: l, l: LAND_AR[l] }))}
+              onPick={(k) => setFilters({ ...filters, landType: k as Parcel["land_type"] })}
+              onClear={() => setFilters({ ...filters, landType: null })}
+            />
+            <FilterChip
+              label="الصفقة"
+              active={filters.dealType ? DEAL_AR[filters.dealType] : null}
+              options={(["sale", "lease"] as const).map((d) => ({ k: d, l: DEAL_AR[d] }))}
+              onPick={(k) => setFilters({ ...filters, dealType: k as Parcel["listing_type"] })}
+              onClear={() => setFilters({ ...filters, dealType: null })}
+            />
+            <FilterChip
+              label="عرض الشارع"
+              active={filters.minStreet ? `≥ ${filters.minStreet} م` : null}
+              options={[30, 40, 60].map((n) => ({ k: String(n), l: `${n} م فأكثر` }))}
+              onPick={(k) => setFilters({ ...filters, minStreet: Number(k) })}
+              onClear={() => setFilters({ ...filters, minStreet: null })}
+            />
+            <FilterChip
+              label="الطبقة"
+              active={layer !== "deal" ? LAYER_LABELS[layer] : null}
+              options={(Object.keys(LAYER_LABELS) as MapLayer[]).map((l) => ({ k: l, l: LAYER_LABELS[l] }))}
+              onPick={(k) => setLayer(k as MapLayer)}
+              onClear={() => setLayer("deal")}
+            />
+          </div>
+        </div>
+
+        {/* left: assistant */}
+        <div className="absolute bottom-28 left-4 top-28 z-[1000] w-[min(350px,85vw)]">
+          <MapAssistant
+            parcels={parcels}
+            onApplyFilters={(f) => {
+              setFilters(f);
+              setMode("parcels");
+            }}
+            onFocusParcel={setSelected}
+          />
+        </div>
+
+        {/* right: parcel inspection */}
+        {selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} />}
+
+        {/* bottom: executive ticker */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[1000] flex justify-center px-4">
+          <MapTicker parcels={parcels} />
+        </div>
+
+        {/* bottom-left: zoom + legend */}
+        <div className="absolute bottom-4 left-4 z-[1000] flex items-end gap-2">
+          <div className="flex flex-col rounded-xl border bg-surface shadow-sm">
+            <button aria-label="تكبير" onClick={() => mapRef.current?.zoomIn()} className="p-2 hover:bg-secondary">
+              <Plus className="size-4" />
+            </button>
+            <button aria-label="تصغير" onClick={() => mapRef.current?.zoomOut()} className="border-t p-2 hover:bg-secondary">
+              <Minus className="size-4" />
+            </button>
+          </div>
+          <div className="space-y-1.5 rounded-xl border bg-surface p-3 text-xs shadow-sm">
+            {(mode === "districts" ? DISTRICT_LEGEND : LEGENDS[layer]).map((g) => (
+              <div key={g.label} className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full" style={{ background: g.color }} />
+                {g.label}
+              </div>
+            ))}
+            <div className="pt-1 text-muted-foreground">
+              {mode === "districts" ? "حجم الدائرة = عدد الأراضي" : "حجم الدائرة = المساحة"}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
+function FilterChip({
+  label,
+  active,
+  options,
+  onPick,
+  onClear,
+}: {
+  label: string;
+  active: string | null;
+  options: { k: string; l: string }[];
+  onPick: (k: string) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  if (active)
+    return (
+      <span className="flex items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-sm text-accent-foreground">
+        {active}
+        <button aria-label={`إزالة ${label}`} onClick={onClear}>
+          <X className="size-3.5" />
+        </button>
+      </span>
+    );
+  return (
+    <span className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className="flex items-center gap-1 rounded-full border bg-surface px-3 py-1.5 text-sm shadow-sm hover:bg-secondary"
+      >
+        {label}
+        <ChevronDown className="size-3.5" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-10 mt-1 w-40 rounded-xl border bg-surface p-1 shadow-lg">
+          {options.map((o) => (
+            <button
+              key={o.k}
+              onClick={() => {
+                onPick(o.k);
+                setOpen(false);
+              }}
+              className="block w-full rounded-lg px-3 py-1.5 text-right text-sm hover:bg-secondary"
+            >
+              {o.l}
+            </button>
+          ))}
+        </div>
+      )}
+    </span>
+  );
+}
+
 function Drawer({ p, onClose }: { p: Parcel; onClose: () => void }) {
-  const { parcels } = usePortfolio();
+  const { parcels, inquiries } = usePortfolio();
   const ins = getParcelInsight(parcels, p.parcel_id)!;
   const s = ins.segment;
+  const openInquiries = inquiries.filter(
+    (i) => i.area_of_city_wanted === p.area_of_city && i.land_type_wanted === p.land_type && i.prefers === p.listing_type,
+  ).length;
   const district = FOOTPRINT_DISTRICTS.find((d) => (d.match as readonly string[]).includes(p.district_en))?.ar ?? "الملقا";
   return (
-    <aside className="absolute inset-y-0 right-0 z-[1000] w-full max-w-sm overflow-y-auto border-l bg-surface p-5 shadow-xl">
-      <div className="flex items-start justify-between">
+    <aside className="absolute bottom-28 right-4 top-28 z-[1001] w-[min(360px,90vw)] overflow-y-auto rounded-3xl border bg-surface p-5 shadow-xl">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="size-1.5 rounded-full bg-primary" />
+        الأرض المحددة
+      </div>
+      <div className="mt-1 flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold">{p.district_ar}</h2>
-          <div className="text-sm text-muted-foreground">{AREA_AR[p.area_of_city]} · {LAND_AR[p.land_type]} · {DEAL_AR[p.listing_type]} · <span className="font-mono">{p.parcel_id}</span></div>
+          <h2 className="text-3xl font-bold">{p.district_ar}</h2>
+          <div className="text-sm text-muted-foreground">
+            <span className="font-mono">{p.parcel_id}</span> · {AREA_AR[p.area_of_city]} الرياض
+          </div>
         </div>
-        <button onClick={onClose} aria-label="إغلاق"><X className="size-5" /></button>
+        <button onClick={onClose} aria-label="إغلاق">
+          <X className="size-5" />
+        </button>
       </div>
-      <div className="mt-2 text-xs"><span className="rounded-full bg-secondary px-2 py-0.5">{STATUS_AR[p.status]}</span></div>
-      <div className="mt-4"><PriceLine p={p} /></div>
-      <dl className="mt-4 grid grid-cols-3 gap-3 text-sm">
-        <Fact k="المساحة" v={`${sar(p.area_sqm)} م²`} />
-        <Fact k="الشارع" v={`${p.street_width_m} م`} />
-        <Fact k="في السوق" v={`${p.days_on_market} يومًا`} />
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full bg-accent px-2.5 py-1 text-accent-foreground">
+          {LAND_AR[p.land_type]} {p.listing_type === "sale" ? "للبيع" : "للإيجار"}
+        </span>
+        <span className="rounded-full bg-secondary px-2.5 py-1">{sar(p.area_sqm)} م²</span>
+        <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-destructive">معروضة {p.days_on_market} يومًا</span>
+      </div>
+      <div className="mt-4">
+        <PriceLine p={p} />
+      </div>
+      <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border text-sm">
+        <Cell k="سعر المتر · ريال" v={p.price_per_sqm_sar ? sar(p.price_per_sqm_sar) : "—"} />
+        <Cell k="المساحة · م²" v={sar(p.area_sqm)} />
+        <Cell k="يومًا في السوق" v={String(p.days_on_market)} />
+        <Cell k="عرض الشارع · م" v={String(p.street_width_m)} />
       </dl>
-      <div className="mt-5 rounded-xl border p-4 text-sm">
-        <div className="font-medium">مقابل شريحتها</div>
+      <div className="mt-5">
+        <div className="text-sm font-medium">
+          الأرض في شريحتها{" "}
+          <span className="text-xs font-normal text-muted-foreground">
+            {AREA_AR[p.area_of_city]} · {LAND_AR[p.land_type]} · {DEAL_AR[p.listing_type]}
+          </span>
+        </div>
         {s.insufficientSample ? (
-          <p className="mt-1 text-muted-foreground">عينة غير كافية ({s.closedDeals} صفقة مغلقة)، لا يُعرض وسيط.</p>
-        ) : (
-          <p className="mt-1 text-muted-foreground">
-            {ins.priceDeltaPct == null ? "لا سعر للمقارنة" : `${pct(ins.priceDeltaPct)} عن وسيط ${sar(s.medianPricePerSqm)} ريال`} · {p.days_on_market} يومًا مقابل وسيط {s.medianClosingDays} (×{ins.domMultiplier})
+          <p className="mt-2 rounded-xl border p-3 text-sm text-muted-foreground">
+            عينة غير كافية ({s.closedDeals} صفقة مغلقة)، لا تُعرض وسائط.
           </p>
+        ) : (
+          <div className="mt-2 space-y-2 text-sm">
+            <Row k="وسيط سعر المتر" v={`${sar(s.medianPricePerSqm)} ريال`} />
+            <Row k="سعرها مقابل الوسيط" v={ins.priceDeltaPct == null ? "لا سعر" : pct(ins.priceDeltaPct)!} hot={(ins.priceDeltaPct ?? 0) > 0} />
+            <Row k="وسيط الإغلاق" v={`${s.medianClosingDays} يومًا`} />
+            <Row k="استفسارات مفتوحة" v={String(openInquiries)} />
+          </div>
         )}
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          الوسائط من {s.closedDeals} صفقات مغلقة في الشريحة نفسها. الاستخدام النظامي وحدود القطعة يُتحقَّق منهما لدى الجهة
+          المختصة.
+        </p>
       </div>
-      <div className="mt-4 rounded-xl border p-4 text-xs text-muted-foreground">
-        نطاقات 5/10/15 دقيقة ومواقع المنافسين تقدير توضيحي، لا من شبكة طرق فعلية. الاستخدام النظامي وحدود القطعة لم يُتحقق منهما.
-        {p.coordinatesCorrected && " الإحداثيات صُحّحت تلقائيًا."}
-      </div>
-      <div className="mt-5 flex flex-wrap gap-2">
-        <Link to="/investor/footprint/$district" params={{ district }} className="rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground">افتح بصمة الحي</Link>
-        <Link to="/investor/parcels/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full border px-4 py-2 text-sm">صفحة الأرض</Link>
+      <Link
+        to="/investor/footprint/$district"
+        params={{ district }}
+        className="mt-5 flex items-center justify-between rounded-2xl bg-ink p-4 text-ink-foreground"
+      >
+        <div>
+          <div className="font-semibold">بصمة الحي</div>
+          <div className="text-xs text-ink-muted">سعر المتر · الصفقات · مدة العرض</div>
+        </div>
+        <span aria-hidden>←</span>
+      </Link>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link to="/investor/parcels/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full border px-4 py-2 text-sm">
+          صفحة الأرض
+        </Link>
         <CompareButton id={p.parcel_id} />
       </div>
     </aside>
+  );
+}
+
+function Cell({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="bg-surface p-3">
+      <dt className="text-xs text-muted-foreground">{k}</dt>
+      <dd className="mt-0.5 font-mono text-base font-bold">{v}</dd>
+    </div>
+  );
+}
+
+function Row({ k, v, hot }: { k: string; v: string; hot?: boolean }) {
+  return (
+    <div className="flex items-center justify-between rounded-xl bg-secondary px-3 py-2">
+      <span className="text-muted-foreground">{k}</span>
+      <span className={`font-mono font-bold ${hot ? "text-destructive" : ""}`}>{v}</span>
+    </div>
   );
 }
