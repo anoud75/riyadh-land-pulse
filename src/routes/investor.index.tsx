@@ -92,7 +92,7 @@ function Lands() {
         onSubmit={(e) => { e.preventDefault(); navigate({ to: "/investor/chats" }); }}
         className="mt-5 flex gap-2 rounded-2xl border bg-surface p-2"
       >
-        <input value={intent} onChange={(e) => setIntent(e.target.value)} placeholder="اكتبيه بجملة واحدة: مستودع جنوب الرياض بميزانية مليون ريال سنويًا…" className="flex-1 bg-transparent px-3 outline-none" />
+        <input value={intent} onChange={(e) => setIntent(e.target.value)} placeholder="اكتبه بجملة واحدة: أرض تجارية شمال الرياض بميزانية 3 ملايين…" className="flex-1 bg-transparent px-3 outline-none" />
         <button className="rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground">اسألي</button>
       </form>
       <div className="mt-4 flex flex-wrap gap-2">

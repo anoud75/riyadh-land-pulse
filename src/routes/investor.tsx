@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { GitCompare, Map, MessageSquare, Search, Send, LandPlot, Menu, Bookmark } from "lucide-react";
+import { GitCompare, Map, MessageSquare, Search, Send, LandPlot, Menu, Bookmark, UserRound } from "lucide-react";
 import { Logo } from "@/components/SiteHeader";
 import { ViewSwitcher } from "@/components/ViewSwitcher";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -63,8 +63,8 @@ function Layout() {
         ))}
       </div>
       <div className="mt-auto flex items-center gap-3 border-t pt-4">
-        <span className="grid size-9 place-items-center rounded-full bg-accent text-sm text-accent-foreground">{(investorName || "ض").charAt(0)}</span>
-        <div className="text-sm"><div>{investorName || "ضيف"}</div><div className="text-xs text-muted-foreground">مستثمرة</div></div>
+        <span className="grid size-9 place-items-center rounded-full bg-accent text-accent-foreground"><UserRound className="size-4.5" /></span>
+        <div className="text-sm"><div>{investorName || "ضيف"}</div><div className="text-xs text-muted-foreground">مستثمر</div></div>
       </div>
     </>
   );
