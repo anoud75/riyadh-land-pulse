@@ -111,7 +111,7 @@ function Compare() {
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <Popover open={openP} onOpenChange={setOpenP}>
           <PopoverTrigger className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm hover:border-primary">
-            الأراضي ({items.length}) <ChevronDown className="size-4" />
+            الأراضي ({items.length}/{MAX_COMPARE}) <ChevronDown className="size-4" />
           </PopoverTrigger>
           <PopoverContent align="start" className="w-80 p-0">
             <Command>
@@ -122,7 +122,7 @@ function Compare() {
                   {parcels.map((p) => {
                     const on = compareIds.includes(p.parcel_id);
                     return (
-                      <CommandItem key={p.parcel_id} value={`${p.district_ar} ${p.parcel_id}`} onSelect={() => toggleCompare(p.parcel_id)}>
+                      <CommandItem key={p.parcel_id} value={`${p.district_ar} ${p.parcel_id}`} onSelect={() => pick(p.parcel_id)}>
                         <Check className={`size-4 ${on ? "opacity-100 text-primary" : "opacity-0"}`} />
                         <span className="flex-1">{p.district_ar} · {LAND_AR[p.land_type]}</span>
                         <span className="font-mono text-xs text-muted-foreground">{p.parcel_id}</span>
