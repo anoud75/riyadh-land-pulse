@@ -47,8 +47,9 @@ function PanelBody({ children }: { children: ReactNode }) {
     if (!el) return;
     const max = el.scrollHeight - el.clientHeight;
     const over = max > 4;
-    const thumb = Math.max(28, Math.round((el.clientHeight / el.scrollHeight) * el.clientHeight));
-    setGeo((p) => (p.top === el.scrollTop && p.max === max && p.thumb === thumb && p.track === el.clientHeight && p.over === over ? p : { top: el.scrollTop, max, thumb, track: el.clientHeight, over }));
+    const trackH = track.current?.clientHeight || el.clientHeight;
+    const thumb = Math.max(28, Math.round((el.clientHeight / el.scrollHeight) * trackH));
+    setGeo((p) => (p.top === el.scrollTop && p.max === max && p.thumb === thumb && p.track === trackH && p.over === over ? p : { top: el.scrollTop, max, thumb, track: trackH, over }));
   }, []);
 
   useEffect(() => {
