@@ -1,5 +1,5 @@
 import type { Parcel } from "./types";
-import { isClosed, isPriced, median, MIN_SAMPLE } from "@/lib/portfolioEngine";
+import { isClosed, isPriced, median, MIN_SAMPLE, projectPopulationTo2026 } from "@/lib/portfolioEngine";
 
 export const FOOTPRINT_DISTRICTS = [
   { ar: "الملقا", match: ["Al Malqa"], seed: 1.25 },
