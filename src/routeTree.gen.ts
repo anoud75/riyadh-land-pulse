@@ -25,6 +25,7 @@ import { Route as AdminPortfolioRouteImport } from './routes/admin.portfolio'
 import { Route as InvestorIndexRouteImport } from './routes/investor.index'
 import { Route as InvestorChatsRouteImport } from './routes/investor.chats'
 import { Route as InvestorCompareRouteImport } from './routes/investor.compare'
+import { Route as InvestorFavoritesRouteImport } from './routes/investor.favorites'
 import { Route as InvestorInquiriesRouteImport } from './routes/investor.inquiries'
 import { Route as InvestorMapRouteImport } from './routes/investor.map'
 import { Route as LocateTokenRouteImport } from './routes/locate.$token'
@@ -113,6 +114,11 @@ const InvestorCompareRoute = InvestorCompareRouteImport.update({
   path: '/compare',
   getParentRoute: () => InvestorRoute,
 } as any)
+const InvestorFavoritesRoute = InvestorFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => InvestorRoute,
+} as any)
 const InvestorInquiriesRoute = InvestorInquiriesRouteImport.update({
   id: '/inquiries',
   path: '/inquiries',
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/investor/chats': typeof InvestorChatsRoute
   '/investor/compare': typeof InvestorCompareRoute
+  '/investor/favorites': typeof InvestorFavoritesRoute
   '/investor/inquiries': typeof InvestorInquiriesRoute
   '/investor/map': typeof InvestorMapRoute
   '/locate/$token': typeof LocateTokenRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/investor/chats': typeof InvestorChatsRoute
   '/investor/compare': typeof InvestorCompareRoute
+  '/investor/favorites': typeof InvestorFavoritesRoute
   '/investor/inquiries': typeof InvestorInquiriesRoute
   '/investor/map': typeof InvestorMapRoute
   '/locate/$token': typeof LocateTokenRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/admin/portfolio': typeof AdminPortfolioRoute
   '/investor/chats': typeof InvestorChatsRoute
   '/investor/compare': typeof InvestorCompareRoute
+  '/investor/favorites': typeof InvestorFavoritesRoute
   '/investor/inquiries': typeof InvestorInquiriesRoute
   '/investor/map': typeof InvestorMapRoute
   '/locate/$token': typeof LocateTokenRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin/portfolio'
     | '/investor/chats'
     | '/investor/compare'
+    | '/investor/favorites'
     | '/investor/inquiries'
     | '/investor/map'
     | '/locate/$token'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/admin/portfolio'
     | '/investor/chats'
     | '/investor/compare'
+    | '/investor/favorites'
     | '/investor/inquiries'
     | '/investor/map'
     | '/locate/$token'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/admin/portfolio'
     | '/investor/chats'
     | '/investor/compare'
+    | '/investor/favorites'
     | '/investor/inquiries'
     | '/investor/map'
     | '/locate/$token'
@@ -425,6 +437,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestorCompareRouteImport
       parentRoute: typeof InvestorRoute
     }
+    '/investor/favorites': {
+      id: '/investor/favorites'
+      path: '/favorites'
+      fullPath: '/investor/favorites'
+      preLoaderRoute: typeof InvestorFavoritesRouteImport
+      parentRoute: typeof InvestorRoute
+    }
     '/investor/inquiries': {
       id: '/investor/inquiries'
       path: '/inquiries'
@@ -502,6 +521,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface InvestorRouteChildren {
   InvestorChatsRoute: typeof InvestorChatsRoute
   InvestorCompareRoute: typeof InvestorCompareRoute
+  InvestorFavoritesRoute: typeof InvestorFavoritesRoute
   InvestorInquiriesRoute: typeof InvestorInquiriesRoute
   InvestorMapRoute: typeof InvestorMapRoute
   InvestorIndexRoute: typeof InvestorIndexRoute
@@ -513,6 +533,7 @@ interface InvestorRouteChildren {
 const InvestorRouteChildren: InvestorRouteChildren = {
   InvestorChatsRoute: InvestorChatsRoute,
   InvestorCompareRoute: InvestorCompareRoute,
+  InvestorFavoritesRoute: InvestorFavoritesRoute,
   InvestorInquiriesRoute: InvestorInquiriesRoute,
   InvestorMapRoute: InvestorMapRoute,
   InvestorIndexRoute: InvestorIndexRoute,

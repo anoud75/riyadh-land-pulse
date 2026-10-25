@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { GitCompare, Map, MessageSquare, Search, Send, LandPlot, Menu, Bookmark, UserRound } from "lucide-react";
+import { GitCompare, Map, MessageSquare, Search, Send, LandPlot, Menu, Bookmark, UserRound, Heart } from "lucide-react";
 import { Logo } from "@/components/SiteHeader";
 import { ViewSwitcher } from "@/components/ViewSwitcher";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -25,7 +25,7 @@ export const SAVED_SEARCHES = [
 ] as const;
 
 function Layout() {
-  const { parcels, compareIds, myInquiries, investorName } = usePortfolio();
+  const { parcels, compareIds, favoriteIds, myInquiries, investorName } = usePortfolio();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const item = "flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary";
@@ -49,6 +49,9 @@ function Layout() {
         </Link>
         <Link to="/investor/compare" activeProps={active} className={item}>
           <span className="flex items-center gap-2"><GitCompare className="size-4" />المقارنة</span>{badge(compareIds.length)}
+        </Link>
+        <Link to="/investor/favorites" activeProps={active} className={item}>
+          <span className="flex items-center gap-2"><Heart className="size-4" />المفضلة</span>{badge(favoriteIds.length)}
         </Link>
         <Link to="/investor/inquiries" activeProps={active} className={item}>
           <span className="flex items-center gap-2"><Send className="size-4" />استفساراتي</span>{badge(myInquiries.length)}

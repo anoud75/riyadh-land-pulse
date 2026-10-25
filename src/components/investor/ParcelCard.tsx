@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Heart } from "lucide-react";
 import type { Parcel } from "@/data/types";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -30,6 +31,22 @@ export function PriceLine({ p }: { p: Parcel }) {
   );
 }
 
+export function FavoriteButton({ id, className = "" }: { id: string; className?: string }) {
+  const { favoriteIds, toggleFavorite } = usePortfolio();
+  const on = favoriteIds.includes(id);
+  return (
+    <button
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(id); }}
+      aria-pressed={on}
+      aria-label={on ? "إزالة من المفضلة" : "أضف للمفضلة"}
+      title={on ? "إزالة من المفضلة" : "أضف للمفضلة"}
+      className={`grid size-9 place-items-center rounded-full border bg-card/90 backdrop-blur transition hover:scale-105 ${className}`}
+    >
+      <Heart className={`size-4 ${on ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+    </button>
+  );
+}
+
 export function ParcelCard({ p }: { p: Parcel }) {
   return (
     <Link
@@ -37,7 +54,10 @@ export function ParcelCard({ p }: { p: Parcel }) {
       params={{ parcelId: p.parcel_id }}
       className="flex flex-col overflow-hidden rounded-2xl border bg-card transition-colors hover:border-primary"
     >
-      <ParcelSnapshot parcel={p} className="aspect-[16/7] w-full shrink-0" />
+      <div className="relative">
+        <ParcelSnapshot parcel={p} className="aspect-[16/7] w-full shrink-0" />
+        <FavoriteButton id={p.parcel_id} className="absolute left-3 top-3" />
+      </div>
       <div className="flex flex-1 flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
