@@ -50,11 +50,15 @@ interface Ctx {
   revealLog: RevealEntry[];
   revealPhone: (inquiryId: string) => void;
   offers: OfferEntry[];
-  sendOffer: (inquiryId: string, parcelId: string) => void;
+  sendOffer: (inquiryId: string, parcelId: string, note?: string) => void;
+  locationRequests: LocationRequest[];
+  requestLocation: (parcelId: string, draft: LocationRequest["draft"]) => string;
+  completeLocation: (token: string, lat: number, lng: number) => Parcel | null;
 }
 
 export interface RevealEntry { inquiry_id: string; by: string; at: string }
-export interface OfferEntry { inquiry_id: string; parcel_id: string; at: string }
+export interface OfferEntry { inquiry_id: string; parcel_id: string; at: string; note?: string | undefined }
+export interface LocationRequest { token: string; draft: Omit<RawParcel, "parcel_id" | "lat" | "lng">; parcel_id: string; at: string; done: boolean }
 
 // Keep one context object across hot reloads so live edits never orphan the provider.
 const g = globalThis as { __sarjPortfolioCtx?: React.Context<Ctx | null> };
@@ -112,17 +116,29 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<OfferEntry[]>([]);
   const revealPhone = (inquiry_id: string) =>
     setRevealLog((prev) => [{ inquiry_id, by: "فريق سرج", at: new Date().toISOString() }, ...prev]);
-  const sendOffer = (inquiry_id: string, parcel_id: string) =>
-    setOffers((prev) => [{ inquiry_id, parcel_id, at: new Date().toISOString() }, ...prev]);
+  const sendOffer = (inquiry_id: string, parcel_id: string, note?: string) =>
+    setOffers((prev) => [{ inquiry_id, parcel_id, at: new Date().toISOString(), note }, ...prev]);
+  const [locationRequests, setLocationRequests] = useState<LocationRequest[]>([]);
+  const requestLocation: Ctx["requestLocation"] = (parcel_id, draft) => {
+    const token = Math.random().toString(36).slice(2, 10);
+    setLocationRequests((prev) => [{ token, draft, parcel_id, at: new Date().toISOString(), done: false }, ...prev]);
+    return token;
+  };
+  const completeLocation: Ctx["completeLocation"] = (token, lat, lng) => {
+    const r = locationRequests.find((x) => x.token === token && !x.done);
+    if (!r) return null;
+    setLocationRequests((prev) => prev.map((x) => (x.token === token ? { ...x, done: true } : x)));
+    return addParcel({ ...r.draft, parcel_id: r.parcel_id, lat, lng });
+  };
 
   const value = useMemo(
     () => ({
       parcels, inquiries, addParcel, addInquiry, submitInvestorInquiry, myInquiries,
       compareIds, toggleCompare, role, setRole, investorName, setInvestorName,
-      revealLog, revealPhone, offers, sendOffer,
+      revealLog, revealPhone, offers, sendOffer, locationRequests, requestLocation, completeLocation,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [parcels, inquiries, myInquiries, compareIds, role, investorName, revealLog, offers],
+    [parcels, inquiries, myInquiries, compareIds, role, investorName, revealLog, offers, locationRequests],
   );
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>;
 }
