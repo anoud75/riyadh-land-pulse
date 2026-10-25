@@ -41,6 +41,12 @@ describe("parcelSnapshot", () => {
     expect(parcelRadiusM(100000)).toBeCloseTo(Math.sqrt(100000 / Math.PI), 0);
   });
 
+  it("grows the glow ring to stay visible, but shows a large parcel's real footprint", () => {
+    expect(haloRadiusM(24.71, 15, 600, null)).toBeCloseTo(138, 0); // ~15% of image width across
+    expect(haloRadiusM(24.71, 15, 600, 5000)).toBeCloseTo(138, 0); // tiny parcel → halo
+    expect(haloRadiusM(24.71, 15, 600, 1_000_000)).toBeCloseTo(Math.sqrt(1_000_000 / Math.PI), 0); // 100 ha → real footprint
+  });
+
   it("builds a static-map URL with pin and footprint path when a token exists", () => {
     const url = snapshotUrl({ lng: 46.6753, lat: 24.7136, area_sqm: 5000 }, { width: 600, height: 300 });
     if (url === null) return; // no token in this environment — the component shows the fallback
