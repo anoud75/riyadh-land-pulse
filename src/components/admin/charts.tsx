@@ -1,85 +1,107 @@
 import type { GapCell, SegmentStats } from "@/lib/portfolioEngine";
 import { AREA_AR, AREAS, DEAL_AR, LAND_AR } from "@/data/types";
 
+import { useTip } from "./chartKit";
+
 const fmt = (n: number) => n.toLocaleString("en-US");
 
-/** Net supply − demand per region, residential and commercial side by side, diverging from 0. */
-export function GapDiverging({ gaps }: { gaps: GapCell[] }) {
+/** Net supply − demand per area & land type. Shortage left (red), surplus right. Click a row to drill down. */
+export function GapDiverging({ gaps, selected, onPick }: { gaps: GapCell[]; selected?: string | null | undefined; onPick?: ((g: GapCell) => void) | undefined }) {
   const max = Math.max(1, ...gaps.map((g) => Math.abs(g.netGap)));
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <div className="grid grid-cols-[5.5rem_1fr_1fr] text-[11px] text-muted-foreground"><span /><span className="text-center">عجز: طلب بلا أرض</span><span className="text-center">فائض: أرض بلا طلب</span></div>
       {AREAS.map((a) => (
-        <div key={a} className="grid grid-cols-[4rem_1fr] items-center gap-3">
-          <div className="text-sm">{AREA_AR[a]}</div>
-          <div className="space-y-1">
+        <div key={a} className="grid grid-cols-[5.5rem_1fr] items-center gap-3">
+          <div className="text-sm font-medium">{AREA_AR[a]}</div>
+          <div className="space-y-1.5">
             {gaps.filter((g) => g.area === a).map((g) => {
               const w = (Math.abs(g.netGap) / max) * 50;
               const neg = g.netGap < 0;
+              const key = `${g.area}|${g.landType}`;
+              const on = selected === key;
               return (
-                <div key={g.landType} className="relative h-5 rounded bg-muted/40">
-                  <div className="absolute inset-y-0 left-1/2 w-px bg-border" />
-                  <div
-                    className={`absolute inset-y-0 rounded transition-all ${neg ? "bg-destructive/80" : g.landType === "residential" ? "bg-chart-blue" : "bg-primary"}`}
-                    style={neg ? { left: `${50 - w}%`, width: `${w}%` } : { left: "50%", width: `${w}%` }}
-                  />
-                  <span className={`absolute top-0 text-[11px] font-mono leading-5`} style={neg ? { left: `${Math.max(1, 50 - w - 9)}%` } : { left: `${Math.min(88, 50 + w + 1)}%` }}>
-                    {LAND_AR[g.landType]} {g.netGap > 0 ? `+${g.netGap}` : g.netGap}
+                <button type="button" key={g.landType} onClick={() => onPick?.(g)} title={`${AREA_AR[g.area]} · ${LAND_AR[g.landType]}: ${g.availableParcels} أرض متاحة مقابل ${g.openInquiries} استفسار`}
+                  className={`relative block h-7 w-full rounded-lg text-right transition ${on ? "bg-accent ring-2 ring-primary" : "bg-muted/40 hover:bg-muted"}`} dir="ltr">
+                  <span className="absolute inset-y-1 left-1/2 w-px bg-foreground/30" />
+                  {g.netGap !== 0 && <span className={`absolute inset-y-1 rounded ${neg ? "bg-destructive/80" : g.landType === "residential" ? "bg-chart-blue" : "bg-primary"}`} style={neg ? { left: `${50 - w}%`, width: `${w}%` } : { left: "50%", width: `${w}%` }} />}
+                  <span className="absolute inset-y-0 flex items-center gap-1 text-[11px]" dir="rtl" style={neg ? { right: "52%" } : { left: "52%" }}>
+                    <b className="font-mono">{g.netGap > 0 ? `+${g.netGap}` : g.netGap}</b><span className="text-muted-foreground">{LAND_AR[g.landType]}</span>
                   </span>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
       ))}
-      <div className="flex justify-between text-xs text-muted-foreground"><span>← عجز (طلب أكثر من العرض)</span><span>فائض (عرض أكثر من الطلب) →</span></div>
     </div>
   );
 }
 
-export function StagnantBars({ rows, median }: { rows: { id: string; district: string; days: number }[]; median: number }) {
-  const max = Math.max(median, ...rows.map((r) => r.days)) * 1.05;
+/** Longest-listed available parcels with the median-closing line. Click opens the parcel. */
+export function StagnantBars({ rows, median, onPick }: { rows: { id: string; district: string; days: number }[]; median: number; onPick?: ((id: string) => void) | undefined }) {
+  const max = Math.max(median, ...rows.map((r) => r.days)) * 1.08;
   return (
-    <div className="relative space-y-1.5">
-      {rows.map((r) => (
-        <div key={r.id} className="grid grid-cols-[7.5rem_1fr_3rem] items-center gap-2 text-sm">
-          <span className="truncate">{r.district} <span className="font-mono text-xs text-muted-foreground">{r.id}</span></span>
-          <div className="relative h-4 rounded bg-muted/40">
-            <div className={`h-4 rounded ${r.days > median * 2 ? "bg-destructive/80" : "bg-primary/70"}`} style={{ width: `${(r.days / max) * 100}%` }} />
-            <div className="absolute inset-y-[-3px] w-0.5 bg-foreground" style={{ left: `${(median / max) * 100}%` }} />
-          </div>
-          <span className="font-mono text-xs">{r.days}</span>
-        </div>
-      ))}
-      <div className="pt-1 text-xs text-muted-foreground">الخط الأسود: وسيط أيام الإغلاق ({median} يومًا)</div>
+    <div className="space-y-1.5">
+      {rows.map((r) => {
+        const late = r.days > median * 2;
+        return (
+          <button type="button" key={r.id} onClick={() => onPick?.(r.id)} title={`${r.district} ${r.id}: ${r.days} يومًا، أي ${Math.round((r.days / Math.max(median, 1)) * 10) / 10} ضعف الوسيط`}
+            className="grid w-full grid-cols-[8rem_1fr_3.5rem] items-center gap-2 rounded-lg px-1 py-0.5 text-right text-sm hover:bg-secondary">
+            <span className="truncate">{r.district} <span className="font-mono text-[11px] text-muted-foreground">{r.id}</span></span>
+            <span className="relative h-5 rounded bg-muted/40" dir="ltr">
+              <span className={`absolute inset-y-0 left-0 rounded ${late ? "bg-destructive/80" : "bg-primary/70"}`} style={{ width: `${(r.days / max) * 100}%` }} />
+              <span className="absolute -inset-y-1 w-0.5 bg-foreground" style={{ left: `${(median / max) * 100}%` }} />
+            </span>
+            <span className="font-mono text-xs">{r.days} يوم</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-export function DeltaScatter({ points, stagnantDays }: { points: { id: string; district: string; days: number; delta: number; stagnant: boolean }[]; stagnantDays: number }) {
-  const W = 640, H = 340, P = 40;
-  const maxD = Math.max(stagnantDays * 2, ...points.map((p) => p.days)) * 1.05;
-  const ext = Math.max(20, ...points.map((p) => Math.abs(p.delta))) * 1.1;
-  const x = (d: number) => P + (d / maxD) * (W - 2 * P);
-  const y = (v: number) => H / 2 - (v / ext) * (H / 2 - P);
+export type ScatterPt = { id: string; district: string; days: number; delta: number; stagnant: boolean };
+/** Price-per-m² gap to segment median (y) vs days on market (x). Top-right shaded = overpriced & stagnant. */
+export function DeltaScatter({ points, stagnantDays, selected, onPick }: { points: ScatterPt[]; stagnantDays: number; selected?: string | null | undefined; onPick?: ((id: string) => void) | undefined }) {
+  const W = 720, H = 380, L = 56, R = 16, T = 20, B = 44;
+  const maxD = Math.ceil((Math.max(stagnantDays * 2, ...points.map((p) => p.days)) * 1.05) / 30) * 30;
+  const ext = Math.ceil((Math.max(20, ...points.map((p) => Math.abs(p.delta))) * 1.1) / 10) * 10;
+  const x = (d: number) => L + (d / maxD) * (W - L - R);
+  const y = (v: number) => T + ((ext - v) / (2 * ext)) * (H - T - B);
+  const { setTip, layer } = useTip();
+  const xt = Array.from({ length: maxD / 30 + 1 }, (_, i) => i * 30);
+  const yt = [-ext, -ext / 2, 0, ext / 2, ext];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="فرق سعر المتر مقابل أيام العرض">
-      <rect x={x(stagnantDays)} y={P / 2} width={x(maxD) - x(stagnantDays)} height={y(0) - P / 2} className="fill-destructive/10" />
-      <text x={x(maxD) - 6} y={P / 2 + 16} textAnchor="end" className="fill-destructive text-[12px]">ربع الركود</text>
-      <line x1={P} x2={W - P} y1={y(0)} y2={y(0)} className="stroke-border" />
-      <line x1={x(stagnantDays)} x2={x(stagnantDays)} y1={P / 2} y2={H - P / 2} className="stroke-border" strokeDasharray="4 4" />
-      {[0, 60, 120, 180].filter((d) => d < maxD).map((d) => (
-        <text key={d} x={x(d)} y={H - 8} textAnchor="middle" className="fill-muted-foreground font-mono text-[10px]">{d}</text>
-      ))}
-      {[-ext * 0.8, 0, ext * 0.8].map((v) => (
-        <text key={v} x={4} y={y(v) + 3} className="fill-muted-foreground font-mono text-[10px]">{v > 0 ? "+" : ""}{Math.round(v)}%</text>
-      ))}
-      {points.map((p) => (
-        <circle key={p.id} cx={x(p.days)} cy={y(p.delta)} r={p.stagnant ? 5 : 4} className={p.stagnant ? "fill-destructive" : "fill-chart-blue/70"}>
-          <title>{`${p.id} ${p.district} · ${p.days} يومًا · ${p.delta > 0 ? "+" : ""}${p.delta}%`}</title>
-        </circle>
-      ))}
-      <text x={W / 2} y={H - 22} textAnchor="middle" className="fill-muted-foreground text-[10px]">أيام في السوق</text>
-    </svg>
+    <div className="relative">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="فرق سعر المتر عن الوسيط مقابل أيام العرض" onMouseLeave={() => setTip(null)}>
+        <rect x={x(stagnantDays)} y={T} width={x(maxD) - x(stagnantDays)} height={y(0) - T} className="fill-destructive/10" />
+        <text x={x(maxD) - 8} y={T + 18} textAnchor="end" className="fill-destructive text-[12px] font-semibold">أغلى من السوق وراكدة</text>
+        <text x={x(maxD) - 8} y={T + 34} textAnchor="end" className="fill-destructive/80 text-[11px]">تحتاج مراجعة سعر</text>
+        <text x={L + 8} y={H - B - 10} className="fill-muted-foreground text-[11px]">أرخص من السوق وتتحرك</text>
+        {yt.map((v) => (
+          <g key={v}>
+            <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} className={v === 0 ? "stroke-foreground/40" : "stroke-border"} strokeDasharray={v === 0 ? undefined : "2 4"} />
+            <text x={L - 8} y={y(v) + 4} textAnchor="end" className="fill-muted-foreground font-mono text-[11px]">{v > 0 ? "+" : ""}{v}%</text>
+          </g>
+        ))}
+        {xt.map((d) => <text key={d} x={x(d)} y={H - B + 18} textAnchor="middle" className="fill-muted-foreground font-mono text-[11px]">{d}</text>)}
+        <line x1={x(stagnantDays)} x2={x(stagnantDays)} y1={T} y2={H - B} className="stroke-destructive/60" strokeDasharray="5 4" />
+        <text x={x(stagnantDays) + 4} y={H - B - 6} className="fill-destructive text-[10px]">حد الركود {stagnantDays} يومًا</text>
+        <text x={(L + W - R) / 2} y={H - 6} textAnchor="middle" className="fill-muted-foreground text-[12px]">أيام العرض في السوق ←</text>
+        <text x={14} y={(T + H - B) / 2} textAnchor="middle" transform={`rotate(-90 14 ${(T + H - B) / 2})`} className="fill-muted-foreground text-[12px]">فرق سعر المتر عن الوسيط</text>
+        {points.map((p) => {
+          const on = selected === p.id;
+          return (
+            <circle key={p.id} cx={x(p.days)} cy={y(p.delta)} r={on ? 9 : p.stagnant ? 6 : 5}
+              className={`cursor-pointer transition ${p.stagnant ? "fill-destructive" : "fill-chart-blue/70"} ${on ? "stroke-foreground" : "stroke-card"}`} strokeWidth={on ? 3 : 1.5}
+              onMouseEnter={() => setTip({ x: (x(p.days) / W) * 100, y: (y(p.delta) / H) * 100, body: <><b>{p.district} · {p.parcel_id ?? p.id}</b><div>{p.days} يومًا في السوق</div><div>سعر المتر {p.delta > 0 ? "أعلى" : "أقل"} من الوسيط بـ {Math.abs(p.delta)}%</div></> })}
+              onClick={() => onPick?.(p.id)} />
+          );
+        })}
+      </svg>
+      {layer}
+    </div>
   );
 }
 
@@ -126,55 +148,65 @@ export function Funnel({ steps }: { steps: { key: string; label: string; n: numb
 
 export function MonthBars({ rows }: { rows: { month: string; n: number }[] }) {
   const max = Math.max(1, ...rows.map((r) => r.n));
+  const avg = rows.reduce((s, r) => s + r.n, 0) / Math.max(rows.length, 1);
+  const label = (m: string) => new Date(`${m}-01T00:00:00Z`).toLocaleDateString("ar-SA-u-ca-gregory-nu-latn", { month: "short", year: "2-digit", timeZone: "UTC" });
   return (
-    <div className="flex h-48 items-end gap-4" dir="ltr">
-      {rows.map((r) => (
-        <div key={r.month} className="flex flex-1 flex-col items-center gap-1">
-          <span className="font-mono text-xs">{r.n}</span>
-          <div className="w-full rounded-t bg-primary" style={{ height: `${(r.n / max) * 150}px` }} />
-          <span className="font-mono text-[11px] text-muted-foreground">{r.month}</span>
-        </div>
-      ))}
+    <div className="relative">
+      <div className="absolute inset-x-0 border-t border-dashed border-foreground/30" style={{ bottom: `${24 + (avg / max) * 180}px` }}><span className="absolute -top-4 left-0 text-[10px] text-muted-foreground">المتوسط {Math.round(avg * 10) / 10}</span></div>
+      <div className="flex items-end gap-2" style={{ height: 210 }}>
+        {rows.map((r) => (
+          <div key={r.month} className="group flex flex-1 flex-col items-center gap-1" title={`${label(r.month)}: ${r.n} صفقة`}>
+            <span className="font-mono text-xs font-semibold">{r.n}</span>
+            <div className="w-full max-w-12 rounded-t-md bg-primary/80 transition group-hover:bg-primary" style={{ height: `${(r.n / max) * 180}px` }} />
+            <span className="text-[11px] text-muted-foreground">{label(r.month)}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-export function VelocityBubbles({ segs }: { segs: SegmentStats[] }) {
-  const W = 640, H = 320, P = 44;
-  const solid = segs.filter((s) => !s.insufficientSample);
-  const maxDays = Math.max(60, ...solid.map((s) => s.medianClosingDays ?? 0)) * 1.15;
-  const maxPrice = Math.max(1000, ...solid.map((s) => s.medianPricePerSqm ?? 0)) * 1.15;
-  const x = (d: number) => P + (d / maxDays) * (W - 2 * P);
-  const y = (v: number) => H - P - (v / maxPrice) * (H - 2 * P);
-  const thin = segs.filter((s) => s.insufficientSample);
+const segLabel = (s: SegmentStats) => `${AREA_AR[s.area]} · ${LAND_AR[s.landType]} · ${DEAL_AR[s.dealType]}`;
+export const segKey = (s: Pick<SegmentStats, "area" | "landType" | "dealType">) => `${s.area}|${s.landType}|${s.dealType}`;
+
+/** Segment = area · land type · deal. x = median closing days, y = median price/m², size = closed deals. */
+export function VelocityBubbles({ segs, selected, onPick }: { segs: SegmentStats[]; selected?: string | null | undefined; onPick?: ((s: SegmentStats) => void) | undefined }) {
+  const W = 720, H = 380, L = 64, R = 24, T = 24, B = 44;
+  const solid = segs.filter((s) => !s.insufficientSample && s.medianClosingDays != null && s.medianPricePerSqm != null);
+  const maxDays = Math.ceil((Math.max(60, ...solid.map((s) => s.medianClosingDays!)) * 1.15) / 20) * 20;
+  const maxPrice = Math.ceil((Math.max(1000, ...solid.map((s) => s.medianPricePerSqm!)) * 1.15) / 500) * 500;
+  const maxDeals = Math.max(3, ...solid.map((s) => s.closedDeals));
+  const x = (d: number) => L + (d / maxDays) * (W - L - R);
+  const y = (v: number) => H - B - (v / maxPrice) * (H - T - B);
+  const r = (n: number) => 8 + Math.sqrt(n / maxDeals) * 22;
+  const { setTip, layer } = useTip();
   return (
-    <div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="سرعة الشرائح">
-        <line x1={P} x2={W - P} y1={H - P} y2={H - P} className="stroke-border" />
-        <line x1={P} x2={P} y1={P} y2={H - P} className="stroke-border" />
-        <text x={W / 2} y={H - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">وسيط أيام الإغلاق</text>
-        <text x={8} y={P - 12} className="fill-muted-foreground text-[10px]">وسيط سعر المتر</text>
-        {solid.map((s) => {
-          const label = `${AREA_AR[s.area]} ${LAND_AR[s.landType]} ${DEAL_AR[s.dealType]}`;
+    <div className="relative">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="سرعة البيع حسب الشريحة" onMouseLeave={() => setTip(null)}>
+        {[0, 0.25, 0.5, 0.75, 1].map((f) => (
+          <g key={f}>
+            <line x1={L} x2={W - R} y1={y(maxPrice * f)} y2={y(maxPrice * f)} className="stroke-border" strokeDasharray={f ? "2 4" : undefined} />
+            <text x={L - 8} y={y(maxPrice * f) + 4} textAnchor="end" className="fill-muted-foreground font-mono text-[11px]">{fmt(Math.round(maxPrice * f))}</text>
+            <text x={x(maxDays * f)} y={H - B + 18} textAnchor="middle" className="fill-muted-foreground font-mono text-[11px]">{Math.round(maxDays * f)}</text>
+          </g>
+        ))}
+        <text x={(L + W - R) / 2} y={H - 6} textAnchor="middle" className="fill-muted-foreground text-[12px]">أيام حتى الإغلاق (الوسيط) ← أبطأ</text>
+        <text x={16} y={(T + H - B) / 2} textAnchor="middle" transform={`rotate(-90 16 ${(T + H - B) / 2})`} className="fill-muted-foreground text-[12px]">سعر المتر (الوسيط، ريال) ← أغلى</text>
+        {solid.sort((a, b) => b.closedDeals - a.closedDeals).map((s) => {
+          const k = segKey(s), on = selected === k;
+          const cx = x(s.medianClosingDays!), cy = y(s.medianPricePerSqm!);
           return (
-            <g key={label}>
-              <circle cx={x(s.medianClosingDays!)} cy={y(s.medianPricePerSqm!)} r={6 + s.closedDeals * 2} className={s.landType === "residential" ? "fill-chart-blue/40 stroke-chart-blue" : "fill-primary/40 stroke-primary"} />
-              <text x={x(s.medianClosingDays!)} y={y(s.medianPricePerSqm!) - 10 - s.closedDeals * 2} textAnchor="middle" className="fill-foreground text-[10px]">{label} · {s.closedDeals}</text>
+            <g key={k} className="cursor-pointer" onClick={() => onPick?.(s)}
+              onMouseEnter={() => setTip({ x: (cx / W) * 100, y: ((cy - r(s.closedDeals)) / H) * 100, body: <><b>{segLabel(s)}</b><div>{s.closedDeals} صفقات مغلقة</div><div>تُغلق خلال {s.medianClosingDays} يومًا في المتوسط</div><div>سعر المتر {fmt(s.medianPricePerSqm!)} ريال</div></> })}>
+              <circle cx={cx} cy={cy} r={r(s.closedDeals)} className={`${s.landType === "residential" ? "fill-chart-blue/35 stroke-chart-blue" : "fill-primary/35 stroke-primary"}`} strokeWidth={on ? 3 : 1.5} strokeDasharray={s.dealType === "lease" ? "4 3" : undefined} />
+              <text x={cx} y={cy + 4} textAnchor="middle" className="pointer-events-none fill-foreground font-mono text-[11px] font-semibold">{s.closedDeals}</text>
             </g>
           );
         })}
       </svg>
-      {thin.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          {thin.map((s) => (
-            <span key={s.area + s.landType + s.dealType} className="rounded-full border border-dashed px-2 py-0.5 text-muted-foreground">
-              {AREA_AR[s.area]} {LAND_AR[s.landType]} {DEAL_AR[s.dealType]} · {s.closedDeals} — عينة غير كافية
-            </span>
-          ))}
-        </div>
-      )}
+      {layer}
     </div>
   );
 }
 
-export { fmt };
+export { fmt, segLabel };
