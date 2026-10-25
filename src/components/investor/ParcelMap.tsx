@@ -47,6 +47,7 @@ export default function ParcelMap({
   onSelect,
   onSelectDistrict,
   mapRef,
+  highlight,
 }: {
   parcels: Parcel[];
   layer: MapLayer;
@@ -55,6 +56,7 @@ export default function ParcelMap({
   onSelect: (p: Parcel | null) => void;
   onSelectDistrict: (d: DistrictAgg) => void;
   mapRef: React.RefObject<LeafletMap | null>;
+  highlight?: [number, number][] | null;
 }) {
   const districts = mode === "districts" ? aggregateDistricts(parcels) : [];
   return (
@@ -138,6 +140,9 @@ export default function ParcelMap({
             </Circle>
           );
         })}
+      {highlight && (
+        <Polygon positions={highlight} pathOptions={{ color: "#e0393e", weight: 3, fillColor: "#e0393e", fillOpacity: 0.12 }} />
+      )}
       <FlyTo p={mode === "parcels" ? selected : null} />
     </MapContainer>
   );
