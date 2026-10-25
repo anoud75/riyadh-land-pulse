@@ -23,7 +23,8 @@ function Inquire() {
   const navigate = useNavigate();
   const [pid, setPid] = useState(parcelId);
   const p = parcels.find((x) => x.parcel_id === pid);
-  const [name, setName] = useState(investorName);
+  const [nameEdit, setName] = useState<string | null>(null);
+  const name = nameEdit ?? investorName;
   const [phone, setPhone] = useState("");
   const [use, setUse] = useState(p?.land_type === "commercial" ? "مستودع" : "بيت عائلة");
   const [land, setLand] = useState<LandType>(p?.land_type ?? "commercial");
