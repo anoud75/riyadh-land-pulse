@@ -11,6 +11,7 @@ import { competitorPoints, reachPolygon, REACH_MINUTES } from "@/lib/reach";
 import { aggregateDistricts, districtColor, type DistrictAgg } from "@/lib/mapStats";
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, type DistrictCollection } from "@/lib/districtStats";
+import { MARKET_LISTINGS } from "@/lib/marketEngine";
 
 const GEO = geoRaw as unknown as DistrictCollection;
 const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;

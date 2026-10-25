@@ -4,13 +4,13 @@ import { initialParcels } from "@/data";
 
 describe("marketEngine", () => {
   const parcels = initialParcels;
-  it("SRE-052 north residential gets 90k–110k from Yasmin + Hittin", () => {
+  it("SRE-052 uses the north Riyadh rents in the sample (Sahafa, Yasmin, Hittin)", () => {
     const b = getMarketRentalYield("القيروان", "North", parcels);
     expect(b.scope).toBe("area");
-    expect(b.min).toBe(90000); expect(b.max).toBe(110000);
-    expect(b.comparables.map((c) => c.district).sort()).toEqual(["الياسمين", "حطين"].sort());
+    expect(b.min).toBe(49500); expect(b.max).toBe(110000);
+    expect(b.comparables.map((c) => c.district).sort()).toEqual(["الصحافة", "الياسمين", "حطين"].sort());
     const p = parcels.find((x) => x.parcel_id === "SRE-052")!;
-    expect(buildMarketInsight(p, parcels).text).toContain("90,000 – 110,000");
+    expect(buildMarketInsight(p, parcels).text).toContain("49,500 – 110,000");
   });
   it("excludes sale and non-Riyadh listings", () => {
     const b = getMarketRentalYield("المنار", "North", parcels);
