@@ -150,7 +150,7 @@ function MiniCard({ p, badge }: { p: Parcel; badge?: string }) {
 function MiniMap({ highlight }: { highlight: string[] }) {
   const { parcels } = usePortfolio();
   const lat0 = 24.45, lat1 = 25.05, lng0 = 46.45, lng1 = 47.0;
-  const xy = (p: Parcel) => [((p.lng - lng0) / (lng1 - lng0)) * 200, ((lat1 - p.lat) / (lat1 - lat0)) * 200];
+  const xy = (p: Parcel): [number, number] => [((p.lng - lng0) / (lng1 - lng0)) * 200, ((lat1 - p.lat) / (lat1 - lat0)) * 200];
   return (
     <Link to="/investor/map" className="block rounded-xl border bg-secondary/40" aria-label="افتح الخريطة">
       <svg viewBox="0 0 200 200" className="w-full">
