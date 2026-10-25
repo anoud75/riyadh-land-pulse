@@ -10,7 +10,7 @@ export function GapDiverging({ gaps, selected, onPick }: { gaps: GapCell[]; sele
   const max = Math.max(1, ...gaps.map((g) => Math.abs(g.netGap)));
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-[5.5rem_1fr_1fr] text-[11px] text-muted-foreground"><span /><span className="text-center">عجز: طلب بلا أرض</span><span className="text-center">فائض: أرض بلا طلب</span></div>
+      <div className="grid grid-cols-[5.5rem_1fr] text-[11px] text-muted-foreground"><span /><div dir="ltr" className="flex justify-between"><span>← عجز: مشترون بلا أرض</span><span>فائض: أراضٍ بلا مشترين →</span></div></div>
       {AREAS.map((a) => (
         <div key={a} className="grid grid-cols-[5.5rem_1fr] items-center gap-3">
           <div className="text-sm font-medium">{AREA_AR[a]}</div>
@@ -25,7 +25,7 @@ export function GapDiverging({ gaps, selected, onPick }: { gaps: GapCell[]; sele
                   className={`relative block h-7 w-full rounded-lg text-right transition ${on ? "bg-accent ring-2 ring-primary" : "bg-muted/40 hover:bg-muted"}`} dir="ltr">
                   <span className="absolute inset-y-1 left-1/2 w-px bg-foreground/30" />
                   {g.netGap !== 0 && <span className={`absolute inset-y-1 rounded ${neg ? "bg-destructive/80" : g.landType === "residential" ? "bg-chart-blue" : "bg-primary"}`} style={neg ? { left: `${50 - w}%`, width: `${w}%` } : { left: "50%", width: `${w}%` }} />}
-                  <span className="absolute inset-y-0 flex items-center gap-1 text-[11px]" dir="rtl" style={neg ? { right: "52%" } : { left: "52%" }}>
+                  <span className="absolute inset-y-0 flex items-center gap-1 text-[11px]" dir="rtl" style={neg ? { right: `calc(${50 + w}% + 6px)` } : { left: `calc(${50 + w}% + 6px)` }}>
                     <b className="font-mono">{g.netGap > 0 ? `+${g.netGap}` : g.netGap}</b><span className="text-muted-foreground">{LAND_AR[g.landType]}</span>
                   </span>
                 </button>
