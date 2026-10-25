@@ -121,7 +121,7 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
   const fmt = (v: number | null) => (v == null ? "—" : v.toLocaleString("en-US"));
   return (
     <div className="relative h-full w-full" dir="rtl">
-      <div ref={box} className="absolute inset-0" />
+      <div ref={box} className="absolute inset-0 h-full w-full" />
       <div className="absolute right-2 top-2 z-10 flex max-w-[calc(100%-4rem)] flex-wrap gap-1 rounded-xl border border-border bg-card/95 p-1 shadow-sm">
         {metrics.map((k) => (
           <button key={k} type="button" onClick={() => setMetric(k)} className={`rounded-lg px-2 py-1 text-[11px] ${metric === k ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted"}`}>{METRIC_AR[k]}</button>

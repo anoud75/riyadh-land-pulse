@@ -106,7 +106,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   if (!TOKEN) return <div className="grid size-full place-items-center text-sm text-muted-foreground">الخريطة غير مهيأة: رمز Mapbox غير متوفر.</div>;
   return (
     <div className="relative size-full">
-      <div ref={box} className="absolute inset-0" />
+      <div ref={box} className="absolute inset-0 h-full w-full" />
       <div className="absolute left-3 top-28 z-[5] flex overflow-hidden rounded-xl border bg-surface text-xs shadow-sm" dir="rtl">
         {(Object.keys(STYLES) as (keyof typeof STYLES)[]).map((k) => (
           <button key={k} onClick={() => setStyleKey(k)} className={`px-3 py-1.5 ${styleKey === k ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>{STYLE_AR[k]}</button>
