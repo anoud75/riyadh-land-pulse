@@ -208,7 +208,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
                   ) : (
                     <AssistantTurn key={i} m={m} mode={mode} agent={cfg.agent} onPanel={setPanel} onAsk={send} />
                   ))}
-                  {busy && <div className="flex items-center gap-3 text-sm text-muted-foreground"><span className="sarj-orb size-5 rounded-full" />يحلّل البيانات…</div>}
+                  {busy && <Thinking parcels={parcels.length} />}
                   <div ref={endRef} />
                 </div>
               </div>
