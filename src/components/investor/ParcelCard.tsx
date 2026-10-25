@@ -3,6 +3,7 @@ import type { Parcel } from "@/data/types";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { sar, STATUS_AR } from "./format";
+import { ParcelSnapshot } from "./ParcelSnapshot";
 
 export function CompareButton({ id }: { id: string }) {
   const { compareIds, toggleCompare } = usePortfolio();
