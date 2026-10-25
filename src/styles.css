@@ -110,3 +110,11 @@
     font-family: var(--font-sans);
   }
 }
+
+/* Glowing assistant orb */
+.sarj-orb {
+  background: radial-gradient(circle at 32% 28%, color-mix(in oklab, var(--primary-soft) 35%, var(--surface)) 0%, var(--primary-soft) 38%, var(--primary) 100%);
+  box-shadow: 0 0 60px 10px color-mix(in oklab, var(--primary) 25%, transparent), inset -10px -14px 30px color-mix(in oklab, var(--primary) 45%, transparent);
+  animation: sarj-orb-breathe 4.5s ease-in-out infinite;
+}
+@keyframes sarj-orb-breathe { 50% { transform: scale(1.04); box-shadow: 0 0 80px 18px color-mix(in oklab, var(--primary) 30%, transparent), inset -10px -14px 30px color-mix(in oklab, var(--primary) 45%, transparent); } }

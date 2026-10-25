@@ -71,7 +71,7 @@ function Layout() {
       </div>
     </>
   );
-  if (pathname === "/investor/map") return <Outlet />;
+  if (pathname === "/investor/map" || pathname === "/investor/chats") return <Outlet />;
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-l bg-surface p-4 md:flex">{nav}</aside>
