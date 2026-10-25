@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { GripHorizontal, Sparkles, Minus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } "@/components/ui/button";
 
 /** Viewport-bounded panel dragging; the map keeps its native gesture handling. */
 export function MapPanel({ title, side, onMinimize, children, hidden = false, className = "", icon = false }: {
@@ -31,6 +31,67 @@ export function MapPanel({ title, side, onMinimize, children, hidden = false, cl
       <span className="flex-1 text-xs font-semibold">{title}</span>
       <Button variant="ghost" size="icon" className="size-7" aria-label={`تصغير ${title}`} title={`تصغير ${title}`} onClick={onMinimize}><Minus className="size-4" /></Button>
     </header>
-    <div className="map-panel-body">{children}</div>
+    <PanelBody>{children}</PanelBody>
   </aside>;
+}
+
+/** Scroll area with an always-visible, draggable scrollbar so hidden content is discoverable. */
+function PanelBody({ children }: { children: ReactNode }) {
+  const scroll = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ y: number; top: number } | null>(null);
+  const [geo, setGeo] = useState({ top: 0, max: 0, thumb: 0, track: 0, over: false });
+
+  const measure = useCallback(() => {
+    const el = scroll.current;
+    if (!el) return;
+    const max = el.scrollHeight - el.clientHeight;
+    const over = max > 4;
+    const thumb = Math.max(28, Math.round((el.clientHeight / el.scrollHeight) * el.clientHeight));
+    setGeo((p) => (p.top === el.scrollTop && p.max === max && p.thumb === thumb && p.track === el.clientHeight && p.over === over ? p : { top: el.scrollTop, max, thumb, track: el.clientHeight, over }));
+  }, []);
+
+  useEffect(() => {
+    const el = scroll.current;
+    if (!el) return;
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    el.addEventListener("scroll", measure, { passive: true });
+    return () => { ro.disconnect(); el.removeEventListener("scroll", measure); };
+  }, [measure]);
+  useEffect(measure);
+
+  const jump = (clientY: number) => {
+    const el = scroll.current, tr = track.current;
+    if (!el || !tr) return;
+    const rect = tr.getBoundingClientRect();
+    el.scrollTo({ top: ((clientY - rect.top) / rect.height) * el.scrollHeight - el.clientHeight / 2, behavior: "smooth" });
+  };
+
+  return (
+    <div className="map-panel-body">
+      <div className="map-panel-scroll" ref={scroll}>{children}</div>
+      {geo.over && (
+        <div className="map-scroll-track" ref={track} aria-hidden="true"
+          onPointerDown={(e) => { if ((e.target as HTMLElement).dataset.thumb) return; jump(e.clientY); }}>
+          <div data-thumb="1" className="map-scroll-thumb"
+            style={{ height: geo.thumb, transform: `translateY(${geo.max ? (geo.top / geo.max) * (geo.track - geo.thumb) : 0}px)` }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              const el = scroll.current; if (!el) return;
+              drag.current = { y: e.clientY, top: el.scrollTop };
+              e.currentTarget.setPointerCapture(e.pointerId);
+            }}
+            onPointerMove={(e) => {
+              const el = scroll.current, start = drag.current;
+              if (!el || !start || geo.track <= geo.thumb) return;
+              el.scrollTop = start.top + ((e.clientY - start.y) / (geo.track - geo.thumb)) * geo.max;
+            }}
+            onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }} />
+        </div>
+      )}
+    </div>
+  );
 }
