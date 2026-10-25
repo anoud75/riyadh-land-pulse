@@ -11,6 +11,8 @@ import { askSarjAgent } from "@/lib/sarjAgent.functions";
 import { initialParcels } from "@/data";
 import { pct, sar } from "./format";
 import { PriceLine } from "./ParcelCard";
+import { AgentUiBlock } from "@/components/AgentChat";
+import type { UiPayload } from "@/lib/agentUi";
 
 interface Msg {
   id: number;
@@ -19,6 +21,7 @@ interface Msg {
   top?: string | null;
   chips?: string[];
   more?: string[];
+  ui?: UiPayload | null;
 }
 
 const GREETING =
@@ -61,7 +64,7 @@ export function MapAssistant({
         : filtersRef.current;
       filtersRef.current = f;
       const ids = r.parcelIds;
-      setMsgs((m) => [...m, { id: m.length, role: "assistant", text: r.text, top: ids[0] ?? null, more: ids.slice(1, 4), chips: ["أضفها للمقارنة"] }]);
+      setMsgs((m) => [...m, { id: m.length, role: "assistant", text: r.text, top: ids[0] ?? null, more: ids.slice(1, 4), chips: ["أضفها للمقارنة"], ui: r.ui?.kind === "negotiation_report" ? r.ui : null }]);
       if (r.filters) onApplyFilters(f);
       const top = parcels.find((p) => p.parcel_id === ids[0]);
       if (top) onFocusParcel(top);
@@ -108,7 +111,8 @@ export function MapAssistant({
               <span className="mt-1 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">س</span>
               <div className="min-w-0 flex-1">
                 <p className="whitespace-pre-line text-sm leading-relaxed">{m.text}</p>
-                {m.top && <AssistantParcelCard id={m.top} onOpen={onFocusParcel} />}
+                {m.ui && <AgentUiBlock ui={m.ui} />}
+                {!m.ui && m.top && <AssistantParcelCard id={m.top} onOpen={onFocusParcel} />}
                 {m.more?.length ? (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {m.more.map((id) => {

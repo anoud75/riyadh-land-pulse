@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TeamAssistant } from "@/components/admin/TeamAssistant";
+import { AgentChat } from "@/components/AgentChat";
 
 export const Route = createFileRoute("/admin/assistant")({
   head: () => ({
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/assistant")({
   component: () => (
     <div>
       <h1 className="mb-6 text-3xl font-bold">مساعد الفريق</h1>
-      <TeamAssistant inline />
+      <AgentChat mode="admin" />
     </div>
   ),
 });
