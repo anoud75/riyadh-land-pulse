@@ -4,6 +4,7 @@ import { districtByAr } from "@/data/districtSeries";
 /** Centre and a buffered hull outline of a footprint district, from its parcels' coordinates. */
 export function districtGeo(parcels: Parcel[], ar: string) {
   const d = districtByAr(ar);
+  if (!d) return null;
   const pts = parcels
     .filter((p) => (d.match as readonly string[]).includes(p.district_en))
     .map((p) => [p.lat, p.lng] as [number, number]);
