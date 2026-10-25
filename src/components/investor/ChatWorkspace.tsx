@@ -280,6 +280,7 @@ function AssistantTurn({ m, mode, agent, onPanel, onAsk }: { m: ChatMsg; mode: M
         if (u.kind === "negotiation_report") return <PanelLink key={i} icon={BarChart3} title="تقرير هامش التفاوض" sub={`${u.funnel.recommended} مرشّحة من ${u.funnel.analyzed}`} onClick={() => onPanel({ kind: "nego", ui: u })} />;
         if (u.kind === "report") return <PanelLink key={i} icon={FileText} title={u.title} sub={`${u.sections.length} أقسام · افتح للطباعة أو الحفظ PDF`} onClick={() => onPanel({ kind: "report", ui: u })} />;
         if (u.kind === "map") return <PanelLink key={i} icon={MapIcon} title="الخريطة" sub={u.command.label} onClick={() => onPanel({ kind: "map", command: u.command })} />;
+        if (u.kind === "suitability") return <SuitabilityBlock key={i} ui={u} />;
         return <AgentUiBlock key={i} ui={u} />;
       })}
       {ids.length > 0 && !hasMap && <PanelLink icon={MapIcon} title="المواقع على الخريطة" sub={`${ids.length} مواقع`} onClick={() => onPanel({ kind: "map", command: mapCommand(parcels, { parcel_ids: ids }) })} />}
@@ -288,6 +289,29 @@ function AssistantTurn({ m, mode, agent, onPanel, onAsk }: { m: ChatMsg; mode: M
           {chips.map((q) => <button key={q} onClick={() => onAsk(q)} className="rounded-full border bg-surface px-4 py-2 text-sm hover:bg-secondary">{q}</button>)}
         </div>
       )}
+    </div>
+  );
+}
+
+function SuitabilityBlock({ ui }: { ui: Extract<UiPayload, { kind: "suitability" }> }) {
+  const tone = (s: number | null) => (s == null ? "bg-muted text-muted-foreground" : s >= 70 ? "bg-primary text-primary-foreground" : s >= 45 ? "bg-accent text-accent-foreground" : "bg-destructive/15 text-destructive");
+  return (
+    <div className="mt-5 grid gap-3 md:grid-cols-2">
+      {ui.results.map((r) => (
+        <div key={r.district} className="rounded-2xl border bg-surface p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div><div className="font-semibold">{r.district}</div><div className="text-xs text-muted-foreground">{r.label}</div></div>
+            <span className={`grid size-12 place-items-center rounded-full text-lg font-bold ${tone(r.score)}`}>{r.score ?? "—"}</span>
+          </div>
+          {r.services && (
+            <ul className="mt-3 grid grid-cols-2 gap-1 text-xs">
+              {r.services.map((s) => <li key={s.category} className="flex justify-between rounded-lg bg-secondary px-2 py-1"><span>{s.label_ar}</span><span className="font-medium">{s.minutes == null ? "غير موجود" : `${s.minutes} د`}</span></li>)}
+            </ul>
+          )}
+          <ul className="mt-3 space-y-1 text-sm text-foreground/80">{r.reasons.map((x) => <li key={x}>• {x}</li>)}</ul>
+          <div className="mt-2 text-[11px] text-muted-foreground">المصدر: {ui.source} · {r.found} مكانًا · أوقات القيادة تقديرية</div>
+        </div>
+      ))}
     </div>
   );
 }

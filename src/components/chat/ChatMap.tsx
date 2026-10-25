@@ -6,6 +6,8 @@ import type { Inquiry, Parcel } from "@/data/types";
 import type { MapCommand } from "@/lib/agentUi";
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtBounds, districtStats, findDistrict, metricValue, METRIC_AR, type DistrictCollection, type DistrictMetric, type DistrictStat } from "@/lib/districtStats";
+import { CATEGORY_AR } from "@/lib/siteSuitability";
+const CAT_AR = CATEGORY_AR as Record<string, string>;
 
 const GEO = geoRaw as unknown as DistrictCollection;
 const TOKEN = import.meta.env['VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN'] as string | undefined;
@@ -70,6 +72,17 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
       m.addSource("radius", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       m.addLayer({ id: "radius-fill", type: "fill", source: "radius", paint: { "fill-color": "#7c5cff", "fill-opacity": 0.08 } });
       m.addLayer({ id: "radius-line", type: "line", source: "radius", paint: { "line-color": "#7c5cff", "line-width": 1.5, "line-dasharray": [2, 2] } });
+      m.addSource("iso", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      m.addLayer({ id: "iso-fill", type: "fill", source: "iso", paint: { "fill-color": "#0ea5a4", "fill-opacity": 0.07 } });
+      m.addLayer({ id: "iso-line", type: "line", source: "iso", paint: { "line-color": "#0ea5a4", "line-width": 1.5, "line-dasharray": [3, 2] } });
+      m.addSource("pois", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      m.addLayer({ id: "poi", type: "circle", source: "pois", paint: {
+        "circle-radius": 6, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5,
+        "circle-color": ["match", ["get", "category"], "hospital", "#e11d48", "pharmacy", "#16a34a", "cafe", "#a16207", "restaurant", "#ea580c", "school", "#2563eb", "supermarket", "#0891b2", "mosque", "#0f766e", "park", "#65a30d", "gym", "#9333ea", "#64748b"],
+      } });
+      const poiPop = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
+      m.on("mouseenter", "poi", (e) => { const f = e.features?.[0]; if (f) poiPop.setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number]).setText(String(f.properties?.["label"])).addTo(m); });
+      m.on("mouseleave", "poi", () => poiPop.remove());
       m.addSource("parcels", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       m.addLayer({ id: "p", type: "circle", source: "parcels", paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, ["case", ["==", ["get", "on"], 1], 5, 2], 14, ["case", ["==", ["get", "on"], 1], 10, 5]],
@@ -108,6 +121,8 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
     const d = command.district ? findDistrict(GEO, command.district) : null;
     (m.getSource("focus") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: d ? [d as unknown as GeoJSON.Feature] : [] });
     (m.getSource("radius") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: command.radiusKm ? [circle(command.center, command.radiusKm)] : [] });
+    (m.getSource("iso") as mapboxgl.GeoJSONSource).setData(command.isochrone ?? { type: "FeatureCollection", features: [] });
+    (m.getSource("pois") as mapboxgl.GeoJSONSource).setData({ type: "FeatureCollection", features: (command.pois ?? []).map((p) => ({ type: "Feature", properties: { category: p.category, label: `${CAT_AR[p.category] ?? ""} · ${p.name}` }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })) });
     const hl = parcels.filter((p) => command.parcelIds.includes(p.parcel_id));
     if (d) m.fitBounds(districtBounds(d), { padding: 50, duration: 1200 });
     else if (command.action === "highlight" && hl.length > 1) {

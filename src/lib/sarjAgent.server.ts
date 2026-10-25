@@ -14,7 +14,8 @@ const GROUNDING = `القاعدة الحاسمة: لا تحسب أي وسيط أ
 لا تذكر أي أرض لم تُرجعها أداة. إذا قالت الأداة "عينة غير كافية" فقلها ولا تقدّر رقمًا.
 اكتب بعربية فصيحة واضحة ومختصرة (3–6 أسطر)، بلا جداول Markdown. المناطق: North شمال، South جنوب، East شرق، West غرب، Central وسط. commercial تجاري، residential سكني، sale بيع، lease إيجار.`;
 
-const VIZ = `أدوات العرض: drawChart لرسم مقارنة أو توزيع داخل المحادثة (استخدمها كلما قارن المستخدم أو طلب رسمًا)، generateReport لتقرير كامل يُفتح في اللوحة الجانبية، controlMap لفتح الخريطة داخل المحادثة وتحريكها (تقريب على حي أو منطقة، إبراز أراضٍ، رسم نطاق بالكيلومتر، أو عرض الرياض كاملة). عند ذكر أراضٍ محددة استدعِ controlMap لإبرازها. لا تقل للمستخدم "اذهب إلى الخريطة"؛ أنت تفتحها بنفسك.`;
+const VIZ = `أدوات العرض: drawChart لرسم مقارنة أو توزيع داخل المحادثة (استخدمها كلما قارن المستخدم أو طلب رسمًا)، generateReport لتقرير كامل يُفتح في اللوحة الجانبية، controlMap لفتح الخريطة داخل المحادثة وتحريكها (تقريب على حي أو منطقة، إبراز أراضٍ، رسم نطاق بالكيلومتر، أو عرض الرياض كاملة). عند ذكر أراضٍ محددة استدعِ controlMap لإبرازها. لا تقل للمستخدم "اذهب إلى الخريطة"؛ أنت تفتحها بنفسك.
+ملاءمة الموقع: إذا قال المستخدم "أبي أفتح مستشفى/كافيه/صيدلية… في حي كذا" استدعِ analyzeSite بـ use_case=business والفئة. إذا قال "أبي أسكن/أعيش في حي كذا" أو سأل عن الخدمات والأسعار للسكن استدعِ analyzeSite بـ use_case=living. للمحلات التجارية use_case=commercial. إن لم يحدد حيًا فاختر حتى 3 أحياء فيها أراضٍ متاحة. انقل الدرجة والدقائق وعدد المنافسين حرفيًا، واذكر أن المصدر Mapbox وأن الأوقات تقديرية. لا تستدعِ controlMap بعدها؛ الخريطة تُفتح تلقائيًا.`;
 
 const INVESTOR_SYS = `أنت "محلّل المواقع" لدى سرج العقارية. المستخدم مستثمر يبحث عن أرض في الرياض.
 النطاق المسموح فقط: أراضي سرج المتاحة، الأحياء، الأسعار والوسائط، المقارنة، هامش التفاوض، الخريطة.
@@ -156,6 +157,32 @@ export async function runSarjAgent(input: {
       description: "Segment medians (price/sqm, closing days, concession) and available parcels per district. Use for general market questions.",
       inputSchema: z.object({ area_of_city: area }),
       execute: async (f) => (note("getMarketContext"), T.getMarketContext(parcels, f)),
+    }),
+    analyzeSite: tool({
+      description: "Score 1-4 Riyadh districts for a use case using real nearby places and driving times (Mapbox). use_case=business (open a hospital/pharmacy/cafe/restaurant/school/supermarket/gym: competitor gap), living (live there: services drive times + price vs Riyadh), commercial (retail footfall). Opens the map with place pins and 10/20-minute driving areas.",
+      inputSchema: z.object({
+        use_case: z.enum(["business", "living", "commercial"]),
+        category: z.enum(["hospital", "pharmacy", "cafe", "restaurant", "school", "supermarket", "gym"]).nullable(),
+        districts: z.array(z.string()).min(1).max(4),
+      }),
+      execute: async (f) => {
+        note("analyzeSite");
+        try {
+          const { analyzeSite } = await import("./siteAnalysis.server");
+          const r = await analyzeSite(parcels, f);
+          if (r.results.length) {
+            emit({ kind: "suitability", useCase: r.useCase, category: r.category, results: r.results, source: "Mapbox" });
+            if (r.results.length > 1) emit({ kind: "chart", chart: { type: "bar", title: "مقارنة درجة الملاءمة بين الأحياء", unit: "/100", series: r.results.map((x) => ({ label: x.district, value: x.score ?? 0 })), source: "Mapbox + سرج" } });
+            const ids = r.results.flatMap((x) => x.parcelIds).slice(0, 12);
+            ids.forEach((id) => parcelIds.add(id));
+            const c = r.center!;
+            emit({ kind: "map", command: { action: ids.length ? "highlight" : "focus", center: [c[1], c[0]], zoom: 12.5, parcelIds: ids, radiusKm: null, label: `${r.results.map((x) => x.district).join("، ")} · أماكن قريبة`, district: r.results.length === 1 ? r.results[0]!.district : null, choropleth: null, pois: r.pois, isochrone: r.isochrone } });
+          }
+          return { results: r.results.map(({ services, ...x }) => ({ ...x, services: services?.map((s) => `${s.label_ar}: ${s.minutes ?? "غير موجود"} دقيقة`) })), districts_not_found: r.missing, note: "المصدر Mapbox؛ أوقات القيادة تقديرية لحركة مرور اعتيادية. بيانات السكان على مستوى الحي غير متاحة." };
+        } catch (e) {
+          return { error: `تعذّر جلب الأماكن من Mapbox: ${(e as Error).message}` };
+        }
+      },
     }),
   };
 

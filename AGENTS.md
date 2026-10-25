@@ -20,3 +20,4 @@
 - All maps use Mapbox GL JS (public connector token, lazy-loaded behind ClientOnly); Riyadh district boundaries live in `src/data/riyadhDistricts.json` and per-district figures come from pure `src/lib/districtStats.ts` — one map engine, real boundaries, testable numbers.
 - Investor maps never receive inquiries, so demand metrics (waiting/gap) are team-only — keeps buyer data out of the investor view.
 - Investor parcel markers use React portals into Mapbox markers with screen-space label collision handling; marks represent locations, not cadastral boundaries — keeps controls accessible and avoids fabricated parcel shapes.
+- Place and driving-time data come only from `src/lib/placesProvider.server.ts` (Mapbox via gateway); site scores are pure functions in `src/lib/siteSuitability.ts` — keeps scores testable and every place traceable to Mapbox.
