@@ -2,7 +2,7 @@ import { createFileRoute, ClientOnly, Link, useNavigate } from "@tanstack/react-
 import { FootprintOverlay } from "@/components/investor/FootprintOverlay";
 import { districtGeo } from "@/lib/districtGeo";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Minus, Plus, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Minus, Plus, Sparkles, X } from "lucide-react";
 import type { Map as LeafletMap } from "leaflet";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, type Area, type Parcel } from "@/data/types";
@@ -13,7 +13,6 @@ import { getParcelInsight } from "@/lib/investorEngine";
 import { FOOTPRINT_DISTRICTS } from "@/data/districtSeries";
 import { CompareButton, PriceLine } from "@/components/investor/ParcelCard";
 import { MapAssistant } from "@/components/investor/MapAssistant";
-import { MapTicker } from "@/components/investor/MapTicker";
 import { pct, sar } from "@/components/investor/format";
 
 const ParcelMap = lazy(() => import("@/components/investor/ParcelMap"));
@@ -41,6 +40,8 @@ function MapPage() {
   const [mode, setMode] = useState<"parcels" | "districts">("parcels");
   const [filters, setFilters] = useState<MapFilters>(EMPTY_FILTERS);
   const [selected, setSelected] = useState<Parcel | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(true);
   const mapRef = useRef<LeafletMap | null>(null);
   const { footprint } = Route.useSearch();
   const navigate = useNavigate({ from: "/investor/map" });
@@ -68,8 +69,8 @@ function MapPage() {
   };
 
   return (
-    <div className="-mx-6 -my-10">
-      <div className="relative h-[calc(100vh-7.5rem)] min-h-[560px] overflow-hidden">
+    <div>
+      <div className="fixed inset-0 overflow-hidden">
         <ClientOnly fallback={loading}>
           <Suspense fallback={loading}>
             <ParcelMap
@@ -144,16 +145,30 @@ function MapPage() {
           </div>
         </div>
 
-        {/* left: assistant */}
-        <div className={`absolute bottom-28 left-4 top-28 z-[1000] w-[min(350px,85vw)] ${footprint ? "hidden" : ""}`}>
-          <MapAssistant
-            parcels={parcels}
-            onApplyFilters={(f) => {
-              setFilters(f);
-              setMode("parcels");
-            }}
-            onFocusParcel={setSelected}
-          />
+        {/* back to workspace */}
+        <Link to="/investor" className="absolute right-4 top-3 z-[1001] flex items-center gap-1.5 rounded-full border bg-surface px-3 py-1.5 text-sm shadow-sm hover:bg-secondary">
+          <ArrowRight className="size-4" />الأراضي
+        </Link>
+
+        {/* bottom-left: minimizable assistant */}
+        <div className={`absolute bottom-4 left-4 z-[1002] ${footprint ? "hidden" : ""}`}>
+          {chatOpen ? (
+            <div className="relative h-[min(520px,70vh)] w-[min(350px,85vw)]">
+              <button aria-label="تصغير المساعد" onClick={() => setChatOpen(false)}
+                className="absolute left-3 top-3 z-10 grid size-7 place-items-center rounded-full bg-secondary hover:bg-accent">
+                <Minus className="size-4" />
+              </button>
+              <MapAssistant
+                parcels={parcels}
+                onApplyFilters={(f) => { setFilters(f); setMode("parcels"); }}
+                onFocusParcel={setSelected}
+              />
+            </div>
+          ) : (
+            <button onClick={() => setChatOpen(true)} className="flex items-center gap-2 rounded-full bg-ink px-4 py-3 text-sm text-ink-foreground shadow-lg">
+              <Sparkles className="size-4" />اسألي المساعد
+            </button>
+          )}
         </div>
 
         {/* right: parcel inspection */}
@@ -164,13 +179,26 @@ function MapPage() {
           selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} onFootprint={(d) => { setSelected(null); setFootprint(d); }} />
         )}
 
-        {/* bottom: executive ticker */}
-        <div className={`pointer-events-none absolute inset-x-0 bottom-4 z-[1000] flex justify-center px-4 ${footprint ? "hidden" : ""}`}>
-          <MapTicker parcels={parcels} />
-        </div>
-
-        {/* bottom-left: zoom + legend */}
-        <div className="absolute bottom-4 left-4 z-[1000] flex items-end gap-2">
+        {/* bottom-right: zoom + closable legend */}
+        <div className={`absolute bottom-4 right-4 z-[1000] flex items-end gap-2 ${selected && !footprint ? "hidden" : ""}`}>
+          {legendOpen ? (
+            <div className="relative space-y-1.5 rounded-xl border bg-surface p-3 pl-8 text-xs shadow-sm">
+              <button aria-label="إخفاء المفتاح" onClick={() => setLegendOpen(false)} className="absolute left-2 top-2 text-muted-foreground hover:text-foreground">
+                <X className="size-3.5" />
+              </button>
+              {(mode === "districts" ? DISTRICT_LEGEND : LEGENDS[layer]).map((g) => (
+                <div key={g.label} className="flex items-center gap-2">
+                  <span className="size-2.5 rounded-sm" style={{ background: g.color }} />
+                  {g.label}
+                </div>
+              ))}
+              <div className="pt-1 text-muted-foreground">
+                {mode === "districts" ? "حجم الدائرة = عدد الأراضي" : "حجم القطعة = المساحة"}
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setLegendOpen(true)} className="rounded-full border bg-surface px-3 py-1.5 text-xs shadow-sm hover:bg-secondary">المفتاح</button>
+          )}
           <div className="flex flex-col rounded-xl border bg-surface shadow-sm">
             <button aria-label="تكبير" onClick={() => mapRef.current?.zoomIn()} className="p-2 hover:bg-secondary">
               <Plus className="size-4" />
@@ -178,17 +206,6 @@ function MapPage() {
             <button aria-label="تصغير" onClick={() => mapRef.current?.zoomOut()} className="border-t p-2 hover:bg-secondary">
               <Minus className="size-4" />
             </button>
-          </div>
-          <div className="space-y-1.5 rounded-xl border bg-surface p-3 text-xs shadow-sm">
-            {(mode === "districts" ? DISTRICT_LEGEND : LEGENDS[layer]).map((g) => (
-              <div key={g.label} className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full" style={{ background: g.color }} />
-                {g.label}
-              </div>
-            ))}
-            <div className="pt-1 text-muted-foreground">
-              {mode === "districts" ? "حجم الدائرة = عدد الأراضي" : "حجم الدائرة = المساحة"}
-            </div>
           </div>
         </div>
       </div>
@@ -258,7 +275,7 @@ function Drawer({ p, onClose, onFootprint }: { p: Parcel; onClose: () => void; o
   ).length;
   const district = FOOTPRINT_DISTRICTS.find((d) => (d.match as readonly string[]).includes(p.district_en))?.ar ?? "الملقا";
   return (
-    <aside className="absolute bottom-28 right-4 top-28 z-[1001] w-[min(360px,90vw)] overflow-y-auto rounded-3xl border bg-surface p-5 shadow-xl">
+    <aside className="absolute bottom-4 right-4 top-16 z-[1001] w-[min(360px,90vw)] overflow-y-auto rounded-3xl border bg-surface p-5 shadow-xl">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <span className="size-1.5 rounded-full bg-primary" />
         الأرض المحددة

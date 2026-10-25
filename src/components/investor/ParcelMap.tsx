@@ -10,6 +10,14 @@ import { aggregateDistricts, districtColor, districtRadius, type DistrictAgg } f
 const RIYADH: [number, number] = [24.7136, 46.6753];
 const AREAS: Area[] = ["North", "South", "East", "West", "Central"];
 
+/** Land plot drawn as a square footprint (enlarged for visibility, scaled by area). */
+function parcelSquare(p: Parcel): [number, number][] {
+  const h = parcelRadius(p);
+  const dLat = h / 111320;
+  const dLng = h / (111320 * Math.cos((p.lat * Math.PI) / 180));
+  return [[p.lat - dLat, p.lng - dLng], [p.lat - dLat, p.lng + dLng], [p.lat + dLat, p.lng + dLng], [p.lat + dLat, p.lng - dLng]];
+}
+
 function FlyTo({ p }: { p: Parcel | null }) {
   const map = useMap();
   useEffect(() => {
@@ -78,7 +86,7 @@ export default function ParcelMap({
           <TileLayer maxZoom={19} zIndex={500}
             url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
         </LayersControl.Overlay>
-        <LayersControl.Overlay checked name="الطرق">
+        <LayersControl.Overlay name="الطرق">
           <TileLayer maxZoom={19} zIndex={499}
             url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}" />
         </LayersControl.Overlay>
@@ -129,15 +137,14 @@ export default function ParcelMap({
           const color = parcelColor(p, layer, parcels);
           const isSel = selected?.parcel_id === p.parcel_id;
           return (
-            <Circle
+            <Polygon
               key={p.parcel_id}
-              center={[p.lat, p.lng]}
-              radius={parcelRadius(p)}
-              pathOptions={{ color: isSel ? "#111827" : color, weight: isSel ? 3 : 1, fillColor: color, fillOpacity: 0.7 }}
+              positions={parcelSquare(p)}
+              pathOptions={{ color: isSel ? "#ffffff" : color, weight: isSel ? 3 : 1.5, fillColor: color, fillOpacity: 0.55 }}
               eventHandlers={{ click: () => onSelect(p) }}
             >
               <Tooltip>{`${p.district_ar} · ${p.parcel_id}`}</Tooltip>
-            </Circle>
+            </Polygon>
           );
         })}
       {highlight && (

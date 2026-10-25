@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { GitCompare, Map, MessageSquare, Search, Send, LandPlot, Menu, Bookmark } from "lucide-react";
 import { Logo } from "@/components/SiteHeader";
@@ -27,6 +27,7 @@ export const SAVED_SEARCHES = [
 function Layout() {
   const { parcels, compareIds, myInquiries, investorName } = usePortfolio();
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const item = "flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary";
   const active = { className: "bg-secondary font-medium" };
   const badge = (n: number) => <span className="rounded-full bg-background px-2 font-mono text-xs">{n}</span>;
@@ -70,6 +71,7 @@ function Layout() {
       </div>
     </>
   );
+  if (pathname === "/investor/map") return <Outlet />;
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-l bg-surface p-4 md:flex">{nav}</aside>
