@@ -62,7 +62,7 @@ export function DeltaScatter({ points, stagnantDays }: { points: { id: string; d
   const x = (d: number) => P + (d / maxD) * (W - 2 * P);
   const y = (v: number) => H / 2 - (v / ext) * (H / 2 - P);
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" dir="ltr" role="img" aria-label="فرق سعر المتر مقابل أيام العرض">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="فرق سعر المتر مقابل أيام العرض">
       <rect x={x(stagnantDays)} y={P / 2} width={x(maxD) - x(stagnantDays)} height={y(0) - P / 2} className="fill-destructive/10" />
       <text x={x(maxD) - 6} y={P / 2 + 16} textAnchor="end" className="fill-destructive text-[12px]">ربع الركود</text>
       <line x1={P} x2={W - P} y1={y(0)} y2={y(0)} className="stroke-border" />
@@ -89,7 +89,7 @@ export function AgingDots({ rows }: { rows: { id: string; status: string; days: 
   const lanes = ["new", "contacted", "negotiating"];
   const laneAr: Record<string, string> = { new: "بلا رد", contacted: "تواصل", negotiating: "تفاوض" };
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" dir="ltr" role="img" aria-label="عمر الاستفسارات">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="عمر الاستفسارات">
       {lanes.map((l, li) => {
         const yy = P + li * 40;
         return (
@@ -149,7 +149,7 @@ export function VelocityBubbles({ segs }: { segs: SegmentStats[] }) {
   const thin = segs.filter((s) => s.insufficientSample);
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" dir="ltr" role="img" aria-label="سرعة الشرائح">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" direction="ltr" role="img" aria-label="سرعة الشرائح">
         <line x1={P} x2={W - P} y1={H - P} y2={H - P} className="stroke-border" />
         <line x1={P} x2={P} y1={P} y2={H - P} className="stroke-border" />
         <text x={W / 2} y={H - 10} textAnchor="middle" className="fill-muted-foreground text-[10px]">وسيط أيام الإغلاق</text>
