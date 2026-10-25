@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import geoRaw from "@/data/riyadhDistricts.json";
 import { districtStats, findDistrict, pointInDistrict, type DistrictCollection } from "@/lib/districtStats";
-import { usePortfolioData } from "./helpers";
+import { initialInquiries, initialParcels } from "@/data";
 
 const GEO = geoRaw as unknown as DistrictCollection;
 
@@ -14,7 +14,7 @@ describe("district level", () => {
     expect(pointInDistrict(x, y, f)).toBe(true);
   });
   it("every located parcel lands in at most one district", () => {
-    const { parcels, inquiries } = usePortfolioData();
+    const parcels = initialParcels, inquiries = initialInquiries;
     const stats = districtStats(GEO, parcels, inquiries);
     const ids = stats.flatMap((s) => s.parcelIds);
     expect(new Set(ids).size).toBe(ids.length);
