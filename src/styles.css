@@ -138,7 +138,7 @@
 .sarj-orb::before {
   content: "";
   position: absolute;
-  inset: -16%;
+  inset: -26%;
   border-radius: 50%;
   pointer-events: none;
   background: radial-gradient(circle, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%);
@@ -156,6 +156,7 @@
   object-fit: cover;
   border-radius: 50%;
   mix-blend-mode: multiply;
+  filter: saturate(1.25) contrast(1.08);
 }
 
 /* only shown if the clip can't load */
