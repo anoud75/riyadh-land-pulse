@@ -41,7 +41,10 @@ export function SarjOrb({ className }: { className?: string }) {
           tabIndex={-1}
           aria-hidden="true"
           onError={() => setFailed(true)}
-        />
+        >
+          <source src={orbWebm.url} type="video/webm" />
+          <source src={orbMp4.url} type="video/mp4" />
+        </video>
       )}
     </span>
   );
