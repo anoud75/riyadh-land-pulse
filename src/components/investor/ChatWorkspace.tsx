@@ -208,7 +208,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
                   ) : (
                     <AssistantTurn key={i} m={m} mode={mode} agent={cfg.agent} onPanel={setPanel} onAsk={send} />
                   ))}
-                  {busy && <div className="flex items-center gap-3 text-sm text-muted-foreground"><span className="sarj-orb size-5 rounded-full" />يحلّل البيانات…</div>}
+                  {busy && <Thinking parcels={parcels.length} />}
                   <div ref={endRef} />
                 </div>
               </div>
@@ -226,6 +226,29 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
 
 function payloads(m: ChatMsg): UiPayload[] {
   return m.uis?.length ? m.uis : m.ui ? [m.ui] : [];
+}
+
+/** Animated "thinking" steps shown while the agent works — cycles through search phases. */
+function Thinking({ parcels }: { parcels: number }) {
+  const steps = useMemo(
+    () => ["يفكّر في السؤال…", `يبحث في ${parcels} أرضًا…`, "يحلّل الأرقام والأحياء…", "يرتّب النتيجة…"],
+    [parcels],
+  );
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((x) => Math.min(x + 1, steps.length - 1)), 1400);
+    return () => clearInterval(t);
+  }, [steps.length]);
+  return (
+    <div className="space-y-2 text-sm" aria-live="polite">
+      {steps.slice(0, i + 1).map((s, k) => (
+        <div key={s} className={`flex items-center gap-3 transition-opacity ${k === i ? "" : "opacity-40"}`}>
+          {k === i ? <span className="sarj-orb size-5 shrink-0 rounded-full" /> : <span className="grid size-5 shrink-0 place-items-center text-xs text-primary">✓</span>}
+          <span className={k === i ? "text-foreground" : "text-muted-foreground"}>{s}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function panelFor(m: ChatMsg): Panel {
