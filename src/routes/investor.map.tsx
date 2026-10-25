@@ -154,8 +154,9 @@ function MapPage() {
               />
             </div>
           ) : (
-            <button onClick={() => setChatOpen(true)} className="flex items-center gap-2 rounded-full bg-ink px-4 py-3 text-sm text-ink-foreground shadow-lg">
-              <Sparkles className="size-4" />اسألي المساعد
+            <button onClick={() => setChatOpen(true)} aria-label="اسأل المساعد" title="اسأل المساعد"
+              className="grid size-12 place-items-center rounded-full bg-ink text-ink-foreground shadow-lg hover:bg-ink/90">
+              <Sparkles className="size-5" />
             </button>
           )}
         </div>
