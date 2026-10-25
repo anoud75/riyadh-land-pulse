@@ -87,9 +87,9 @@ export default function ChatMap({ command, parcels, onPick, inquiries }: { comma
         if (f && m.getZoom() < 13) m.fitBounds(districtBounds(f), { padding: 40, duration: 900 });
       });
       const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
-      m.on("mouseenter", "p", (e) => { m.getCanvas().style.cursor = "pointer"; const f = e.features?.[0]; if (f) popup.setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number]).setText(String(f.properties?.label)).addTo(m); });
+      m.on("mouseenter", "p", (e) => { m.getCanvas().style.cursor = "pointer"; const f = e.features?.[0]; if (f) popup.setLngLat((f.geometry as GeoJSON.Point).coordinates as [number, number]).setText(String(f.properties?.["label"])).addTo(m); });
       m.on("mouseleave", "p", () => { m.getCanvas().style.cursor = ""; popup.remove(); });
-      m.on("click", "p", (e) => { const id = e.features?.[0]?.properties?.id; if (id) pickRef.current?.(String(id)); });
+      m.on("click", "p", (e) => { const id = e.features?.[0]?.properties?.["id"]; if (id) pickRef.current?.(String(id)); });
       setReady(true);
     });
     return () => { m.remove(); map.current = null; setReady(false); };

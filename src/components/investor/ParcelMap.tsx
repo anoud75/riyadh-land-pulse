@@ -76,9 +76,9 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
       setGen((g) => g + 1);
     });
     const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 6 });
-    m.on("mousemove", "sq", (e) => { m.getCanvas().style.cursor = "pointer"; popup.setLngLat(e.lngLat).setText(String(e.features?.[0]?.properties?.label ?? "")).addTo(m); });
+    m.on("mousemove", "sq", (e) => { m.getCanvas().style.cursor = "pointer"; popup.setLngLat(e.lngLat).setText(String(e.features?.[0]?.properties?.["label"] ?? "")).addTo(m); });
     m.on("mouseleave", "sq", () => { m.getCanvas().style.cursor = ""; popup.remove(); });
-    m.on("click", "sq", (e) => { const id = e.features?.[0]?.properties?.id; const p = cb.current.parcels.find((x) => x.parcel_id === id); if (p) cb.current.onSelect(p); });
+    m.on("click", "sq", (e) => { const id = e.features?.[0]?.properties?.["id"]; const p = cb.current.parcels.find((x) => x.parcel_id === id); if (p) cb.current.onSelect(p); });
     m.on("click", "d-fill", (e) => {
       const f = GEO.features.find((x) => x.properties.id === Number(e.features?.[0]?.id)); if (!f) return;
       m.fitBounds(districtBounds(f), { padding: 60, duration: 900 });
