@@ -1,7 +1,5 @@
-import { createFileRoute, ClientOnly, Link, useNavigate } from "@tanstack/react-router";
-import { FootprintOverlay } from "@/components/investor/FootprintOverlay";
-import { districtGeo } from "@/lib/districtGeo";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute, ClientOnly, Link } from "@tanstack/react-router";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Minus, Plus, Sparkles, X } from "lucide-react";
 import type { MapHandle } from "@/components/investor/ParcelMap";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -10,7 +8,6 @@ import { LAYER_LABELS, LEGENDS, type MapLayer } from "@/lib/mapLayers";
 import { applyMapFilters, DISTRICT_LEGEND, EMPTY_FILTERS, type DistrictAgg, type MapFilters } from "@/lib/mapStats";
 import { AREA_ADJ } from "@/lib/assistant";
 import { getParcelInsight } from "@/lib/investorEngine";
-import { FOOTPRINT_DISTRICTS } from "@/data/districtSeries";
 import { CompareButton, PriceLine } from "@/components/investor/ParcelCard";
 import { MapAssistant } from "@/components/investor/MapAssistant";
 import { pct, sar } from "@/components/investor/format";
@@ -21,7 +18,7 @@ export const Route = createFileRoute("/investor/map")({
   head: () => ({
     meta: [
       { title: "الخريطة — سرج" },
-      { name: "description", content: "أراضي سرج على خريطة الرياض مع نطاقات الوصول والمنافسين وبصمة الحي." },
+      { name: "description", content: "أراضي سرج على خريطة الرياض مع نطاقات الوصول والمنافسين." },
       { property: "og:title", content: "الخريطة — سرج" },
       { property: "og:description", content: "خريطة الأراضي ونطاق الوصول." },
       { property: "og:type", content: "website" },
@@ -29,8 +26,6 @@ export const Route = createFileRoute("/investor/map")({
     ],
     links: [{ rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }],
   }),
-  validateSearch: (s: Record<string, unknown>): { footprint?: string } =>
-    typeof s["footprint"] === "string" ? { footprint: s["footprint"] as string } : {},
   component: MapPage,
 });
 
@@ -45,22 +40,6 @@ function MapPage() {
   const [showMarket, setShowMarket] = useState(false);
   const [showOpen, setShowOpen] = useState(false);
   const mapRef = useRef<MapHandle | null>(null);
-  const { footprint } = Route.useSearch();
-  const navigate = useNavigate({ from: "/investor/map" });
-  const [year, setYear] = useState(2026);
-  const geo = useMemo(() => (footprint ? districtGeo(parcels, footprint) : null), [parcels, footprint]);
-  useEffect(() => {
-    if (!geo) return;
-    const go = () => {
-      const m = mapRef.current;
-      if (!m) return;
-      // shift so the district sits under the lens, left of the numbers panel
-      m.flyTo(geo.center[0], geo.center[1], 14, 160);
-    };
-    const t = [setTimeout(go, 50), setTimeout(go, 900)];
-    return () => t.forEach(clearTimeout);
-  }, [geo]);
-  const setFootprint = (d?: string) => navigate({ search: d ? { footprint: d } : {} });
 
   const filtered = useMemo(() => applyMapFilters(parcels, filters), [parcels, filters]);
   const loading = <div className="grid size-full place-items-center text-sm text-muted-foreground">جارٍ تحميل الخريطة…</div>;
@@ -82,7 +61,6 @@ function MapPage() {
               onSelect={setSelected}
               onSelectDistrict={onSelectDistrict}
               mapRef={mapRef}
-              highlight={geo?.outline ?? null}
               showMarket={showMarket}
               showOpen={showOpen}
             />
@@ -109,7 +87,7 @@ function MapPage() {
               ))}
             </div>
           </div>
-          <div className={`pointer-events-auto flex flex-wrap items-center justify-center gap-2 ${footprint ? "hidden" : ""}`}>
+          <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
             <FilterChip
               label="المنطقة"
               active={filters.area ? `${AREA_ADJ[filters.area]} الرياض` : filters.excludeArea ? `خارج ${AREA_ADJ[filters.excludeArea]} الرياض` : null}
@@ -162,7 +140,7 @@ function MapPage() {
         </Link>
 
         {/* bottom-left: minimizable assistant */}
-        <div className={`absolute bottom-4 left-4 z-[1002] ${footprint ? "hidden" : ""}`}>
+        <div className="absolute bottom-4 left-4 z-[1002]">
           {chatOpen ? (
             <div className="relative h-[min(520px,70vh)] w-[min(350px,85vw)]">
               <button aria-label="تصغير المساعد" onClick={() => setChatOpen(false)}
@@ -183,15 +161,10 @@ function MapPage() {
         </div>
 
         {/* right: parcel inspection */}
-        {footprint ? (
-          <FootprintOverlay parcels={parcels} district={footprint} year={year} onDistrict={setFootprint} onYear={setYear}
-            onClose={() => { setFootprint(); mapRef.current?.flyTo(24.7136, 46.6753, 11); }} />
-        ) : (
-          selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} onFootprint={(d) => { setSelected(null); setFootprint(d); }} />
-        )}
+        {selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} />}
 
         {/* bottom-right: zoom + closable legend */}
-        <div className={`absolute bottom-4 right-4 z-[1000] flex items-end gap-2 ${selected || footprint ? "hidden" : ""}`}>
+        <div className={`absolute bottom-4 right-4 z-[1000] flex items-end gap-2 ${selected ? "hidden" : ""}`}>
           {legendOpen ? (
             <div className="relative space-y-1.5 rounded-xl border bg-surface p-3 pl-8 text-xs shadow-sm">
               <button aria-label="إخفاء المفتاح" onClick={() => setLegendOpen(false)} className="absolute left-2 top-2 text-muted-foreground hover:text-foreground">
@@ -277,14 +250,13 @@ function FilterChip({
   );
 }
 
-function Drawer({ p, onClose, onFootprint }: { p: Parcel; onClose: () => void; onFootprint: (d: string) => void }) {
+function Drawer({ p, onClose }: { p: Parcel; onClose: () => void }) {
   const { parcels, inquiries } = usePortfolio();
   const ins = getParcelInsight(parcels, p.parcel_id)!;
   const s = ins.segment;
   const openInquiries = inquiries.filter(
     (i) => i.area_of_city_wanted === p.area_of_city && i.land_type_wanted === p.land_type && i.prefers === p.listing_type,
   ).length;
-  const district = FOOTPRINT_DISTRICTS.find((d) => (d.match as readonly string[]).includes(p.district_en))?.ar ?? "الملقا";
   return (
     <aside className="absolute bottom-4 right-4 top-16 z-[1001] w-[min(360px,90vw)] overflow-y-auto rounded-3xl border bg-surface p-5 shadow-xl">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -342,17 +314,7 @@ function Drawer({ p, onClose, onFootprint }: { p: Parcel; onClose: () => void; o
           المختصة.
         </p>
       </div>
-      <button
-        onClick={() => onFootprint(district)}
-        className="mt-5 flex w-full text-right items-center justify-between rounded-2xl bg-ink p-4 text-ink-foreground"
-      >
-        <div>
-          <div className="font-semibold">بصمة الحي</div>
-          <div className="text-xs text-ink-muted">سعر المتر · الصفقات · مدة العرض</div>
-        </div>
-        <span aria-hidden>←</span>
-      </button>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         <Link to="/investor/parcels/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full border px-4 py-2 text-sm">
           صفحة الأرض
         </Link>

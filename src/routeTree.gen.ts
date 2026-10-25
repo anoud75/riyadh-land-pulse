@@ -30,7 +30,6 @@ import { Route as InvestorInquiriesRouteImport } from './routes/investor.inquiri
 import { Route as InvestorMapRouteImport } from './routes/investor.map'
 import { Route as LocateTokenRouteImport } from './routes/locate.$token'
 import { Route as WhoNameRouteImport } from './routes/who_.name'
-import { Route as InvestorFootprintDistrictRouteImport } from './routes/investor.footprint.$district'
 import { Route as InvestorInquireParcelIdRouteImport } from './routes/investor.inquire.$parcelId'
 import { Route as InvestorParcelsParcelIdRouteImport } from './routes/investor.parcels.$parcelId'
 
@@ -139,12 +138,6 @@ const WhoNameRoute = WhoNameRouteImport.update({
   path: '/who/name',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InvestorFootprintDistrictRoute =
-  InvestorFootprintDistrictRouteImport.update({
-    id: '/footprint/$district',
-    path: '/footprint/$district',
-    getParentRoute: () => InvestorRoute,
-  } as any)
 const InvestorInquireParcelIdRoute = InvestorInquireParcelIdRouteImport.update({
   id: '/inquire/$parcelId',
   path: '/inquire/$parcelId',
@@ -178,7 +171,6 @@ export interface FileRoutesByFullPath {
   '/who/name': typeof WhoNameRoute
   '/admin/': typeof AdminIndexRoute
   '/investor/': typeof InvestorIndexRoute
-  '/investor/footprint/$district': typeof InvestorFootprintDistrictRoute
   '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
   '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
 }
@@ -202,7 +194,6 @@ export interface FileRoutesByTo {
   '/who/name': typeof WhoNameRoute
   '/admin': typeof AdminIndexRoute
   '/investor': typeof InvestorIndexRoute
-  '/investor/footprint/$district': typeof InvestorFootprintDistrictRoute
   '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
   '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
 }
@@ -229,7 +220,6 @@ export interface FileRoutesById {
   '/who_/name': typeof WhoNameRoute
   '/admin/': typeof AdminIndexRoute
   '/investor/': typeof InvestorIndexRoute
-  '/investor/footprint/$district': typeof InvestorFootprintDistrictRoute
   '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
   '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
 }
@@ -257,7 +247,6 @@ export interface FileRouteTypes {
     | '/who/name'
     | '/admin/'
     | '/investor/'
-    | '/investor/footprint/$district'
     | '/investor/inquire/$parcelId'
     | '/investor/parcels/$parcelId'
   fileRoutesByTo: FileRoutesByTo
@@ -281,7 +270,6 @@ export interface FileRouteTypes {
     | '/who/name'
     | '/admin'
     | '/investor'
-    | '/investor/footprint/$district'
     | '/investor/inquire/$parcelId'
     | '/investor/parcels/$parcelId'
   id:
@@ -307,7 +295,6 @@ export interface FileRouteTypes {
     | '/who_/name'
     | '/admin/'
     | '/investor/'
-    | '/investor/footprint/$district'
     | '/investor/inquire/$parcelId'
     | '/investor/parcels/$parcelId'
   fileRoutesById: FileRoutesById
@@ -472,13 +459,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhoNameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/investor/footprint/$district': {
-      id: '/investor/footprint/$district'
-      path: '/footprint/$district'
-      fullPath: '/investor/footprint/$district'
-      preLoaderRoute: typeof InvestorFootprintDistrictRouteImport
-      parentRoute: typeof InvestorRoute
-    }
     '/investor/inquire/$parcelId': {
       id: '/investor/inquire/$parcelId'
       path: '/inquire/$parcelId'
@@ -525,7 +505,6 @@ interface InvestorRouteChildren {
   InvestorInquiriesRoute: typeof InvestorInquiriesRoute
   InvestorMapRoute: typeof InvestorMapRoute
   InvestorIndexRoute: typeof InvestorIndexRoute
-  InvestorFootprintDistrictRoute: typeof InvestorFootprintDistrictRoute
   InvestorInquireParcelIdRoute: typeof InvestorInquireParcelIdRoute
   InvestorParcelsParcelIdRoute: typeof InvestorParcelsParcelIdRoute
 }
@@ -537,7 +516,6 @@ const InvestorRouteChildren: InvestorRouteChildren = {
   InvestorInquiriesRoute: InvestorInquiriesRoute,
   InvestorMapRoute: InvestorMapRoute,
   InvestorIndexRoute: InvestorIndexRoute,
-  InvestorFootprintDistrictRoute: InvestorFootprintDistrictRoute,
   InvestorInquireParcelIdRoute: InvestorInquireParcelIdRoute,
   InvestorParcelsParcelIdRoute: InvestorParcelsParcelIdRoute,
 }

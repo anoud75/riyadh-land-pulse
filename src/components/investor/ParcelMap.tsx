@@ -32,10 +32,10 @@ export interface MapHandle {
 const poly = (ring: [number, number][], props: Record<string, unknown> = {}) => ({ type: "Feature" as const, properties: props, geometry: { type: "Polygon" as const, coordinates: [ring] } });
 const fc = (features: unknown[]) => ({ type: "FeatureCollection", features }) as GeoJSON.FeatureCollection;
 
-export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, highlight, showMarket = false, showOpen = false }: {
+export default function ParcelMap({ parcels, layer, mode, selected, onSelect, onSelectDistrict, mapRef, showMarket = false, showOpen = false }: {
   parcels: Parcel[]; layer: MapLayer; mode: "parcels" | "districts"; selected: Parcel | null;
   onSelect: (p: Parcel | null) => void; onSelectDistrict: (d: DistrictAgg) => void;
-  mapRef: React.RefObject<MapHandle | null>; highlight?: [number, number][] | null; showMarket?: boolean; showOpen?: boolean;
+  mapRef: React.RefObject<MapHandle | null>; showMarket?: boolean; showOpen?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -51,10 +51,8 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     const districts = GEO.features.map((f) => { const s = byId.get(f.properties.id); return { ...f, id: f.properties.id, properties: { ...f.properties, color: s?.parcelIds.length ? districtColor(s?.medianPpm ?? null) : "#000000", op: s?.parcelIds.length ? 0.45 : 0.04, label: s?.parcelIds.length ? `${s?.name_ar} · ${s?.parcelIds.length}` : "" } }; });
     const reach = selected && mode === "parcels" ? REACH_MINUTES.map((m, i) => poly(reachPolygon(selected.parcel_id, selected.lat, selected.lng, m).map(([a, b]) => [b, a] as [number, number]), { op: 0.015 + i * 0.012 })) : [];
     const comps = selected && mode === "parcels" ? competitorPoints(selected.parcel_id, selected.lat, selected.lng).map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [c[1], c[0]] } })) : [];
-    const first = highlight?.[0];
-    const hl = first && highlight ? [poly([...highlight.map(([a, b]) => [b, a] as [number, number]), [first[1], first[0]]])] : [];
-    return { aggs, districts, reach, comps, hl };
-  }, [parcels, layer, selected, mode, highlight]);
+    return { aggs, districts, reach, comps };
+  }, [parcels, layer, selected, mode]);
 
   useEffect(() => {
     if (!box.current || !TOKEN) return;
@@ -68,14 +66,12 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
     };
     m.on("style.load", () => {
       const src = (id: string) => m.addSource(id, { type: "geojson", data: fc([]) });
-      ["districts", "reach", "comps", "hl"].forEach(src);
+      ["districts", "reach", "comps"].forEach(src);
       m.addLayer({ id: "d-fill", type: "fill", source: "districts", layout: { visibility: "none" }, paint: { "fill-color": ["get", "color"], "fill-opacity": ["get", "op"] } });
       m.addLayer({ id: "d-line", type: "line", source: "districts", layout: { visibility: "none" }, paint: { "line-color": "#ffffff", "line-width": 1, "line-opacity": 0.8 } });
       m.addLayer({ id: "d-label", type: "symbol", source: "districts", layout: { visibility: "none", "text-field": ["get", "label"], "text-size": 12, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"] }, paint: { "text-color": "#111", "text-halo-color": "#fff", "text-halo-width": 1.5 } });
       m.addLayer({ id: "reach", type: "fill", source: "reach", paint: { "fill-color": "#7c3aed", "fill-opacity": ["get", "op"], "fill-outline-color": "#6d28d9" } });
       m.addLayer({ id: "comps", type: "circle", source: "comps", paint: { "circle-radius": 6, "circle-color": "#ffffff", "circle-stroke-color": "#111827", "circle-stroke-width": 2 } });
-      m.addLayer({ id: "hl-fill", type: "fill", source: "hl", paint: { "fill-color": "#e0393e", "fill-opacity": 0.12 } });
-      m.addLayer({ id: "hl-line", type: "line", source: "hl", paint: { "line-color": "#e0393e", "line-width": 3 } });
       m.addSource("market", { type: "geojson", data: fc([]) });
       m.addLayer({ id: "market", type: "circle", source: "market", paint: { "circle-radius": 6, "circle-color": "#374151", "circle-stroke-color": "#d1d5db", "circle-stroke-width": 3 } });
       m.addSource("open", { type: "geojson", data: fc([]) });
@@ -120,7 +116,7 @@ export default function ParcelMap({ parcels, layer, mode, selected, onSelect, on
   useEffect(() => {
     const m = map.current; if (!m || !gen) return;
     const set = (id: string, f: unknown[]) => (m.getSource(id) as mapboxgl.GeoJSONSource | undefined)?.setData(fc(f));
-    set("districts", data.districts); set("reach", data.reach); set("comps", data.comps); set("hl", data.hl);
+    set("districts", data.districts); set("reach", data.reach); set("comps", data.comps);
     set("market", showMarket ? MARKET_LISTINGS.map((l) => ({ type: "Feature", properties: { title: l.title, price: l.price, kind: l.kind }, geometry: { type: "Point", coordinates: [l.lng, l.lat] } })) : []);
     const vis = (ids: string[], on: boolean) => ids.forEach((id) => m.getLayer(id) && m.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
     vis(["d-fill", "d-line", "d-label"], mode === "districts");

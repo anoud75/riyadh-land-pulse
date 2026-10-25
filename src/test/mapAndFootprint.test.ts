@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { initialParcels as P } from "@/data";
 import { dealColor, MAP_COLORS, parcelColor, parcelRadius } from "@/lib/mapLayers";
-import { getDistrictFootprint } from "@/data/districtSeries";
 
 const byId = (id: string) => P.find((p) => p.parcel_id === id)!;
 
@@ -20,10 +19,3 @@ describe("map layers", () => {
   });
 });
 
-describe("district footprint", () => {
-  it("hides the median when a district has fewer than 3 closed deals", () => {
-    const f = getDistrictFootprint(P, "الملقا", 2026);
-    expect(f.closedDeals).toBe(1);
-    expect(f.medianDays).toBeNull();
-  });
-});
