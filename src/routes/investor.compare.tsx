@@ -65,6 +65,7 @@ function Compare() {
   const [keys, setKeys] = useState<string[]>(DEFAULT_KEYS);
   const [places, setPlaces] = useState<OpenPlacesFile | null>(null);
   const [openP, setOpenP] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
 
   useEffect(() => {
     import("@/data/overturePlaces.json").then((m) => setPlaces(m.default as unknown as OpenPlacesFile));
