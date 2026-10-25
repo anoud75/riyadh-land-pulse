@@ -180,7 +180,7 @@ function MapPage() {
         )}
 
         {/* bottom-right: zoom + closable legend */}
-        <div className={`absolute bottom-4 right-4 z-[1000] flex items-end gap-2 ${selected && !footprint ? "hidden" : ""}`}>
+        <div className={`absolute bottom-4 right-4 z-[1000] flex items-end gap-2 ${selected || footprint ? "hidden" : ""}`}>
           {legendOpen ? (
             <div className="relative space-y-1.5 rounded-xl border bg-surface p-3 pl-8 text-xs shadow-sm">
               <button aria-label="إخفاء المفتاح" onClick={() => setLegendOpen(false)} className="absolute left-2 top-2 text-muted-foreground hover:text-foreground">
