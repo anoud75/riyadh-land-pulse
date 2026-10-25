@@ -69,7 +69,6 @@ const CONFIG = {
 export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
   const cfg = CONFIG[mode];
   const { parcels, inquiries, investorName } = usePortfolio();
-  const first = mode === "admin" ? "فريق سرج" : /[\u0600-\u06FF]/.test(investorName) ? (investorName.split(" ")[0] ?? "العنود") : "العنود";
   const preloaded = useMemo<Thread[]>(() => [
     ...(mode === "admin" ? ADMIN_SCENARIOS : INVESTOR_SCENARIOS).map((s, i) => ({ id: s.id, title: s.title, group: (i < 2 ? "اليوم" : "أمس") as Thread["group"], msgs: s.build(parcels, inquiries) })),
     ...cfg.history.map((h, i) => ({ id: `h${i}`, title: h.title, group: h.group, msgs: [{ role: "user" as const, text: h.q }] })),
