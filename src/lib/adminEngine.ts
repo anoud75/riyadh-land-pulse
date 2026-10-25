@@ -135,7 +135,7 @@ export function getFeasibility(parcels: Parcel[], inquiry: Inquiry) {
 export function getMonthlyClosings(parcels: Parcel[]) {
   const m = new Map<string, number>();
   for (const p of parcels.filter(isClosed)) {
-    const k = new Date(Date.parse(p.listed_date) + p.days_on_market * DAY).toISOString().slice(0, 7);
+    const k = p.listed_date.slice(0, 7); // data has no closing date; grouped by listing month
     m.set(k, (m.get(k) ?? 0) + 1);
   }
   return [...m.entries()].sort().map(([month, n]) => ({ month, n }));
