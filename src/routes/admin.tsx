@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { usePortfolio } from "@/context/PortfolioProvider";
+import { TeamAssistant } from "@/components/admin/TeamAssistant";
 import { AREA_AR, LAND_AR } from "@/data/types";
 import { getHeadline, getSupplyDemandGaps } from "@/lib/portfolioEngine";
 
@@ -23,6 +24,7 @@ function Page() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
+      <TeamAssistant />
       <main className="mx-auto max-w-6xl px-6 py-16">
         <h1 className="text-4xl font-bold">المحفظة</h1>
         <p className="mt-3 text-muted-foreground">
