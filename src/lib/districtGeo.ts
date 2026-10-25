@@ -6,7 +6,7 @@ export function districtGeo(parcels: Parcel[], ar: string) {
   const d = districtByAr(ar);
   const pts = parcels
     .filter((p) => (d.match as readonly string[]).includes(p.district_en))
-    .map((p) => [p.latitude, p.longitude] as [number, number]);
+    .map((p) => [p.lat, p.lng] as [number, number]);
   if (!pts.length) return null;
   const lat = pts.reduce((s, p) => s + p[0], 0) / pts.length;
   const lng = pts.reduce((s, p) => s + p[1], 0) / pts.length;
