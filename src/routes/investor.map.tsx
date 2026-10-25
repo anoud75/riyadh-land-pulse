@@ -1,5 +1,7 @@
-import { createFileRoute, ClientOnly, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { createFileRoute, ClientOnly, Link, useNavigate } from "@tanstack/react-router";
+import { FootprintOverlay } from "@/components/investor/FootprintOverlay";
+import { districtGeo } from "@/lib/districtGeo";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Minus, Plus, X } from "lucide-react";
 import type { Map as LeafletMap } from "leaflet";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -28,6 +30,8 @@ export const Route = createFileRoute("/investor/map")({
     ],
     links: [{ rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }],
   }),
+  validateSearch: (s: Record<string, unknown>): { footprint?: string } =>
+    typeof s.footprint === "string" ? { footprint: s.footprint } : {},
   component: MapPage,
 });
 
@@ -38,6 +42,16 @@ function MapPage() {
   const [filters, setFilters] = useState<MapFilters>(EMPTY_FILTERS);
   const [selected, setSelected] = useState<Parcel | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
+  const { footprint } = Route.useSearch();
+  const navigate = useNavigate({ from: "/investor/map" });
+  const [year, setYear] = useState(2026);
+  const geo = useMemo(() => (footprint ? districtGeo(parcels, footprint) : null), [parcels, footprint]);
+  useEffect(() => {
+    if (!geo) return;
+    const t = setTimeout(() => mapRef.current?.flyTo(geo.center, 13, { duration: 1.2 }), 50);
+    return () => clearTimeout(t);
+  }, [geo]);
+  const setFootprint = (d?: string) => navigate({ search: d ? { footprint: d } : {} });
 
   const filtered = useMemo(() => applyMapFilters(parcels, filters), [parcels, filters]);
   const loading = <div className="grid size-full place-items-center text-sm text-muted-foreground">جارٍ تحميل الخريطة…</div>;
@@ -59,6 +73,7 @@ function MapPage() {
               onSelect={setSelected}
               onSelectDistrict={onSelectDistrict}
               mapRef={mapRef}
+              highlight={geo?.outline ?? null}
             />
           </Suspense>
         </ClientOnly>
@@ -123,7 +138,7 @@ function MapPage() {
         </div>
 
         {/* left: assistant */}
-        <div className="absolute bottom-28 left-4 top-28 z-[1000] w-[min(350px,85vw)]">
+        <div className={`absolute bottom-28 left-4 top-28 z-[1000] w-[min(350px,85vw)] ${footprint ? "hidden" : ""}`}>
           <MapAssistant
             parcels={parcels}
             onApplyFilters={(f) => {
@@ -135,7 +150,12 @@ function MapPage() {
         </div>
 
         {/* right: parcel inspection */}
-        {selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} />}
+        {footprint ? (
+          <FootprintOverlay parcels={parcels} district={footprint} year={year} onDistrict={setFootprint} onYear={setYear}
+            onClose={() => { setFootprint(); mapRef.current?.flyTo([24.7136, 46.6753], 11, { duration: 1 }); }} />
+        ) : (
+          selected && mode === "parcels" && <Drawer p={selected} onClose={() => setSelected(null)} onFootprint={(d) => { setSelected(null); setFootprint(d); }} />
+        )}
 
         {/* bottom: executive ticker */}
         <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[1000] flex justify-center px-4">
@@ -222,7 +242,7 @@ function FilterChip({
   );
 }
 
-function Drawer({ p, onClose }: { p: Parcel; onClose: () => void }) {
+function Drawer({ p, onClose, onFootprint }: { p: Parcel; onClose: () => void; onFootprint: (d: string) => void }) {
   const { parcels, inquiries } = usePortfolio();
   const ins = getParcelInsight(parcels, p.parcel_id)!;
   const s = ins.segment;
@@ -287,17 +307,16 @@ function Drawer({ p, onClose }: { p: Parcel; onClose: () => void }) {
           المختصة.
         </p>
       </div>
-      <Link
-        to="/investor/footprint/$district"
-        params={{ district }}
-        className="mt-5 flex items-center justify-between rounded-2xl bg-ink p-4 text-ink-foreground"
+      <button
+        onClick={() => onFootprint(district)}
+        className="mt-5 flex w-full text-right items-center justify-between rounded-2xl bg-ink p-4 text-ink-foreground"
       >
         <div>
           <div className="font-semibold">بصمة الحي</div>
           <div className="text-xs text-ink-muted">سعر المتر · الصفقات · مدة العرض</div>
         </div>
         <span aria-hidden>←</span>
-      </Link>
+      </button>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link to="/investor/parcels/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full border px-4 py-2 text-sm">
           صفحة الأرض
