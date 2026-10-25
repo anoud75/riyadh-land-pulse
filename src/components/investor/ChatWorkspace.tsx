@@ -3,7 +3,7 @@ import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, BarChart3, Briefcase, Columns2, ExternalLink, FileText, GitCompare, Inbox, LandPlot, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, Sun, Users, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Briefcase, Columns2, ExternalLink, FileText, GitCompare, Inbox, LandPlot, Map as MapIcon, PanelRight, Plus, Printer, Search, Send, Sparkle, Sun, UserRound, Users, X } from "lucide-react";
 import logo from "@/assets/sarj_logo.png.asset.json";
 import { askSarjAgent } from "@/lib/sarjAgent.functions";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -28,11 +28,11 @@ type Panel = { kind: "map"; command: MapCommand } | { kind: "report"; ui: Report
 const CONFIG = {
   investor: {
     agent: "محلّل المواقع",
-    role: "مستثمرة",
-    question: "ما الذي تنوين بناءه؟",
-    placeholder: "مثلًا: أبحث عن أرض لمستودع جنوب الرياض، ميزانيتي مليون ريال سنويًا",
-    followPh: "اسألي عن أي أرض، اطلبي رسمًا أو تقريرًا، أو حرّكي الخريطة…",
-    footer: "محلّل المواقع لا يرى أي استفسار أو بيانات تواصل",
+    role: "مستثمر",
+    question: "ما الذي تنوي بناءه؟",
+    placeholder: "مثلًا: أبحث عن أرض تجارية شمال الرياض بميزانية 3 ملايين",
+    followPh: "اسأل عن أي أرض، اطلب رسمًا أو تقريرًا، أو حرّك الخريطة…",
+    footer: "المساعد لا يرى أي استفسار أو بيانات تواصل",
     history: [
       { title: "أفضل ثلاثة مواقع لمستشفى شمال الرياض", q: "أعطني أفضل ثلاثة مواقع لمستشفى شمال الرياض", group: "اليوم" },
       { title: "تقرير السوق لشرق الرياض", q: "أعطني تقرير السوق لشرق الرياض", group: "أمس" },
@@ -41,7 +41,7 @@ const CONFIG = {
       { title: "قطع سكنية ضمن 3 ملايين", q: "قطع سكنية للبيع ضمن 3 ملايين", group: "آخر 7 أيام" },
     ] as { title: string; q: string; group: Thread["group"] }[],
     starters: [
-      { icon: Radar, title: "حلّل نطاق الوصول", body: "أيّ الأراضي التجارية الكبيرة لها أوسع شارع لدخول الشاحنات؟", q: "أبغى أرض تجارية كبيرة يهمني دخول الشاحنات، وأرني إياها على الخريطة" },
+      { icon: Radar, title: "موقع لمستشفى", body: "أفضل ثلاثة مواقع لمستشفى في شمال الرياض", q: "أعطني أفضل ثلاثة مواقع لمستشفى شمال الرياض" },
       { icon: BarChart3, title: "اعثر على هامش تفاوض", body: "أي الأراضي معروضة أطول من وسيط شريحتها؟", q: "أعطني تقرير هامش التفاوض لأراضي سكنية شمال الرياض تحت 3.5 مليون" },
       { icon: Columns2, title: "قارن أرضين برسم", body: "ارسم الفرق بين الرمال والمناخ في سعر المتر", q: "قارن بين SRE-015 وSRE-081 وارسم سعر المتر" },
     ],
@@ -174,7 +174,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
             ))}
           </div>
           <div className="m-3 flex items-center gap-3 rounded-2xl border p-3">
-            <span className="grid size-9 place-items-center rounded-full bg-accent font-semibold text-accent-foreground">{mode === "admin" ? "س" : /[\u0600-\u06FF]/.test(first) ? first[0] : "ع"}</span>
+            <span className="grid size-9 place-items-center rounded-full bg-accent text-accent-foreground">{mode === "admin" ? <span className="font-semibold">س</span> : <UserRound className="size-4.5" />}</span>
             <div><div className="text-sm font-semibold">{mode === "admin" ? "فريق سرج" : investorName || "العنود السميل"}</div><div className="text-xs text-muted-foreground">{cfg.role}</div></div>
           </div>
         </aside>
@@ -186,9 +186,9 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6">
               <div className="sarj-orb size-28 rounded-full" />
-              <h1 className="mt-8 text-center text-3xl font-bold leading-snug"><span className="text-primary">أهلًا {first}</span><br />{cfg.question}</h1>
               <Composer value={input} onChange={setInput} onSend={() => send(input)} busy={busy} inputRef={inputRef} big placeholder={cfg.placeholder} />
-              <div className="mt-5 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
+              <div className="mt-6 w-full max-w-2xl text-xs text-muted-foreground">اقتراحات للبحث في المحادثة</div>
+              <div className="mt-3 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
                 {cfg.starters.map((s) => (
                   <button key={s.title} onClick={() => send(s.q)} className="rounded-2xl border bg-surface p-4 text-right transition hover:-translate-y-0.5 hover:shadow-md">
                     <s.icon className="size-5 text-primary" />
@@ -275,7 +275,7 @@ function Composer({ value, onChange, onSend, busy, inputRef, big, placeholder }:
         className="w-full flex-1 resize-none bg-transparent px-2 py-1.5 leading-relaxed outline-none"
       />
       <div className={big ? "mt-2 flex justify-end" : ""}>
-        <button type="submit" disabled={busy || !value.trim()} aria-label="إرسال" className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground transition disabled:opacity-40"><ArrowLeft className="size-4" /></button>
+        <button type="submit" disabled={busy || !value.trim()} aria-label="إرسال" className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground transition disabled:opacity-40"><Send className="size-4" /></button>
       </div>
     </form>
   );
