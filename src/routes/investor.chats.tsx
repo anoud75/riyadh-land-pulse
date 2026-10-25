@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AgentChat } from "@/components/AgentChat";
+import { ChatWorkspace } from "@/components/investor/ChatWorkspace";
 
 export const Route = createFileRoute("/investor/chats")({
   head: () => ({
@@ -16,10 +16,5 @@ export const Route = createFileRoute("/investor/chats")({
 });
 
 function Chats() {
-  return (
-    <div>
-      <h1 className="mb-4 text-3xl font-bold">محادثاتي</h1>
-      <AgentChat mode="investor" />
-    </div>
-  );
+  return <ChatWorkspace />;
 }
