@@ -39,17 +39,37 @@ export function MapAssistant({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs]);
 
-  const send = (raw: string) => {
+  const [busy, setBusy] = useState(false);
+  const ask = useServerFn(askSarjAgent);
+  const send = async (raw: string) => {
     const text = raw.trim();
-    if (!text) return;
+    if (!text || busy) return;
+    const history = msgs.filter((m) => m.id > 0).map((m) => ({ role: m.role, content: m.text }));
+    setMsgs((m) => [...m, { id: m.length, role: "user", text }]);
+    setInput("");
+    setBusy(true);
+    const extra = parcels.filter((p) => !initialParcels.some((x) => x.parcel_id === p.parcel_id));
+    const r = await ask({ data: { mode: "investor", messages: [...history, { role: "user", content: text }], extraParcels: extra } }).catch(() => null);
+    setBusy(false);
+    if (r?.ok) {
+      const f: MapFilters = r.filters
+        ? { ...EMPTY_FILTERS, area: r.filters.area as MapFilters["area"], landType: r.filters.landType as MapFilters["landType"], dealType: r.filters.dealType as MapFilters["dealType"], minStreet: r.filters.minStreet, maxBudget: r.filters.maxBudget }
+        : filtersRef.current;
+      filtersRef.current = f;
+      const ids = r.parcelIds;
+      setMsgs((m) => [...m, { id: m.length, role: "assistant", text: r.text, top: ids[0] ?? null, more: ids.slice(1, 4), chips: ["أضفها للمقارنة"] }]);
+      if (r.filters) onApplyFilters(f);
+      const top = parcels.find((p) => p.parcel_id === ids[0]);
+      if (top) onFocusParcel(top);
+      return;
+    }
+    // fallback: deterministic rule-based analyst
     const answer = answerQuery(parcels, text, filtersRef.current);
     filtersRef.current = answer.filters;
     setMsgs((m) => [
       ...m,
-      { id: m.length, role: "user", text },
-      { id: m.length + 1, role: "assistant", text: answer.text, top: answer.top?.parcel_id ?? null, chips: answer.chips },
+      { id: m.length, role: "assistant", text: `${r && !r.ok ? r.error : "تعذّر الوصول إلى الوكيل."} أجبتُ بالمحلل الثابت:\n${answer.text}`, top: answer.top?.parcel_id ?? null, chips: answer.chips },
     ]);
-    setInput("");
     onApplyFilters(answer.filters);
     if (answer.top) onFocusParcel(answer.top);
   };
