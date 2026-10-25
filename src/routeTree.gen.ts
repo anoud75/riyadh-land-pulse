@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ContextualModelRouteImport } from './routes/contextual-model'
+import { Route as InvestorRouteImport } from './routes/investor'
+import { Route as PortfolioRequestRouteImport } from './routes/portfolio-request'
+import { Route as WhoRouteImport } from './routes/who'
+import { Route as WhoNameRouteImport } from './routes/who_.name'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContextualModelRoute = ContextualModelRouteImport.update({
+  id: '/contextual-model',
+  path: '/contextual-model',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorRoute = InvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRequestRoute = PortfolioRequestRouteImport.update({
+  id: '/portfolio-request',
+  path: '/portfolio-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhoRoute = WhoRouteImport.update({
+  id: '/who',
+  path: '/who',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhoNameRoute = WhoNameRouteImport.update({
+  id: '/who_/name',
+  path: '/who/name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/contextual-model': typeof ContextualModelRoute
+  '/investor': typeof InvestorRoute
+  '/portfolio-request': typeof PortfolioRequestRoute
+  '/who': typeof WhoRoute
+  '/who/name': typeof WhoNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/contextual-model': typeof ContextualModelRoute
+  '/investor': typeof InvestorRoute
+  '/portfolio-request': typeof PortfolioRequestRoute
+  '/who': typeof WhoRoute
+  '/who/name': typeof WhoNameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/contextual-model': typeof ContextualModelRoute
+  '/investor': typeof InvestorRoute
+  '/portfolio-request': typeof PortfolioRequestRoute
+  '/who': typeof WhoRoute
+  '/who_/name': typeof WhoNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/contextual-model'
+    | '/investor'
+    | '/portfolio-request'
+    | '/who'
+    | '/who/name'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/contextual-model'
+    | '/investor'
+    | '/portfolio-request'
+    | '/who'
+    | '/who/name'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/contextual-model'
+    | '/investor'
+    | '/portfolio-request'
+    | '/who'
+    | '/who_/name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  ContextualModelRoute: typeof ContextualModelRoute
+  InvestorRoute: typeof InvestorRoute
+  PortfolioRequestRoute: typeof PortfolioRequestRoute
+  WhoRoute: typeof WhoRoute
+  WhoNameRoute: typeof WhoNameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contextual-model': {
+      id: '/contextual-model'
+      path: '/contextual-model'
+      fullPath: '/contextual-model'
+      preLoaderRoute: typeof ContextualModelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investor': {
+      id: '/investor'
+      path: '/investor'
+      fullPath: '/investor'
+      preLoaderRoute: typeof InvestorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio-request': {
+      id: '/portfolio-request'
+      path: '/portfolio-request'
+      fullPath: '/portfolio-request'
+      preLoaderRoute: typeof PortfolioRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/who': {
+      id: '/who'
+      path: '/who'
+      fullPath: '/who'
+      preLoaderRoute: typeof WhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/who_/name': {
+      id: '/who_/name'
+      path: '/who/name'
+      fullPath: '/who/name'
+      preLoaderRoute: typeof WhoNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  ContextualModelRoute: ContextualModelRoute,
+  InvestorRoute: InvestorRoute,
+  PortfolioRequestRoute: PortfolioRequestRoute,
+  WhoRoute: WhoRoute,
+  WhoNameRoute: WhoNameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
