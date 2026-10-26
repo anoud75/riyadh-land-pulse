@@ -29,3 +29,5 @@
 - Comparison scores are pure min–max weighted averages in `src/lib/weightedCompare.ts`; missing values are skipped (weight renormalized), never zero-scored — keeps rankings fair and testable.
 - Lazily loaded components go through `lazyWithReload` (`src/lib/lazyWithReload.ts`), never bare `lazy()` — a module URL that a new deploy or a dev-server restart has replaced then reloads the page once instead of blanking the screen.
 - DOM measurements that feed a `setState` guard must stay finite (divide only by a non-zero `scrollHeight`, clamp with `Math.max(0, …)`) — a hidden panel measures 0×0, and a `NaN` in the guard never equals itself, so the component re-renders until React throws and blanks the screen.
+
+- The team offer page uses a three-stage client-side flow and inquiry search context; it reuses provider offers without claiming external delivery or persistent storage.
