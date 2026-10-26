@@ -82,3 +82,48 @@ export function detectUseCase(q: string): { useCase: UseCase; category: PlaceCat
 
 /** Demand points from population: 0 at no people, 7.5 at the median district, capped at 15 for twice the median or more. */
 export function populationBoost(popRatio: number) { return 15 * clamp(popRatio / 2); }
+
+/* ---------- Sector profiles (pure, deterministic) ---------- */
+export type Sector = "healthcare" | "logistics" | "residential_compound";
+export const MIN_TRUCK_STREET_M = 36;
+
+export const SECTOR_WEIGHTS = {
+  healthcare: { reach: 0.6, competition: 0.3, price: 0.1 },
+  logistics: { highway: 0.5, price: 0.5 },
+  residential_compound: { velocity: 0.4, price: 0.35, yield: 0.25 },
+} as const;
+
+/** Healthcare: 15-min population reach (ratio to median district) minus competing hospitals within 15 min. */
+export function scoreHealthcare(i: { popRatio15: number | null; hospitals15: number; priceRatio?: number | null }) {
+  if (i.popRatio15 == null) return { score: null, label: "بيانات غير كافية" };
+  const w = SECTOR_WEIGHTS.healthcare;
+  const reach = clamp(i.popRatio15 / 2);
+  const comp = clamp(1 - i.hospitals15 / 5);
+  const price = i.priceRatio == null ? 0.5 : clamp(1.5 - i.priceRatio);
+  const score = r(100 * (w.reach * reach + w.competition * comp + w.price * price));
+  return { score, label: businessLabel(score) };
+}
+
+/** Logistics: street under 36 m is a hard fail (no heavy-truck access); then highway minutes and price/sqm vs median. */
+export function scoreLogistics(i: { streetWidthM: number | null; highwayMin: number | null; priceRatio: number | null }) {
+  if (i.streetWidthM == null) return { score: null, label: "بيانات غير كافية" };
+  if (i.streetWidthM < MIN_TRUCK_STREET_M) return { score: 0, label: "غير مناسب للشاحنات" };
+  const w = SECTOR_WEIGHTS.logistics;
+  const hw = i.highwayMin == null ? 0.5 : clamp((20 - i.highwayMin) / 15);
+  const price = i.priceRatio == null ? 0.5 : clamp(1.5 - i.priceRatio);
+  const score = r(100 * (w.highway * hw + w.price * price));
+  return { score, label: businessLabel(score) };
+}
+
+/** Residential compound: segment median DOM (null when <3 closed deals), price vs segment median, external rental yield %. */
+export function scoreResidentialCompound(i: { segmentMedianDom: number | null; priceRatio: number | null; rentalYieldPct: number | null }) {
+  const w = SECTOR_WEIGHTS.residential_compound;
+  const parts: [number, number][] = [];
+  if (i.segmentMedianDom != null) parts.push([w.velocity, clamp(1 - i.segmentMedianDom / 180)]);
+  if (i.priceRatio != null) parts.push([w.price, clamp(1.5 - i.priceRatio)]);
+  if (i.rentalYieldPct != null) parts.push([w.yield, clamp(i.rentalYieldPct / 10)]);
+  if (!parts.length) return { score: null, label: "بيانات غير كافية" };
+  const tw = parts.reduce((a, [x]) => a + x, 0);
+  const score = r((100 * parts.reduce((a, [x, v]) => a + x * v, 0)) / tw);
+  return { score, label: livingLabel(score) };
+}
