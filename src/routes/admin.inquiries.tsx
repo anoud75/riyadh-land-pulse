@@ -10,9 +10,9 @@ export const Route = createFileRoute("/admin/inquiries")({
   head: () => ({
     meta: [
       { title: "الاستفسارات — لوحة فريق سرج" },
-      { name: "description", content: "عمر الاستفسارات، مسار التحويل، وكشف الأرقام مع سجل تدقيق." },
+      { name: "description", content: "عمر الاستفسارات، مسار التحويل، وكشف الأرقام عند الحاجة." },
       { property: "og:title", content: "الاستفسارات — لوحة فريق سرج" },
-      { property: "og:description", content: "متابعة الاستفسارات وكشف الأرقام بسجل." },
+      { property: "og:description", content: "متابعة الاستفسارات ومعرفة من ينتظر ردًّا." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -138,12 +138,6 @@ function Inquiries() {
         </div>
       </details>
 
-      <section className={card}>
-        <h2 className="font-semibold">سجل كشف الأرقام</h2>
-        {revealLog.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">لم يُكشف أي رقم في هذه الجلسة.</p> : (
-          <ul className="mt-2 space-y-1 text-sm">{revealLog.map((r, n) => <li key={n}><span className="font-mono text-xs">{r.inquiry_id}</span> · {r.by} · {new Date(r.at).toLocaleString("ar-SA")}</li>)}</ul>
-        )}
-      </section>
       {layer}
     </div>
   );
