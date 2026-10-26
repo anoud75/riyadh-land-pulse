@@ -14,7 +14,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContextualModelRouteImport } from './routes/contextual-model'
 import { Route as InvestorRouteImport } from './routes/investor'
 import { Route as PortfolioRequestRouteImport } from './routes/portfolio-request'
-import { Route as PrdRouteImport } from './routes/prd'
 import { Route as WhoRouteImport } from './routes/who'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAddRouteImport } from './routes/admin.add'
@@ -58,11 +57,6 @@ const InvestorRoute = InvestorRouteImport.update({
 const PortfolioRequestRoute = PortfolioRequestRouteImport.update({
   id: '/portfolio-request',
   path: '/portfolio-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrdRoute = PrdRouteImport.update({
-  id: '/prd',
-  path: '/prd',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WhoRoute = WhoRouteImport.update({
@@ -167,7 +161,6 @@ export interface FileRoutesByFullPath {
   '/contextual-model': typeof ContextualModelRoute
   '/investor': typeof InvestorRouteWithChildren
   '/portfolio-request': typeof PortfolioRequestRoute
-  '/prd': typeof PrdRoute
   '/who': typeof WhoRoute
   '/admin/add': typeof AdminAddRoute
   '/admin/assistant': typeof AdminAssistantRoute
@@ -192,7 +185,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contextual-model': typeof ContextualModelRoute
   '/portfolio-request': typeof PortfolioRequestRoute
-  '/prd': typeof PrdRoute
   '/who': typeof WhoRoute
   '/admin/add': typeof AdminAddRoute
   '/admin/assistant': typeof AdminAssistantRoute
@@ -220,7 +212,6 @@ export interface FileRoutesById {
   '/contextual-model': typeof ContextualModelRoute
   '/investor': typeof InvestorRouteWithChildren
   '/portfolio-request': typeof PortfolioRequestRoute
-  '/prd': typeof PrdRoute
   '/who': typeof WhoRoute
   '/admin/add': typeof AdminAddRoute
   '/admin/assistant': typeof AdminAssistantRoute
@@ -249,7 +240,6 @@ export interface FileRouteTypes {
     | '/contextual-model'
     | '/investor'
     | '/portfolio-request'
-    | '/prd'
     | '/who'
     | '/admin/add'
     | '/admin/assistant'
@@ -274,7 +264,6 @@ export interface FileRouteTypes {
     | '/'
     | '/contextual-model'
     | '/portfolio-request'
-    | '/prd'
     | '/who'
     | '/admin/add'
     | '/admin/assistant'
@@ -301,7 +290,6 @@ export interface FileRouteTypes {
     | '/contextual-model'
     | '/investor'
     | '/portfolio-request'
-    | '/prd'
     | '/who'
     | '/admin/add'
     | '/admin/assistant'
@@ -329,7 +317,6 @@ export interface RootRouteChildren {
   ContextualModelRoute: typeof ContextualModelRoute
   InvestorRoute: typeof InvestorRouteWithChildren
   PortfolioRequestRoute: typeof PortfolioRequestRoute
-  PrdRoute: typeof PrdRoute
   WhoRoute: typeof WhoRoute
   LocateTokenRoute: typeof LocateTokenRoute
   WhoNameRoute: typeof WhoNameRoute
@@ -370,13 +357,6 @@ declare module '@tanstack/react-router' {
       path: '/portfolio-request'
       fullPath: '/portfolio-request'
       preLoaderRoute: typeof PortfolioRequestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prd': {
-      id: '/prd'
-      path: '/prd'
-      fullPath: '/prd'
-      preLoaderRoute: typeof PrdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/who': {
@@ -571,7 +551,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContextualModelRoute: ContextualModelRoute,
   InvestorRoute: InvestorRouteWithChildren,
   PortfolioRequestRoute: PortfolioRequestRoute,
-  PrdRoute: PrdRoute,
   WhoRoute: WhoRoute,
   LocateTokenRoute: LocateTokenRoute,
   WhoNameRoute: WhoNameRoute,
