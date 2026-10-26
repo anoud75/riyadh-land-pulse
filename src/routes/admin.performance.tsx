@@ -34,18 +34,18 @@ function Performance() {
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">الأداء</h1>
       <ChartCard
-        title={`الصفقات المغلقة — ${total} صفقة`}
-        howTo="عدد الأراضي التي بيعت أو أُجّرت في كل شهر. الخط المتقطع هو متوسط الشهر. مرّر على أي عمود لترى الرقم."
+        title={`الصفقات حسب شهر الإدراج — ${total} صفقة`}
+        howTo="عدد الأراضي التي بيعت أو أُجّرت في كل شهر. الخط المتقطع هو متوسط الشهر. "
         source="سجلّ سرج · لا يحتوي تاريخ الإغلاق، لذلك جمعنا الصفقات حسب شهر إدراج الأرض"
       >
         <MonthBars rows={months} />
       </ChartCard>
       <ChartCard
         title="سرعة البيع حسب الشريحة"
-        howTo="الشريحة = المنطقة + نوع الأرض + نوع الصفقة (مثل: شمال · سكني · بيع). كل فقاعة شريحة: كلما اتجهت يمينًا تأخّر إغلاقها، وكلما ارتفعت غلا سعر مترها، وحجمها والرقم داخلها = عدد الصفقات المغلقة. اضغط فقاعة لترى أراضيها."
+        howTo="مقارنة المنطقة ونوع الأرض والصفقة: أفقيًا مدة الإغلاق، وعموديًا سعر المتر. حجم الفقاعة يمثل عدد الصفقات."
         legend={[{ label: "سكني", className: "bg-chart-blue/60" }, { label: "تجاري", className: "bg-primary/60" }, { label: "إيجار (حدّ متقطع)", className: "border-foreground/50", shape: "ring" }]}
         filters={<ChipGroup value={area} onChange={(v) => { setArea(v); setSel(null); }} options={AREAS.map((a) => [a, AREA_AR[a]])} allLabel="كل المناطق" />}
-        source="الوسطاء من الصفقات المغلقة في سجلّ سرج"
+        source="القيم الوسيطة من الصفقات المغلقة في سجلّ سرج"
       >
         <VelocityBubbles segs={all} selected={sel ? segKey(sel) : null} onPick={setSel} />
         {sel && (
@@ -59,13 +59,13 @@ function Performance() {
           </div>
         )}
         {thin.length > 0 && (
-          <div className="mt-5 rounded-2xl border border-dashed p-4">
-            <div className="text-sm font-medium">شرائح لم تُرسم: أقل من 3 صفقات مغلقة</div>
+          <details className="mt-4 border-t pt-3">
+            <summary className="cursor-pointer text-sm font-medium">شرائح بعينة غير كافية ({thin.length})</summary>
             <p className="mt-1 text-xs text-muted-foreground">صفقة أو صفقتان لا تكفيان لحساب سعر أو مدة يُعتمد عليها، فلا نعرض لها وسيطًا.</p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
               {thin.map((s) => <span key={segKey(s)} className="rounded-full bg-secondary px-3 py-1">{segLabel(s)} · {s.closedDeals === 1 ? "صفقة واحدة" : "صفقتان"}</span>)}
             </div>
-          </div>
+          </details>
         )}
       </ChartCard>
     </div>

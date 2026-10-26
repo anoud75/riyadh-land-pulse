@@ -27,7 +27,7 @@ function Inquiries() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">الاستفسارات</h1>
-      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <section className="rounded-2xl border bg-card p-5"><h2 className="mb-3 font-semibold">عمر الاستفسارات (بالأيام منذ الوصول)</h2><AgingDots rows={getAging(inquiries)} /><p className="text-xs text-muted-foreground">بالأحمر: بلا رد منذ أكثر من 30 يومًا.</p></section>
         <section className="rounded-2xl border bg-card p-5"><h2 className="mb-3 font-semibold">مسار التحويل</h2><Funnel steps={getFunnel(inquiries, offers.length)} /></section>
       </div>
@@ -44,7 +44,7 @@ function Inquiries() {
                   <span className={`rounded-full px-2 py-0.5 text-xs ${i.status === "new" ? "bg-destructive/10 text-destructive" : "bg-secondary"}`}>{STATUS_AR[i.status] ?? i.status}</span>
                 </div>
               </div>
-              <div className="mt-1 text-muted-foreground">{AREA_AR[i.area_of_city_wanted]} · {LAND_AR[i.land_type_wanted]} · {DEAL_AR[i.prefers]} · {i.missingBudget ? "بلا ميزانية" : `${fmt(i.budget_sar!)} ريال`} · {i.date}</div>
+              <div className="mt-1 text-muted-foreground">{AREA_AR[i.area_of_city_wanted]} · {LAND_AR[i.land_type_wanted]} · {DEAL_AR[i.prefers]} · {i.missingBudget ? "بلا ميزانية" : `${fmt((i.budget_sar ?? 0))} ريال`} · {i.date}</div>
               {feas && (
                 <div className="mt-2 rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-destructive">
                   تنبيه جدوى: الأراضي المطابقة لميزانيتها مساحتها {feas.min}–{feas.max} م² فقط، ولا تكفي لمجمع سكني (يحتاج {fmt(feas.required)} م² على الأقل). اقترح بيت عائلة أو رفع الميزانية.
