@@ -276,3 +276,15 @@
 .team-workspace main section { min-width: 0; }
 /* Each team table sets its own minimum width instead of a blanket rule. */
 .team-workspace main :is(input, select, textarea) { border-radius: 6px; }
+
+/* Landing motion — quiet, one-shot, honors reduced motion */
+.landing-word { display: inline-block; opacity: 0; transform: translateY(0.4em); filter: blur(6px); animation: landing-word 0.9s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes landing-word { to { opacity: 1; transform: none; filter: none; } }
+.landing-reveal { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+.landing-reveal.is-in { opacity: 1; transform: none; }
+.landing-pulse { animation: landing-pulse 4.8s ease-in-out infinite; }
+@keyframes landing-pulse { 0%,100% { opacity: .95; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  .landing-word, .landing-pulse { animation: none; opacity: 1; transform: none; filter: none; }
+  .landing-reveal { opacity: 1; transform: none; transition: none; }
+}
