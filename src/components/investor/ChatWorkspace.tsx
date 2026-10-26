@@ -69,6 +69,13 @@ const CONFIG = {
   },
 } as const;
 
+const GREETINGS: Record<Mode, string> = {
+  investor:
+    "أهلاً بك، أنا محلل المواقع الذكي في سرج. أحلّل أراضي الرياض اعتماداً على بيانات الموقع، والكثافة السكانية، والوصول إلى الخدمات، ومؤشرات السوق.\n\nما المشروع أو الاستخدام الذي تخطط له، وما نطاق الميزانية أو المساحة المطلوبة لنبدأ؟",
+  admin:
+    "أهلاً بك، أنا مساعد الفريق في سرج. أراقب حركة المحفظة، ومطابقة الاستفسارات مع الأراضي المتاحة، وكشف الأصول الراكدة وفجوات العرض والطلب في الرياض.\n\nما الملف أو الاستفسار الذي نبدأ بحسمه اليوم؟",
+};
+
 export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent }: { mode?: Mode; initialPrompt?: string | undefined; onInitialSent?: () => void }) {
   const cfg = CONFIG[mode];
   const { parcels, inquiries, investorName } = usePortfolio();
