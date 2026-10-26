@@ -185,3 +185,23 @@ export function closestAlternatives(parcels: Parcel[], inquiry: Inquiry, limit =
 }
 
 export const waitDaysOf = (i: Inquiry) => daysBetween(i.date, SNAPSHOT_DATE);
+
+/** Data for the three "today" smart visuals: unanswered buyers, stagnant parcels, zero-stock segments. */
+export function getTodayBriefs(parcels: Parcel[], inquiries: Inquiry[]) {
+  const waiting = inquiries.filter((i) => i.status === "new")
+    .map((i) => ({ id: i.inquiry_id, name: i.investor_name, area: i.area_of_city_wanted, type: i.land_type_wanted, budget: i.budget_sar ?? 0, wait: waitDaysOf(i) }))
+    .sort((a, b) => b.budget - a.budget);
+  const st = getStagnantBars(parcels, 5);
+  const shortages = getSupplyDemandGaps(parcels, inquiries)
+    .filter((g) => g.availableParcels === 0 && g.openInquiries > 0)
+    .map((g) => ({
+      area: g.area, landType: g.landType, waiting: g.openInquiries,
+      budget: inquiries.filter((i) => i.status !== "closed" && i.area_of_city_wanted === g.area && i.land_type_wanted === g.landType).reduce((s, i) => s + (i.budget_sar ?? 0), 0),
+    }))
+    .sort((a, b) => b.waiting - a.waiting);
+  return {
+    waiting: { count: waiting.length, totalBudget: waiting.reduce((s, w) => s + w.budget, 0), medianWait: median(waiting.map((w) => w.wait)) ?? 0, top: waiting.slice(0, 3) },
+    stagnant: { median: st.median, rows: st.rows, overDouble: parcels.filter(isAvailable).filter((p) => p.days_on_market > 2 * st.median).length },
+    shortages,
+  };
+}
