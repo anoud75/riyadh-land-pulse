@@ -9,6 +9,7 @@ import { initialInquiries, initialParcels } from "@/data";
 import { ADMIN_SCENARIOS, INVESTOR_SCENARIOS, type ChatMsg } from "@/data/chatScenarios";
 import type { UiPayload } from "@/lib/agentUi";
 import type { Parcel } from "@/data/types";
+import { WaitingMatches } from "@/components/chat/WaitingMatches";
 
 const AREA_AR: Record<string, string> = { North: "شمال", South: "جنوب", East: "شرق", West: "غرب", Central: "وسط" };
 
@@ -101,6 +102,7 @@ export function AgentChat({ mode }: { mode: "investor" | "admin" }) {
 export function AgentUiBlock({ ui }: { ui: UiPayload }) {
   const { parcels } = usePortfolio();
   const find = (id: string) => parcels.find((p) => p.parcel_id === id);
+  if (ui.kind === "matching") return <WaitingMatches ui={ui} />;
   if (ui.kind === "cards")
     return <div className="mt-3 grid gap-2 sm:grid-cols-2">{ui.parcelIds.map((id) => find(id)).filter(Boolean).map((p) => <MiniCard key={p!.parcel_id} p={p!} />)}</div>;
   if (ui.kind === "negotiation_report") {
