@@ -9,12 +9,14 @@ import type { UiPayload } from "./agentUi";
 import * as V from "./agentViz";
 import { classifyScope, SCOPE_SUGGESTIONS } from "./agentScope";
 import { adminRequestPolicy, buildWaitingResponse, relevantAdminPayloads } from "./adminAgentPolicy";
+import { ARABIC_STYLE, polishArabic } from "./arabicStyle";
 
 const MODEL = "openai/gpt-6-astra";
 
 const GROUNDING = `القاعدة الحاسمة: لا تحسب أي وسيط أو نسبة أو عدد أو مبلغ من عندك. استدعِ الأدوات أولًا وانقل أرقامها كما هي حرفيًا.
 لا تذكر أي أرض لم تُرجعها أداة. إذا قالت الأداة "عينة غير كافية" فقلها ولا تقدّر رقمًا.
-اكتب بعربية فصيحة واضحة ومختصرة، بلا جداول Markdown. المناطق: North شمال، South جنوب، East شرق، West غرب، Central وسط. commercial تجاري، residential سكني، sale بيع، lease إيجار.`;
+اكتب بعربية فصيحة واضحة ومختصرة، بلا جداول Markdown. المناطق: North شمال، South جنوب، East شرق، West غرب، Central وسط. commercial تجاري، residential سكني، sale بيع، lease إيجار.
+${ARABIC_STYLE}`;
 
 const VIZ = `أدوات العرض: drawChart لرسم مقارنة أو توزيع داخل المحادثة (استخدمها كلما قارن المستخدم أو طلب رسمًا)، generateReport لتقرير كامل يُفتح في اللوحة الجانبية، controlMap لفتح الخريطة داخل المحادثة وتحريكها (تقريب على حي أو منطقة، إبراز أراضٍ، رسم نطاق بالكيلومتر، أو عرض الرياض كاملة). عند ذكر أراضٍ محددة استدعِ controlMap لإبرازها. لا تقل للمستخدم "اذهب إلى الخريطة"؛ أنت تفتحها بنفسك.
 مؤشر الإيجار: إذا كان المستثمر على أرض سكنية ونيته بناء شقق للإيجار استدعِ getMarketBenchmark وانقل نصه حرفيًا.
@@ -312,7 +314,7 @@ export async function runSarjAgent(input: {
     },
   });
   if (!investor) {
-    const text = await result.text;
+    const text = polishArabic(await result.text);
     const relevant = relevantAdminPayloads(lastQ, uis);
     return { text, parcelIds: adminPolicy.matching ? [] : [...parcelIds].slice(0, 8), filters: adminPolicy.matching ? null : filters, tools: used, ui: relevant.find((u) => u.kind !== "map" && u.kind !== "chart") ?? null, uis: relevant };
   }
@@ -333,7 +335,7 @@ export async function runSarjAgent(input: {
   }
   const ids = final.ui_action.type === "SHOW_PARCELS" ? final.ui_action.payload : [];
   return {
-    text: final.prose, parcelIds: ids, filters: ids.length ? filters : null, tools: used,
+    text: polishArabic(final.prose), parcelIds: ids, filters: ids.length ? filters : null, tools: used,
     ui: out.find((u) => u.kind !== "map" && u.kind !== "chart") ?? null, uis: out,
     uiAction: final.ui_action,
     ...(final.ui_action.type === "ASK_QUALIFYING_QUESTIONS" ? { suggestions: QUALIFY_CHIPS } : {}),

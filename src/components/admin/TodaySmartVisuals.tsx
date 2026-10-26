@@ -43,7 +43,7 @@ export function TodaySmartVisuals({ parcels, inquiries }: { parcels: Parcel[]; i
     <div className="space-y-4">
     <div className="grid gap-4 lg:grid-cols-2">
       <Shell show={show} hide={hide} title="صفقات جاهزة للإغلاق" sub={`${qw.count} مشترين لهم أرض مطابقة الآن`}
-        how="استفسارات «جديد» لها أرض متاحة ومسعّرة في نفس المنطقة والنوع ونوع الصفقة، ضمن الميزانية (وبمساحة تكفي إن كان الطلب مجمعًا). القيمة = سعر أرخص أرض مطابقة لكل مشترٍ."
+        how="استفسارات «جديد» لها أرض متاحة ومسعّرة في المنطقة نفسها وبالنوع والصفقة أنفسهما، ضمن الميزانية (وبمساحة تكفي إن كان الطلب مجمعًا). القيمة = سعر أرخص أرض مطابقة لكل مشترٍ."
         insight={<>قيمة محتملة <b className="text-foreground">{M(qw.value)}</b> ريال بانتظار عرض واحد.</>} to="/admin/offer" cta="اعرض أرضًا">
         <ul className="divide-y">
           {qw.rows.map((r) => (

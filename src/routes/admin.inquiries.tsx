@@ -20,7 +20,7 @@ export const Route = createFileRoute("/admin/inquiries")({
   component: Inquiries,
 });
 
-const STATUS_AR: Record<string, string> = { new: "بلا رد", contacted: "تواصل", negotiating: "تفاوض" };
+const STATUS_AR: Record<string, string> = { new: "بلا رد", contacted: "تم التواصل", negotiating: "قيد التفاوض" };
 const M = (n: number) => fmt(n);
 const card = "rounded-3xl border bg-card p-5";
 
@@ -62,7 +62,7 @@ function Inquiries() {
         </section>
 
         <section className={card}>
-          <header className="flex items-baseline justify-between gap-2"><h2 className="font-semibold">كم انتظر من لم يُردّ عليه</h2><span className="text-xs text-muted-foreground">{b.unanswered} بلا رد</span></header>
+          <header className="flex items-baseline justify-between gap-2"><h2 className="font-semibold">مدة انتظار من لم نرد عليهم</h2><span className="text-xs text-muted-foreground">{b.unanswered} بلا رد</span></header>
           <p className="mt-1 text-xs text-muted-foreground">أيام الانتظار حتى لقطة 11 أغسطس 2026 · الوسيط {b.medianWait} يومًا.</p>
           <div className="mt-4 flex h-28 items-end gap-2">
             {b.buckets.map((x, n) => (
@@ -92,7 +92,7 @@ function Inquiries() {
       </div>
 
       <section className={card}>
-        <header className="flex items-baseline justify-between gap-2"><h2 className="font-semibold">أعلى ستة في الخط بلا ردّ</h2><span className="text-xs text-muted-foreground">مرتّبة بالنيّة ثم بالانتظار</span></header>
+        <header className="flex items-baseline justify-between gap-2"><h2 className="font-semibold">أهم ستة استفسارات بلا رد</h2><span className="text-xs text-muted-foreground">مرتبة بجدية الطلب ثم بمدة الانتظار</span></header>
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead className="text-xs text-muted-foreground"><tr className="border-b">{["الرقم", "المستثمر", "الهاتف", "يريد أن يبني", "الشريحة", "الميزانية", "النيّة", "الانتظار", ""].map((h) => <th key={h} className="py-2 text-right font-medium">{h}</th>)}</tr></thead>
