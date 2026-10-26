@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 });
 
 const MalqaMap = lazyWithReload(() => import("@/components/landing/MalqaMap"));
-const ICONS = [Stethoscope, Warehouse, Building2];
+const ICONS = [Building2, Warehouse, Stethoscope];
 
 function Home() {
   const { parcels, inquiries } = usePortfolio();
