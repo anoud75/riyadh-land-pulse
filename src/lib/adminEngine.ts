@@ -1,8 +1,8 @@
 import type { Area, DealType, Inquiry, LandType, Parcel } from "@/data/types";
-import { AREAS, LAND_TYPES, SNAPSHOT_DATE } from "@/data/types";
+import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, SNAPSHOT_DATE } from "@/data/types";
 import {
   getHeadline, getNegotiationCandidates, getSegmentStats, getSupplyDemandGaps,
-  isAvailable, isClosed, isPriced, median,
+  isAvailable, isClosed, isPriced, median, MIN_SAMPLE,
 } from "./portfolioEngine";
 import { COMPOUND_MIN_SQM, getActionableWaitingInquiries, getStagnantCapitalReport } from "./sarjAgentTools";
 
