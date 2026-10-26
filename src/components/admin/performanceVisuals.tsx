@@ -139,7 +139,7 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
                 <td className="py-2 pl-3">
                   <div className="relative h-5 rounded-full bg-muted">
                     <div className="h-5 rounded-full transition-all" style={{ width: `${Math.max(16, (r.deltaPct / maxDelta) * 100)}%`, background: tint(45 + 55 * (r.deltaPct / maxDelta)) }} />
-                    <span className={`absolute inset-y-0 flex items-center px-1 font-mono text-[10px] font-semibold ${Math.max(16, (r.deltaPct / maxDelta) * 100) >= 28 ? "text-primary-foreground" : "text-foreground"}`} style={{ right: Math.max(16, (r.deltaPct / maxDelta) * 100) >= 28 ? "0px" : `calc(${Math.max(16, (r.deltaPct / maxDelta) * 100)}% + 5px)` }}>+{r.deltaPct}%</span>
+                    <span className={`absolute inset-y-0 flex items-center px-1 font-mono text-[10px] font-semibold ${Math.max(16, (r.deltaPct / maxDelta) * 100) >= 28 ? "text-primary-foreground" : "text-foreground"}`} style={{ right: Math.max(16, (r.deltaPct / maxDelta) * 100) >= 28 ? "0px" : `calc(${Math.max(16, (r.deltaPct / maxDelta) * 100)}% + 9px)` }}>+{r.deltaPct}%</span>
                   </div>
                 </td>
                 <td className="whitespace-nowrap py-2 pr-3 font-mono text-xs">{r.days} مقابل {r.medianDays}</td>

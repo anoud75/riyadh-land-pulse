@@ -385,7 +385,7 @@ export function getPricingReview(parcels: Parcel[]) {
   return {
     rows, count: rows.length, totalValue, topSegment,
     note: topSegment && rows.length > 1
-      ? `${topSegment.n} من ${rows.length} في شريحة واحدة (${topSegment.label}) — فالمشكلة شريحة واحدة تًراجع مرّة، لا ${rows.length} أراضٍ متفرقة.`
+      ? `${topSegment.n} من ${rows.length} في شريحة واحدة (${topSegment.label}) — فالمشكلة شريحة واحدة تُراجع مرّة، لا ${rows.length} أرضًا متفرقة.`
       : "",
   };
 }
