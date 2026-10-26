@@ -41,6 +41,7 @@ function Detail() {
           <div className="mt-1 text-muted-foreground">{segLabel} · <span className="font-mono">{p.parcel_id}</span></div>
         </div>
         <div className="flex gap-2">
+          <Link to="/investor/report/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full border px-4 py-1.5 text-sm hover:border-primary">تقرير الأرض PDF</Link>
           <Link to="/investor/inquire/$parcelId" params={{ parcelId: p.parcel_id }} className="rounded-full bg-primary px-4 py-1.5 text-sm text-primary-foreground">استفسر عن هذه الأرض</Link>
         </div>
       </div>
