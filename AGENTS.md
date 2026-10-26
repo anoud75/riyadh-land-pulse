@@ -33,3 +33,4 @@
 - DOM measurements that feed a `setState` guard must stay finite (divide only by a non-zero `scrollHeight`, clamp with `Math.max(0, …)`) — a hidden panel measures 0×0, and a `NaN` in the guard never equals itself, so the component re-renders until React throws and blanks the screen.
 
 - The team offer page uses a three-stage client-side flow and inquiry search context; it reuses provider offers without claiming external delivery or persistent storage.
+- Arabic editing rules live in `src/lib/arabicStyle.ts` (prompt block + pure `polishArabic` applied to every agent reply) — one source for language quality in both assistants.
