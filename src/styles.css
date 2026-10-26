@@ -69,6 +69,7 @@
   --ink-muted: oklch(0.72 0.01 280);
   --ink-line: oklch(1 0 0 / 8%);
   --chart-blue: oklch(0.55 0.2 260);
+  --warning: oklch(0.78 0.14 75);
   --map-sale: #2563eb;
   --map-lease: #0d9488;
   --map-unavailable: #9ca3af;
