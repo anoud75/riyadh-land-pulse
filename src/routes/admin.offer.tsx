@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { fmt } from "@/components/admin/charts";
 
 export const Route = createFileRoute("/admin/offer")({
-  validateSearch: (search: Record<string, unknown>) => ({ inquiry: typeof search.inquiry === "string" ? search.inquiry : undefined }),
+  validateSearch: (search: Record<string, unknown>): { inquiry?: string } => ({ inquiry: typeof search['inquiry'] === "string" ? search['inquiry'] : undefined }),
   head: () => ({ meta: [
     { title: "اعرض أرضًا — فريق سرج" },
     { name: "description", content: "اختر المستفسر والأراضي المناسبة، ثم راجع العرض وسجّله." },
