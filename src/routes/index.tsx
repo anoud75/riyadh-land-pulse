@@ -28,8 +28,8 @@ function Home() {
   const h = getHeadline(parcels, inquiries);
   const stagnant = getStagnant(parcels);
   const gaps = getSupplyDemandGaps(parcels, inquiries);
-  const shortage = [...gaps].sort((a, b) => a.netGap - b.netGap)[0];
-  const surplus = [...gaps].sort((a, b) => b.netGap - a.netGap)[0];
+  const shortage = [...gaps].sort((a, b) => a.netGap - b.netGap)[0]!;
+  const surplus = [...gaps].sort((a, b) => b.netGap - a.netGap)[0]!;
   const unanswered = inquiries.filter((i) => i.status === "new").length;
 
   const signals = [
