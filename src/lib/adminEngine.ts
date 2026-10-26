@@ -230,3 +230,45 @@ export function getLeadsAtRisk(inquiries: Inquiry[], limit = 5) {
     .sort((a, b) => b.wait - a.wait || b.budget - a.budget);
   return { count: rows.length, budget: rows.reduce((s, r) => s + r.budget, 0), rows: rows.slice(0, limit) };
 }
+
+/* ---------- inquiries page briefs ---------- */
+export const USE_AR: Record<string, string> = {
+  "open a warehouse": "مستودع", "build a residential compound": "مجمّع سكني", "open a car showroom": "معرض سيارات",
+  "build a family home": "بيت أسرة", "build apartments to rent": "شقق للإيجار", "open an office building": "مبنى مكاتب",
+  "open a retail store": "محل تجزئة", "open a showroom": "معرض", "build villas to sell": "فلل للبيع",
+};
+export const INTENTS = ["ready to move", "comparing options", "exploring"] as const;
+export const INTENT_AR: Record<string, string> = { "ready to move": "جاهز للتنفيذ", "comparing options": "يقارن خيارات", exploring: "يستكشف" };
+export const STAGES = ["new", "contacted", "negotiating"] as const;
+export const STAGE_AR: Record<string, string> = { new: "جديد", contacted: "تم التواصل", negotiating: "تفاوض" };
+export const WAIT_BUCKETS = [
+  { label: "≤ 7 أيام", min: 0, max: 7 }, { label: "8–30", min: 8, max: 30 },
+  { label: "31–60", min: 31, max: 60 }, { label: "> 60 يومًا", min: 61, max: Infinity },
+];
+
+const fitsUse = (p: Parcel, i: Inquiry) =>
+  isAvailable(p) && isPriced(p) && p.area_of_city === i.area_of_city_wanted && p.land_type === i.land_type_wanted &&
+  p.listing_type === i.prefers && (!/compound|مجمع/i.test(i.wants_to) || p.area_sqm >= COMPOUND_MIN_SQM);
+
+export function getInquiryBriefs(parcels: Parcel[], inquiries: Inquiry[]) {
+  const open = inquiries.filter((i) => i.status !== "closed");
+  const unanswered = open.filter((i) => i.status === "new");
+  const waits = unanswered.map(waitDaysOf);
+  const buckets = WAIT_BUCKETS.map((b) => ({ ...b, n: waits.filter((w) => w >= b.min && w <= b.max).length }));
+  const matrix = INTENTS.map((intent) => ({ intent, cells: STAGES.map((stage) => open.filter((i) => i.intent === intent && i.status === stage).length) }));
+  const uses = [...new Set(open.map((i) => i.wants_to))].map((use) => {
+    const who = open.filter((i) => i.wants_to === use);
+    const supply = parcels.filter((p) => who.some((i) => fitsUse(p, i))).length;
+    return { use, label: USE_AR[use] ?? use, demand: who.length, supply, short: supply < who.length };
+  }).sort((a, b) => b.demand - a.demand);
+  const rank = (s: string) => INTENTS.indexOf(s as (typeof INTENTS)[number]);
+  const top = unanswered
+    .map((i) => ({ i, wait: waitDaysOf(i), matches: parcels.filter((p) => fitsUse(p, i) && (i.budget_sar == null || p.total_price_sar! <= i.budget_sar)).length }))
+    .sort((a, b) => rank(a.i.intent) - rank(b.i.intent) || b.wait - a.wait).slice(0, 6);
+  return {
+    open: open.length, unanswered: unanswered.length, medianWait: median(waits) ?? 0,
+    over30: waits.filter((w) => w > 30).length, over60: waits.filter((w) => w > 60).length,
+    buckets, matrix, uses, top,
+    comparingUnanswered: open.filter((i) => i.intent === "comparing options" && i.status === "new").length,
+  };
+}

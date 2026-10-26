@@ -58,3 +58,13 @@ describe("quick wins & leads at risk", () => {
     expect(r.count).toBe(I.filter((i) => i.status !== "closed" && waitDaysOf(i) >= 30).length);
   });
 });
+
+import { getInquiryBriefs } from "@/lib/adminEngine";
+describe("inquiry briefs", () => {
+  it("wait buckets and matrix cover every open inquiry once", () => {
+    const b = getInquiryBriefs(P, I);
+    expect(b.buckets.reduce((s, x) => s + x.n, 0)).toBe(b.unanswered);
+    expect(b.matrix.flatMap((r) => r.cells).reduce((s, n) => s + n, 0)).toBe(b.open);
+    expect(b.uses.reduce((s, u) => s + u.demand, 0)).toBe(b.open);
+  });
+});
