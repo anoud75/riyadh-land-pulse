@@ -2,6 +2,7 @@ import type { Inquiry, Parcel } from "./types";
 import type { UiPayload } from "@/lib/agentUi";
 import * as T from "@/lib/sarjAgentTools";
 import * as V from "@/lib/agentViz";
+import { buildWaitingResponse } from "@/lib/adminAgentPolicy";
 
 export interface ChatMsg { role: "user" | "assistant"; text: string; ui?: UiPayload | null; uis?: UiPayload[]; suggestions?: string[] | undefined }
 export interface Scenario { id: string; title: string; build: (p: Parcel[], i: Inquiry[]) => ChatMsg[] }
@@ -62,10 +63,10 @@ export const ADMIN_SCENARIOS: Scenario[] = [
     id: "excluded",
     title: "من ينتظر ولا نملك له أرضًا؟",
     build: (P, I) => {
-      const r = T.getExcludedWaitingBuyers(P, I);
+      const r = buildWaitingResponse(P, I);
       return [
         { role: "user", text: "طابق المنتظرين، ومن نستبعد؟" },
-        { role: "assistant", text: `هؤلاء ${r.length} مستبعدون من المطابقة لأن شريحتهم بلا مخزون: ${r.map((q) => `${q.investor_name} (${q.wait_days} يومًا)`).join("، ")}.`, ui: { kind: "excluded", rows: r.map((q) => ({ inquiry_id: q.inquiry_id, name: q.investor_name, segment: q.segment, wait_days: q.wait_days })) } },
+        { role: "assistant", text: r.text, ui: r.ui, uis: [r.ui] },
       ];
     },
   },

@@ -19,6 +19,7 @@ export interface MapCommand {
 
 /** Structured payload the agent returns next to its prose; built by tools on the server. */
 export type UiPayload =
+  | { kind: "matching"; rows: { inquiry_id: string; investor_name: string; segment: string; budget_sar: number | null; matches: string[]; flag: string | null; wait_days: number }[] }
   | { kind: "cards"; parcelIds: string[] }
   | { kind: "negotiation_report"; funnel: { analyzed: number; in_budget: number; recommended: number }; parcelIds: string[]; multipliers: Record<string, number | null> }
   | { kind: "diagnosis"; data: ReturnType<typeof diagnoseRegion> }

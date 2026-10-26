@@ -102,6 +102,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
     setLive((l) => [{ id, title, group: "اليوم", msgs: next }, ...l.filter((t) => t.id !== id)]);
     setActiveId(id);
     setBusy(true);
+    if (mode === "admin") setPanel(null);
     const r = await ask({
       data: {
         mode,
@@ -116,7 +117,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
       : { role: "assistant", text: r?.error ?? "تعذّر الوصول إلى المساعد الآن." };
     setLive((l) => l.map((t) => (t.id === id ? { ...t, msgs: [...next, msg] } : t)));
     const p = panelFor(msg);
-    if (p) setPanel(p);
+    if (mode === "admin" || p) setPanel(p);
     inputRef.current?.focus();
   };
 
@@ -313,7 +314,7 @@ function AssistantTurn({ m, mode, agent, onPanel, onAsk }: { m: ChatMsg; mode: M
         if (u.kind === "suitability") return <SuitabilityBlock key={i} ui={u} />;
         return <AgentUiBlock key={i} ui={u} />;
       })}
-      {ids.length > 0 && !hasMap && <PanelLink icon={MapIcon} title="المواقع على الخريطة" sub={`${ids.length} مواقع`} onClick={() => onPanel({ kind: "map", command: mapCommand(parcels, { parcel_ids: ids }) })} />}
+      {mode === "investor" && ids.length > 0 && !hasMap && <PanelLink icon={MapIcon} title="المواقع على الخريطة" sub={`${ids.length} مواقع`} onClick={() => onPanel({ kind: "map", command: mapCommand(parcels, { parcel_ids: ids }) })} />}
       {chips.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {chips.map((q) => <button key={q} onClick={() => onAsk(q)} className="rounded-full border bg-surface px-4 py-2 text-sm hover:bg-secondary">{q}</button>)}
