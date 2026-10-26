@@ -295,3 +295,6 @@
 .landing-ping { transform-box: fill-box; transform-origin: center; animation: landing-ping 2.4s ease-out infinite; }
 @keyframes landing-ping { 0% { transform: scale(.4); opacity: .6; } 100% { transform: scale(2.2); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .landing-orbit, .landing-ring, .landing-ping { animation: none; } }
+.malqa-marker { width: 14px; height: 14px; border-radius: 50%; background: var(--primary-soft); box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary-soft) 60%, transparent); animation: malqa-ping 2.2s ease-out infinite; }
+@keyframes malqa-ping { to { box-shadow: 0 0 0 22px transparent; } }
+@media (prefers-reduced-motion: reduce) { .malqa-marker { animation: none; } }

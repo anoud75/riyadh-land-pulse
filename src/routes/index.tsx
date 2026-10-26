@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Building2, Stethoscope, Warehouse } from "lucide-react";
+import { ArrowLeft, Building2, Database, ShieldCheck, Sparkles, Stethoscope, Warehouse } from "lucide-react";
+import { ClientOnly } from "@tanstack/react-router";
+import { Suspense } from "react";
+import { lazyWithReload } from "@/lib/lazyWithReload";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { getHeadline, getSegmentStats, MIN_SAMPLE } from "@/lib/portfolioEngine";
@@ -20,6 +23,7 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+const MalqaMap = lazyWithReload(() => import("@/components/landing/MalqaMap"));
 const ICONS = [Stethoscope, Warehouse, Building2];
 
 function Home() {
@@ -78,7 +82,16 @@ function Home() {
           </p>
         </Reveal>
         <div className="mt-12 grid gap-8 md:grid-cols-[1.4fr_1fr]">
-          <Reveal><ReachDiagram /></Reveal>
+          <Reveal>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-ink">
+              <ReachDiagram />
+              <ClientOnly fallback={null}>
+                <Suspense fallback={null}><MalqaMap parcels={parcels} /></Suspense>
+              </ClientOnly>
+              <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-ink/80 px-3 py-1 text-xs text-ink-foreground backdrop-blur">الملقا · شمال الرياض</div>
+              <div className="pointer-events-none absolute bottom-4 right-4 flex gap-3 rounded-full bg-ink/80 px-3 py-1 text-xs text-ink-muted backdrop-blur"><span>5 دقائق</span><span>10 دقائق</span><span>15 دقيقة</span></div>
+            </div>
+          </Reveal>
           <div className="divide-y border-y">
             {[
               [340941, "نسمة داخل النطاق التقديري · 15 دقيقة"],
@@ -95,6 +108,32 @@ function Home() {
               </Reveal>
             ))}
             <p className="py-4 text-xs text-muted-foreground">تقديرات محسوبة من بيانات السكان المفتوحة وشبكة الطرق. الاستخدام النظامي وحدود القطعة يُتحقَّق منهما لدى الجهة المختصة.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* AI + data */}
+      <section className="border-t">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <Reveal>
+            <h2 className="text-3xl font-bold">الذكاء الاصطناعي فوق بيانات حقيقية</h2>
+            <p className="mt-3 max-w-2xl text-muted-foreground">المساعد لا يخترع أرقامًا؛ يقرأ من مصادر معروفة، ثم يشرح النتيجة بلغة واضحة.</p>
+          </Reveal>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border bg-border md:grid-cols-3">
+            {[
+              [Database, "البيانات", `${parcels.length} أرضًا و${inquiries.length} استفسارًا، مع خرائط الأحياء وتقديرات السكان وأسعار العرض في السوق.`],
+              [Sparkles, "التحليل", "يحسب الوسيط والفجوة بين العرض والطلب وزمن الوصول، ويقارن الأراضي بأوزانك أنت."],
+              [ShieldCheck, "الثقة", "كل رقم معلَّم بمصدره، وبيانات المشترين لا تظهر للمستثمر."],
+            ].map(([Icon, t, d], i) => {
+              const I = Icon as typeof Database;
+              return (
+                <Reveal key={t as string} delay={i * 140} className="bg-card p-7">
+                  <I className="size-5 text-primary" />
+                  <h3 className="mt-4 font-semibold">{t as string}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d as string}</p>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -192,7 +231,7 @@ function Home() {
 
 function ReachDiagram() {
   return (
-    <div className="grid-bg relative aspect-[4/3] overflow-hidden rounded-2xl bg-ink text-ink-foreground">
+    <div className="grid-bg absolute inset-0 text-ink-foreground">
       <svg viewBox="0 0 400 300" className="absolute inset-0 size-full">
         <line x1="0" y1="140" x2="400" y2="60" stroke="currentColor" strokeOpacity=".2" />
         <line x1="320" y1="0" x2="280" y2="300" stroke="currentColor" strokeOpacity=".2" />
