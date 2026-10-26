@@ -14,10 +14,15 @@ const CLOSED = new Set(["sold", "leased"]);
 
 /* ---------- cleaning ---------- */
 
+/** Riyadh bounding box used by the hygiene firewall. */
+export const RIYADH_BOUNDS = { latMin: 24.3, latMax: 25.1, lngMin: 46.4, lngMax: 47.1 } as const;
+export const inRiyadh = (lat: number, lng: number) =>
+  lat >= RIYADH_BOUNDS.latMin && lat <= RIYADH_BOUNDS.latMax && lng >= RIYADH_BOUNDS.lngMin && lng <= RIYADH_BOUNDS.lngMax;
+
 export function cleanParcel(p: RawParcel): Parcel {
   const missingPrice = p.price_per_sqm_sar == null || p.total_price_sar == null;
-  // Riyadh: lat ≈ 24–25, lng ≈ 46–47. If lat looks like a longitude, swap.
-  const swapped = p.lat > 40 && p.lng < 40;
+  // Out of the Riyadh box but valid once swapped → inverted coordinates.
+  const swapped = !inRiyadh(p.lat, p.lng) && inRiyadh(p.lng, p.lat);
   return {
     ...p,
     lat: swapped ? p.lng : p.lat,
@@ -127,6 +132,35 @@ export function getNegotiationCandidates(parcels: Parcel[]): NegotiationCandidat
       return { parcel, segment: s, domMultiplier, priceDeltaPct };
     })
     .sort((a, b) => (b.domMultiplier ?? -1) - (a.domMultiplier ?? -1));
+}
+
+/** Stagnant = available, DOM above segment closed median and price/sqm above segment closed median (segments with ≥3 closed deals only). */
+export function getStagnantIds(parcels: Parcel[]): Set<string> {
+  return new Set(
+    getNegotiationCandidates(parcels)
+      .filter((c) => c.domMultiplier != null && c.domMultiplier > 1 && c.priceDeltaPct != null && c.priceDeltaPct > 0)
+      .map((c) => c.parcel.parcel_id),
+  );
+}
+
+export function markStagnant(parcels: Parcel[]): Parcel[] {
+  const ids = getStagnantIds(parcels);
+  return parcels.map((p) => ({ ...p, isStagnant: ids.has(p.parcel_id) }));
+}
+
+/** Below this plot size a residential compound is not feasible. */
+export const COMPOUND_MIN_SQM = 2000;
+
+/** Flags inquiries whose in-budget matches are too small for the stated project. */
+export function scaleMismatch(parcels: Parcel[], i: Inquiry): string | null {
+  if (!/compound|مجمع/i.test(i.wants_to)) return null;
+  const inBudget = parcels.filter(
+    (p) => isAvailable(p) && isPriced(p) && p.area_of_city === i.area_of_city_wanted && p.land_type === i.land_type_wanted &&
+      p.listing_type === i.prefers && (i.budget_sar == null || p.total_price_sar! <= i.budget_sar),
+  );
+  if (!inBudget.length || inBudget.some((p) => p.area_sqm >= COMPOUND_MIN_SQM)) return null;
+  const sizes = inBudget.map((p) => p.area_sqm);
+  return `مساحات المطابقات ${Math.min(...sizes)}–${Math.max(...sizes)} م² لا تكفي لمجمع سكني`;
 }
 
 /* ---------- admin cross-matching ---------- */

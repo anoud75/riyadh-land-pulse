@@ -25,6 +25,8 @@ export interface RawParcel {
 export interface Parcel extends RawParcel {
   missingPrice: boolean;
   coordinatesCorrected: boolean;
+  /** Available, days on market above segment closed median AND price/sqm above segment closed median. */
+  isStagnant?: boolean;
 }
 
 export interface RawInquiry {
@@ -45,6 +47,8 @@ export interface RawInquiry {
 
 export interface Inquiry extends RawInquiry {
   missingBudget: boolean;
+  /** Set when in-budget matches exist but are too small for the stated project (e.g. a compound). */
+  scaleMismatchWarning?: string | null;
 }
 
 export const AREAS: Area[] = ["North", "South", "East", "West", "Central"];
