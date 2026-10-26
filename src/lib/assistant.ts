@@ -93,9 +93,6 @@ export function answerQuery(parcels: Parcel[], text: string, prev: MapFilters = 
   }
 
   const chips: string[] = [];
-  if (top) {
-    chips.push("أضفها للمقارنة");
-    if (filters.area) chips.push(`وش البديل خارج ${AREA_AR[filters.area]}؟`);
-  }
+  if (top && filters.area) chips.push(`وش البديل خارج ${AREA_AR[filters.area]}؟`);
   return { text: body, filters, matches, top, chips };
 }
