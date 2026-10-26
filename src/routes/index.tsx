@@ -187,30 +187,28 @@ function Home() {
 
       {/* Differentiators */}
       <section id="why" className="border-t">
-        <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 py-24 md:grid-cols-[1fr_1.2fr]">
-          <div>
-            <Reveal>
-              <span className="text-xs font-medium tracking-wide text-primary">ما يميزها</span>
-              <h2 className="mt-3 text-3xl font-bold leading-snug">هل هذه الأرض مناسبة لهذا الاستخدام، وهذه الميزانية، وفي هذا الموقع؟</h2>
-            </Reveal>
-            <ul className="mt-8 space-y-4 text-sm leading-relaxed">
-              {[
-                [Database, "تجمع بيانات الأرض والسوق والموقع في قرار واحد واضح."],
-                [ShieldCheck, "توضح مصدر كل رقم، وتفصل بين البيانات الفعلية والتقديرات."],
-                [Sparkles, "الذكاء الاصطناعي مقيّد بالبيانات المتاحة وسياق المستخدم؛ لا يفترض أرقامًا ولا يخرج عن المهمة."],
-                [Lock, "تجربة للمستثمر وأخرى للفريق، وبيانات الاستفسارات محمية عن المستثمرين."],
-              ].map(([Icon, t], i) => {
-                const I = Icon as typeof Database;
-                return (
-                  <Reveal key={i} delay={i * 120} className="flex gap-3">
-                    <I className="mt-0.5 size-4 shrink-0 text-foreground" />
-                    <span className="text-muted-foreground">{t as string}</span>
-                  </Reveal>
-                );
-              })}
-            </ul>
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <Reveal className="max-w-2xl">
+            <span className="text-xs font-medium tracking-wide text-primary">ما يميزها</span>
+            <h2 className="mt-3 text-3xl font-bold leading-snug">هل هذه الأرض مناسبة لهذا الاستخدام، وهذه الميزانية، وفي هذا الموقع؟</h2>
+          </Reveal>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border bg-border sm:grid-cols-2">
+            {[
+              [Database, "قرار واحد متكامل", "تجمع بيانات الأرض والسوق والموقع في قرار واحد واضح."],
+              [ShieldCheck, "مصدر كل رقم", "توضح مصدر كل رقم، وتفصل بين البيانات الفعلية والتقديرات."],
+              [Sparkles, "ذكاء اصطناعي منضبط", "مقيّد بالبيانات المتاحة وسياق المستخدم؛ لا يفترض أرقامًا ولا يخرج عن المهمة."],
+              [Lock, "خصوصية الاستفسارات", "تجربة للمستثمر وأخرى للفريق، وبيانات الاستفسارات محمية عن المستثمرين."],
+            ].map(([Icon, title, t], i) => {
+              const I = Icon as typeof Database;
+              return (
+                <Reveal key={i} delay={i * 100} className="bg-background p-8">
+                  <I className="size-5 text-foreground" strokeWidth={1.5} />
+                  <h3 className="mt-5 text-base font-semibold">{title as string}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t as string}</p>
+                </Reveal>
+              );
+            })}
           </div>
-          <Reveal><DataFlow /></Reveal>
         </div>
       </section>
 
