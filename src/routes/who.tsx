@@ -20,28 +20,32 @@ export const Route = createFileRoute("/who")({
 function Page() {
   const { setRole } = usePortfolio();
   const navigate = useNavigate();
-  const card = "group flex flex-col rounded-3xl border bg-card p-8 text-right transition-colors hover:border-primary";
-  const arrow = "grid size-12 place-items-center rounded-full bg-secondary group-hover:bg-accent";
+  const card = "group flex flex-col rounded-[2rem] border bg-card p-7 text-right shadow-sm transition-all hover:-translate-y-1 hover:border-foreground/30 hover:shadow-md";
+  const icon = "grid size-12 place-items-center rounded-2xl bg-secondary text-foreground";
+  const btn = "mt-7 flex items-center justify-between rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background";
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-4xl px-6 py-8">
-        <Link to="/"><Logo /></Link>
-        <h1 className="mt-14 text-5xl font-bold">من أنت؟</h1>
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          <Link to="/who/name" className={card}>
-            <Map className="size-7 text-primary" />
-            <h2 className="mt-8 text-2xl font-bold">باحث عن أرض</h2>
-            <p className="mt-4 text-muted-foreground">تصفّح الأراضي، واسأل عمّا يناسب مشروعك.</p>
-            <div className="mt-8 flex items-center gap-3 text-sm text-muted-foreground"><span className={arrow}><ArrowLeft className="size-4" /></span>اسمك فقط</div>
-          </Link>
-          <button className={card} onClick={() => { setRole("admin"); navigate({ to: "/admin" }); }}>
-            <LayoutGrid className="size-7 text-muted-foreground" />
-            <h2 className="mt-8 text-2xl font-bold">فريق سرج</h2>
-            <p className="mt-4 text-muted-foreground">اقرأ الطلب والمعروض، وتابع الاستفسارات.</p>
-            <div className="mt-8 flex items-center gap-3 text-sm text-muted-foreground"><span className={arrow}><ArrowLeft className="size-4" /></span>تسجيل دخول</div>
-          </button>
+    <div className="flex min-h-screen flex-col">
+      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-8">
+        <Link to="/" className="self-center"><Logo /></Link>
+        <div className="my-auto py-10">
+          <h1 className="text-center text-5xl font-bold">من أنت؟</h1>
+          <p className="mt-3 text-center text-muted-foreground">اختر مسارك لنعرض لك ما يهمّك.</p>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <Link to="/who/name" className={card}>
+              <span className={icon}><Map className="size-6" /></span>
+              <h2 className="mt-6 text-2xl font-bold">باحث عن أرض</h2>
+              <p className="mt-2 text-muted-foreground">تصفّح الأراضي، واسأل عمّا يناسب مشروعك.</p>
+              <span className={btn}>ادخل كمستثمر<ArrowLeft className="size-4" /></span>
+            </Link>
+            <button className={card} onClick={() => { setRole("admin"); navigate({ to: "/admin" }); }}>
+              <span className={icon}><LayoutGrid className="size-6" /></span>
+              <h2 className="mt-6 text-2xl font-bold">فريق سرج</h2>
+              <p className="mt-2 text-muted-foreground">اقرأ الطلب والمعروض، وتابع الاستفسارات.</p>
+              <span className={btn}>ادخل كفريق<ArrowLeft className="size-4" /></span>
+            </button>
+          </div>
         </div>
-        <p className="mt-8 text-sm text-muted-foreground">بيانات المشترين لا تغادر لوحة الفريق.</p>
+        <p className="text-center text-xs text-muted-foreground">بيانات المشترين لا تغادر لوحة الفريق.</p>
       </div>
     </div>
   );
