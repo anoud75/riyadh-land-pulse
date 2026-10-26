@@ -4,7 +4,6 @@ import { BarChart3, Bot, Briefcase, Inbox, Menu, PlusSquare, Send, Sun, Users } 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/SiteHeader";
 import { ViewSwitcher } from "@/components/ViewSwitcher";
-import { TeamAssistant } from "@/components/admin/TeamAssistant";
 import { usePortfolio } from "@/context/PortfolioProvider";
 
 export const Route = createFileRoute("/admin")({
@@ -60,7 +59,7 @@ function Layout() {
         {open && <div className="flex flex-col border-b bg-surface p-4 md:hidden" onClick={() => setOpen(false)}>{nav}</div>}
         <main className="mx-auto max-w-[1440px] px-4 py-5 lg:px-6"><Outlet /></main>
       </div>
-      <TeamAssistant />
+
     </div>
   );
 }

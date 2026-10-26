@@ -39,7 +39,6 @@ function Today() {
   const cellParcels = cell ? parcels.filter((p) => isAvailable(p) && p.area_of_city === cell.area && p.land_type === cell.landType) : [];
   return (
     <div className="space-y-8">
-      <div><div className="mb-1 text-xs font-medium text-muted-foreground">لوحة فريق سرج</div><h1 className="text-3xl font-bold">اليوم</h1><p className="mt-1 text-sm text-muted-foreground">أولويات المتابعة، حركة الطلب، والأراضي التي تحتاج قرارًا.</p></div>
       <div className="grid gap-4 md:grid-cols-3">
         <div className={`${card} bg-ink text-ink-foreground`}>
           <div className="text-xs text-ink-muted">١ · فرصة استحواذ</div>
