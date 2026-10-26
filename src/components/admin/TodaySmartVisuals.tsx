@@ -2,12 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpLeft, Info } from "lucide-react";
 import type { ReactNode } from "react";
 import { AREA_AR, LAND_AR, type Inquiry, type Parcel } from "@/data/types";
-import { getTodayBriefs } from "@/lib/adminEngine";
+import { getLeadsAtRisk, getQuickWins, getTodayBriefs, LEAD_RISK_DAYS } from "@/lib/adminEngine";
 import { useTip } from "@/components/admin/chartKit";
 
 const M = (n: number) => `${(n / 1e6).toFixed(1)} مليون`;
 
-function Shell({ title, sub, how, insight, to, cta, children, show, hide }: { title: string; sub: string; how: string; insight: ReactNode; to: "/admin/inquiries" | "/admin/portfolio" | "/admin/add"; cta: string; children: ReactNode; show: ReturnType<typeof useTip>["show"]; hide: () => void }) {
+function Shell({ title, sub, how, insight, to, cta, children, show, hide }: { title: string; sub: string; how: string; insight: ReactNode; to: "/admin/inquiries" | "/admin/portfolio" | "/admin/add" | "/admin/offer"; cta: string; children: ReactNode; show: ReturnType<typeof useTip>["show"]; hide: () => void }) {
   return (
     <section className="flex min-w-0 flex-col rounded-xl border bg-card p-4">
       <header className="flex items-start justify-between gap-2">
@@ -25,6 +25,10 @@ function Shell({ title, sub, how, insight, to, cta, children, show, hide }: { ti
 
 export function TodaySmartVisuals({ parcels, inquiries }: { parcels: Parcel[]; inquiries: Inquiry[] }) {
   const b = getTodayBriefs(parcels, inquiries);
+  const qw = getQuickWins(parcels, inquiries);
+  const lr = getLeadsAtRisk(inquiries);
+  const maxRiskWait = Math.max(1, ...lr.rows.map((r) => r.wait));
+  const ST: Record<string, string> = { new: "جديد", contacted: "تم التواصل", negotiating: "تفاوض" };
   const { show, setTip, layer } = useTip();
   const hide = () => setTip(null);
   const hov = (body: ReactNode) => ({ onMouseEnter: (e: React.SyntheticEvent) => show(e, body), onFocus: (e: React.SyntheticEvent) => show(e, body), onMouseLeave: hide, onBlur: hide, tabIndex: 0 });
@@ -36,6 +40,35 @@ export function TodaySmartVisuals({ parcels, inquiries }: { parcels: Parcel[]; i
   const maxWait = Math.max(1, ...b.shortages.map((s) => s.waiting));
 
   return (
+    <div className="space-y-4">
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Shell show={show} hide={hide} title="صفقات جاهزة للإغلاق" sub={`${qw.count} مشترين لهم أرض مطابقة الآن`}
+        how="استفسارات «جديد» لها أرض متاحة ومسعّرة في نفس المنطقة والنوع ونوع الصفقة، ضمن الميزانية (وبمساحة تكفي إن كان الطلب مجمعًا). القيمة = سعر أرخص أرض مطابقة لكل مشترٍ."
+        insight={<>قيمة محتملة <b className="text-foreground">{M(qw.value)}</b> ريال بانتظار عرض واحد.</>} to="/admin/offer" cta="اعرض أرضًا">
+        <ul className="divide-y">
+          {qw.rows.map((r) => (
+            <li key={r.id} className="flex cursor-default items-center justify-between gap-3 rounded py-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring" {...hov(<><b>{r.name}</b> · {r.id}<br />أفضل مطابقة: {r.parcelId} · {r.district}<br />{r.matches} أراضٍ مطابقة · الميزانية {r.budget ? `${M(r.budget)} ريال` : "غير محددة"}</>)}>
+              <div className="min-w-0"><div className="truncate font-medium">{r.name}</div><div className="truncate text-muted-foreground">{r.parcelId} · {r.district}</div></div>
+              <div className="shrink-0 text-left"><div className="font-semibold tabular-nums">{M(r.price)}</div><div className="text-muted-foreground">{r.matches} مطابقة</div></div>
+            </li>
+          ))}
+        </ul>
+      </Shell>
+
+      <Shell show={show} hide={hide} title="مستثمرون معرّضون للفقدان" sub={`${lr.count} استفسارًا مفتوحًا منذ ${LEAD_RISK_DAYS}+ يومًا`}
+        how={`كل استفسار غير مغلق مضى على تاريخه ${LEAD_RISK_DAYS} يومًا أو أكثر حتى لقطة 11 أغسطس 2026، مرتبة من الأقدم. الأحمر = أكثر من 60 يومًا.`}
+        insight={<>ميزانيات معرّضة للضياع <b className="text-foreground">{M(lr.budget)}</b> ريال — ابدأ بالأقدم.</>} to="/admin/inquiries" cta="الاستفسارات">
+        <ul className="space-y-2.5">
+          {lr.rows.map((r) => (
+            <li key={r.id} className="grid cursor-default grid-cols-[7rem_1fr_3rem] items-center gap-2 rounded text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring" {...hov(<><b>{r.name}</b> · {r.id}<br />الحالة: {ST[r.status] ?? r.status}<br />ينتظر {r.wait} يومًا · الميزانية {r.budget ? `${M(r.budget)} ريال` : "غير محددة"}</>)}>
+              <span className="truncate">{r.name}</span>
+              <div className="h-2 rounded-full bg-muted"><div className={`h-full rounded-full ${r.wait > 60 ? "bg-destructive/80" : "bg-primary/70"}`} style={{ width: `${(r.wait / maxRiskWait) * 100}%` }} /></div>
+              <span className="text-left tabular-nums text-muted-foreground">{r.wait} يوم</span>
+            </li>
+          ))}
+        </ul>
+      </Shell>
+    </div>
     <div className="grid gap-4 lg:grid-cols-3">
       <Shell show={show} hide={hide} title="يحتاج ردًّا اليوم" sub={`${b.waiting.count} بلا رد · وسيط الانتظار ${b.waiting.medianWait} يومًا`}
         how="الاستفسارات بحالة «جديد». الحلقة = حصة أعلى 3 ميزانيات من مجموع ميزانيات من لم يُرد عليهم. الانتظار = الأيام من تاريخ الاستفسار حتى لقطة 11 أغسطس 2026."
@@ -92,6 +125,7 @@ export function TodaySmartVisuals({ parcels, inquiries }: { parcels: Parcel[]; i
           </div>
         ) : <p className="text-sm text-muted-foreground">كل الشرائح المطلوبة فيها أرض متاحة.</p>}
       </Shell>
+    </div>
       {layer}
     </div>
   );
