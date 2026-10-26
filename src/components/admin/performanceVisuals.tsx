@@ -58,10 +58,9 @@ export function ClosingRateBars({ rows, note }: { rows: AreaClosingRow[]; note: 
             className="grid grid-cols-[3.5rem_minmax(0,1fr)_8rem] items-center gap-3 rounded-lg outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <span className="text-sm font-medium">{r.label}</span>
-            <div className="h-7 rounded-full bg-muted">
-              <div className="flex h-7 items-center rounded-full px-2.5 text-[11px] font-semibold text-primary-foreground transition-all" style={{ width: `${Math.max(9, (r.rate / max) * 100)}%`, background: tint(72 + 28 * (r.rate / max)) }}>
-                <span className="font-mono">{r.rate}%</span>
-              </div>
+            <div className="relative h-7 rounded-full bg-muted">
+              <div className="h-7 rounded-full transition-all" style={{ width: `${Math.max(9, (r.rate / max) * 100)}%`, background: tint(72 + 28 * (r.rate / max)) }} />
+              <span className={`absolute inset-y-0 flex items-center px-2.5 font-mono text-[11px] font-semibold ${Math.max(9, (r.rate / max) * 100) >= 16 ? "text-primary-foreground" : "text-foreground"}`} style={{ right: Math.max(9, (r.rate / max) * 100) >= 16 ? "0px" : `calc(${Math.max(9, (r.rate / max) * 100)}% + 6px)` }}>{r.rate}%</span>
             </div>
             <span className="text-left font-mono text-[11px] text-muted-foreground">{r.closed}/{r.total} · {r.medianDays ?? "—"} يومًا</span>
           </div>
@@ -138,10 +137,9 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
                 </td>
                 <td className="py-2 text-xs text-muted-foreground">{r.segment}</td>
                 <td className="py-2 pl-3">
-                  <div className="h-5 rounded-full bg-muted">
-                    <div className="flex h-5 items-center rounded-full px-1.5 text-[10px] font-semibold text-primary-foreground" style={{ width: `${Math.max(16, (r.deltaPct / maxDelta) * 100)}%`, background: tint(45 + 55 * (r.deltaPct / maxDelta)) }}>
-                      <span className="font-mono">+{r.deltaPct}%</span>
-                    </div>
+                  <div className="relative h-5 rounded-full bg-muted">
+                    <div className="h-5 rounded-full transition-all" style={{ width: `${Math.max(16, (r.deltaPct / maxDelta) * 100)}%`, background: tint(45 + 55 * (r.deltaPct / maxDelta)) }} />
+                    <span className={`absolute inset-y-0 flex items-center px-1 font-mono text-[10px] font-semibold ${Math.max(16, (r.deltaPct / maxDelta) * 100) >= 28 ? "text-primary-foreground" : "text-foreground"}`} style={{ right: Math.max(16, (r.deltaPct / maxDelta) * 100) >= 28 ? "0px" : `calc(${Math.max(16, (r.deltaPct / maxDelta) * 100)}% + 5px)` }}>+{r.deltaPct}%</span>
                   </div>
                 </td>
                 <td className="whitespace-nowrap py-2 pr-3 font-mono text-xs">{r.days} مقابل {r.medianDays}</td>
