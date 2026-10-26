@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREA_AR, DEAL_AR, LAND_AR } from "@/data/types";
@@ -49,7 +49,7 @@ function Report() {
 
   if (!r) return <p>لم نجد هذه الأرض. <Link to="/investor" className="text-primary">عودة إلى الأراضي</Link></p>;
   const p = r.parcel;
-  const today = new Date().toLocaleDateString("ar-SA-u-nu-latn", { day: "numeric", month: "long", year: "numeric" });
+  const today = useToday();
   const maxPpm = Math.max(p.price_per_sqm_sar ?? 0, r.segmentMedianPpm ?? 0) * 1.15 || 1;
 
   return (
@@ -197,7 +197,7 @@ function Kpi({ label, value, unit, note }: { label: string; value: string; unit:
   );
 }
 
-function Card({ n, title, badge, children }: { n?: string; title: string; badge?: string; children: React.ReactNode }) {
+function Card({ n, title, badge, children }: { n?: string; title: string; badge?: string | undefined; children: React.ReactNode }) {
   return (
     <section className="report-card rounded-2xl border p-5">
       <div className="mb-4 flex items-start justify-between">
@@ -207,4 +207,10 @@ function Card({ n, title, badge, children }: { n?: string; title: string; badge?
       {children}
     </section>
   );
+}
+
+function useToday() {
+  const [d, setD] = useState("");
+  useEffect(() => { setD(new Date().toLocaleDateString("ar-SA-u-ca-gregory-nu-latn", { day: "numeric", month: "long", year: "numeric" })); }, []);
+  return d;
 }
