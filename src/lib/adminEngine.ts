@@ -205,3 +205,28 @@ export function getTodayBriefs(parcels: Parcel[], inquiries: Inquiry[]) {
     shortages,
   };
 }
+
+/** Days without a reply after which an open lead counts as at risk. */
+export const LEAD_RISK_DAYS = 30;
+
+/** Unanswered buyers with at least one available parcel that fits segment, deal, budget and size. */
+export function getQuickWins(parcels: Parcel[], inquiries: Inquiry[], limit = 4) {
+  const byId = new Map(parcels.map((p) => [p.parcel_id, p]));
+  const rows = getActionableWaitingInquiries(parcels, inquiries)
+    .filter((a) => a.matches.length && !a.flag)
+    .map((a) => {
+      const best = a.matches.map((id) => byId.get(id)!).sort((x, y) => x.total_price_sar! - y.total_price_sar!)[0]!;
+      return { id: a.inquiry_id, name: a.investor_name, budget: a.budget_sar ?? 0, matches: a.matches.length, parcelId: best.parcel_id, district: best.district_ar, price: best.total_price_sar! };
+    })
+    .sort((a, b) => b.price - a.price);
+  return { count: rows.length, value: rows.reduce((s, r) => s + r.price, 0), rows: rows.slice(0, limit) };
+}
+
+/** Open (not closed) leads waiting at least LEAD_RISK_DAYS since their inquiry date, oldest first. */
+export function getLeadsAtRisk(inquiries: Inquiry[], limit = 5) {
+  const rows = inquiries.filter((i) => i.status !== "closed")
+    .map((i) => ({ id: i.inquiry_id, name: i.investor_name, status: i.status, budget: i.budget_sar ?? 0, wait: waitDaysOf(i) }))
+    .filter((r) => r.wait >= LEAD_RISK_DAYS)
+    .sort((a, b) => b.wait - a.wait || b.budget - a.budget);
+  return { count: rows.length, budget: rows.reduce((s, r) => s + r.budget, 0), rows: rows.slice(0, limit) };
+}

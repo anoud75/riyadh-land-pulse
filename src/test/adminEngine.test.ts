@@ -44,3 +44,17 @@ describe("pin, match reasons, filters", () => {
     expect(s.stagnantCount).toBe(10);
   });
 });
+
+import { getLeadsAtRisk, getQuickWins, LEAD_RISK_DAYS, waitDaysOf } from "@/lib/adminEngine";
+describe("quick wins & leads at risk", () => {
+  it("quick wins only include buyers whose matched parcel fits budget", () => {
+    const q = getQuickWins(P, I, 100);
+    for (const r of q.rows) if (r.budget) expect(r.price).toBeLessThanOrEqual(r.budget);
+  });
+  it("leads at risk are open and waiting 30+ days", () => {
+    const r = getLeadsAtRisk(I, 100);
+    expect(LEAD_RISK_DAYS).toBe(30);
+    for (const x of r.rows) { expect(x.status).not.toBe("closed"); expect(x.wait).toBeGreaterThanOrEqual(30); }
+    expect(r.count).toBe(I.filter((i) => i.status !== "closed" && waitDaysOf(i) >= 30).length);
+  });
+});
