@@ -31,6 +31,23 @@ describe("viz builders", () => {
     const c = mapCommand(initialParcels, { district: anyDistrict });
     expect(c.zoom).toBe(14);
     expect(c.label).toContain(anyDistrict);
+    expect(c.district).toBeTruthy();
+  });
+  it("map: any of the 189 Riyadh districts resolves even with no سرج parcels", () => {
+    const geo = (await import("@/data/riyadhDistricts.json")).default as { features: { properties: { id: number; name_ar: string; name_en: string } }[] };
+    const covered = new Set(initialParcels.map((p) => p.district_ar));
+    const empty = geo.features.find((f) => ![...covered].some((d) => d.includes(f.properties.name_ar) || f.properties.name_ar.includes(d)));
+    expect(empty).toBeTruthy();
+    const c = mapCommand(initialParcels, { district: empty!.properties.name_ar });
+    expect(c.action).toBe("focus");
+    expect(c.zoom).toBe(13);
+    expect(c.label).toContain(empty!.properties.name_ar);
+    expect(c.district).toBe(empty!.properties.name_ar);
+    // centre stays inside Riyadh
+    expect(c.center[0]).toBeGreaterThan(24.4);
+    expect(c.center[0]).toBeLessThan(25.2);
+    expect(c.center[1]).toBeGreaterThan(46.2);
+    expect(c.center[1]).toBeLessThan(47.2);
   });
   it("comparison chart uses real street widths", () => {
     const ch = buildComparisonChart(initialParcels, ["SRE-086", "SRE-081"], "street_width");

@@ -7,7 +7,6 @@ export function adminRequestPolicy(question: string) {
   const matching = /طابق|مطابق|مستبعد|نستبعد|استبعاد|منتظر|ينتظر|waiting|match|exclud/i.test(question);
   return {
     matching,
-    waitingOverview: matching && /طابق|نستبعد|مستبعد|استبعاد|match|exclud/i.test(question) && !/SRE-|INQ-|شمال|جنوب|شرق|غرب|وسط|تجاري|سكني|مليون|ميزاني|مستشفى|مستودع|قهو|كاف|\d/i.test(question),
     map: /خريط|قر[ّ]?ب|قرب|كب[ّ]?ر|صغ[ّ]?ر|zoom|map/i.test(question),
     chart: /ارسم|رسم|شارت|مخطط|قارن|مقارن|chart|graph|compar/i.test(question),
     report: /تقرير|report/i.test(question),
