@@ -34,3 +34,4 @@
 
 - The team offer page uses a three-stage client-side flow and inquiry search context; it reuses provider offers without claiming external delivery or persistent storage.
 - Arabic editing rules live in `src/lib/arabicStyle.ts` (prompt block + pure `polishArabic` applied to every agent reply) — one source for language quality in both assistants.
+- PRD.md is the single source for the /prd page (imported raw); figures in it must match `src/lib/engineAudit.ts`, which logs a console.table on startup — keeps the document audit-ready.
