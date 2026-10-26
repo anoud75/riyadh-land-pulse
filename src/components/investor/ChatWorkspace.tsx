@@ -69,6 +69,13 @@ const CONFIG = {
   },
 } as const;
 
+const GREETINGS: Record<Mode, string> = {
+  investor:
+    "أهلاً بك، أنا محلل المواقع الذكي في سرج. أحلّل أراضي الرياض اعتماداً على بيانات الموقع، والكثافة السكانية، والوصول إلى الخدمات، ومؤشرات السوق.\n\nما المشروع أو الاستخدام الذي تخطط له، وما نطاق الميزانية أو المساحة المطلوبة لنبدأ؟",
+  admin:
+    "أهلاً بك، أنا مساعد الفريق في سرج. أراقب حركة المحفظة، ومطابقة الاستفسارات مع الأراضي المتاحة، وكشف الأصول الراكدة وفجوات العرض والطلب في الرياض.\n\nما الملف أو الاستفسار الذي نبدأ بحسمه اليوم؟",
+};
+
 export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent }: { mode?: Mode; initialPrompt?: string | undefined; onInitialSent?: () => void }) {
   const cfg = CONFIG[mode];
   const { parcels, inquiries, investorName } = usePortfolio();
@@ -180,6 +187,7 @@ export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent 
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6">
               <SarjOrb className="sarj-orb-hero size-28" />
+              <p className="max-w-2xl whitespace-pre-line text-center text-sm leading-relaxed text-foreground" aria-live="polite">{GREETINGS[mode]}</p>
               <Composer value={input} onChange={setInput} onSend={() => send(input)} busy={busy} inputRef={inputRef} big placeholder={cfg.placeholder} />
               <div className="mt-6 w-full max-w-2xl text-xs text-muted-foreground">اقتراحات للبحث في المحادثة</div>
               <div className="mt-3 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
