@@ -75,7 +75,6 @@ export function buildRegionReport(parcels: Parcel[], inquiries: Inquiry[], area:
   };
 }
 
-const norm = (s: string) => s.replace(/^ال/, "").replace(/[ًٌٍَُِّْ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة$/, "ه").trim().toLowerCase();
 
 /** Resolve a map instruction into a deterministic command (centre/zoom from parcel coordinates). */
 export function mapCommand(parcels: Parcel[], f: { district?: string | null; area_of_city?: Area | null; parcel_ids?: string[] | null; radius_km?: number | null }): MapCommand {
@@ -86,9 +85,13 @@ export function mapCommand(parcels: Parcel[], f: { district?: string | null; are
     if (list.length) return { action: f.radius_km ? "radius" : "highlight", center: centroid(list), zoom: list.length === 1 ? 14 : 12, parcelIds: list.map((p) => p.parcel_id), radiusKm: f.radius_km ?? null, label: list.length === 1 ? `${list[0]!.district_ar} · ${list[0]!.parcel_id}` : `${list.length} مواقع` };
   }
   if (f.district) {
-    const q = norm(f.district);
-    const list = pool.filter((p) => norm(p.district_ar) === q || norm(p.district_en) === q || norm(p.district_ar).includes(q));
-    if (list.length) return { action: f.radius_km ? "radius" : "focus", center: centroid(list), zoom: 14, parcelIds: list.filter(isAvailable).map((p) => p.parcel_id), radiusKm: f.radius_km ?? null, label: `حي ${list[0]!.district_ar}` };
+    const d = districtByName(GEO, f.district);
+    if (d) {
+      const list = pool.filter((p) => pointInDistrict(p.lng, p.lat, d));
+      const center = list.length ? centroid(list) : districtCenter(d);
+      const zoom = list.length ? 14 : 13;
+      return { action: f.radius_km ? "radius" : "focus", center, zoom, parcelIds: list.filter(isAvailable).map((p) => p.parcel_id), radiusKm: f.radius_km ?? null, label: `حي ${d.properties.name_ar}`, district: d.properties.name_ar };
+    }
   }
   if (f.area_of_city) {
     const list = pool.filter((p) => p.area_of_city === f.area_of_city);
