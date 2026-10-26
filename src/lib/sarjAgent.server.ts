@@ -16,7 +16,8 @@ const MODEL = "openai/gpt-6-astra";
 const GROUNDING = `القاعدة الحاسمة: لا تحسب أي وسيط أو نسبة أو عدد أو مبلغ من عندك. استدعِ الأدوات أولًا وانقل أرقامها كما هي حرفيًا.
 لا تذكر أي أرض لم تُرجعها أداة. إذا قالت الأداة "عينة غير كافية" فقلها ولا تقدّر رقمًا.
 اكتب بعربية فصيحة واضحة ومختصرة، بلا جداول Markdown. المناطق: North شمال، South جنوب، East شرق، West غرب، Central وسط. commercial تجاري، residential سكني، sale بيع، lease إيجار.
-${ARABIC_STYLE}`;
+${ARABIC_STYLE}
+أنهِ كل إجابة بجملة رؤية واحدة (ما يعنيه ذلك للمستثمر/للفريق، مستنتجة من أرقام الأدوات فقط) ثم اقتراح تالٍ واحد محدد. لا تُفصّل ما لم يُطلب منك.`;
 
 const VIZ = `أدوات العرض: drawChart لرسم مقارنة أو توزيع داخل المحادثة (استخدمها كلما قارن المستخدم أو طلب رسمًا)، generateReport لتقرير كامل يُفتح في اللوحة الجانبية، controlMap لفتح الخريطة داخل المحادثة وتحريكها (تقريب على حي أو منطقة، إبراز أراضٍ، رسم نطاق بالكيلومتر، أو عرض الرياض كاملة). عند ذكر أراضٍ محددة استدعِ controlMap لإبرازها. لا تقل للمستخدم "اذهب إلى الخريطة"؛ أنت تفتحها بنفسك.
 مؤشر الإيجار: إذا كان المستثمر على أرض سكنية ونيته بناء شقق للإيجار استدعِ getMarketBenchmark وانقل نصه حرفيًا.
@@ -82,10 +83,6 @@ export async function runSarjAgent(input: {
 
   const adminPolicy = adminRequestPolicy(lastQ);
   const inquiries = input.mode === "admin" ? [...initialInquiries, ...input.extraInquiries.filter((i) => !initialInquiries.some((x) => x.inquiry_id === i.inquiry_id))] : [];
-  if (input.mode === "admin" && adminPolicy.waitingOverview && !adminPolicy.map && !adminPolicy.chart && !adminPolicy.report) {
-    const response = buildWaitingResponse(parcels, inquiries);
-    return { text: response.text, parcelIds: [], filters: null, tools: ["getActionableWaitingInquiries", "getExcludedWaitingBuyers"], ui: response.ui, uis: [response.ui] };
-  }
 
   const parcelIds = new Set<string>();
   const used: string[] = [];
@@ -122,12 +119,12 @@ export async function runSarjAgent(input: {
       },
     }),
     controlMap: tool({
-      description: "Open and move the map inside the chat: zoom into a district (Arabic or English name) or a region, highlight parcel ids, draw a radius in km, or show all Riyadh (all fields null). color_by colors every Riyadh district by a metric (district-level view)." + (inquiries ? " Metrics: available, median_ppm, waiting, gap, dom." : " Metrics: available, median_ppm, dom."),
+      description: "Open and move the map inside the chat: zoom into any of Riyadh's 189 districts (Arabic or English name), or a region, highlight parcel ids, draw a radius in km, or show all Riyadh (all fields null). color_by colors every Riyadh district by a metric (district-level view)." + (inquiries ? " Metrics: available, median_ppm, waiting, gap, dom." : " Metrics: available, median_ppm, dom."),
       inputSchema: z.object({ district: z.string().nullable(), area_of_city: area, parcel_ids: z.array(z.string()).nullable(), radius_km: z.number().nullable(), color_by: z.enum(["available", "median_ppm", "waiting", "gap", "dom"]).nullable() }),
       execute: async (f) => {
         note("controlMap");
         const demand = f.color_by === "waiting" || f.color_by === "gap";
-        const command = { ...V.mapCommand(parcels, f), district: f.district ?? null, choropleth: demand && !inquiries ? "available" as const : f.color_by ?? null };
+        const command = { ...V.mapCommand(parcels, f), choropleth: demand && !inquiries ? "available" as const : f.color_by ?? null };
         emit({ kind: "map", command });
         return { shown: command.label, parcels: command.parcelIds.length };
       },
@@ -310,7 +307,7 @@ export async function runSarjAgent(input: {
     stopWhen: stepCountIs(50),
     maxRetries: 0,
     providerOptions: {
-      openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] },
+      openai: { forceReasoning: true, reasoningEffort: "medium", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] },
     },
   });
   if (!investor) {
