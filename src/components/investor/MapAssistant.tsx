@@ -39,7 +39,6 @@ export function MapAssistant({
   onApplyFilters: (f: MapFilters) => void;
   onFocusParcel: (p: Parcel) => void;
 }) {
-  const { toggleCompare } = usePortfolio();
   const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, role: "assistant", text: GREETING }]);
   const [input, setInput] = useState("");
   const filtersRef = useRef<MapFilters>(EMPTY_FILTERS);
@@ -67,7 +66,7 @@ export function MapAssistant({
         : filtersRef.current;
       filtersRef.current = f;
       const ids = r.parcelIds;
-      setMsgs((m) => [...m, { id: m.length, role: "assistant", text: r.text, top: ids[0] ?? null, more: ids.slice(1, 4), chips: ["أضفها للمقارنة"], ui: r.ui?.kind === "negotiation_report" ? r.ui : null }]);
+      setMsgs((m) => [...m, { id: m.length, role: "assistant", text: r.text, top: ids[0] ?? null, more: ids.slice(1, 4), ui: r.ui?.kind === "negotiation_report" ? r.ui : null }]);
       if (r.filters) onApplyFilters(f);
       const top = parcels.find((p) => p.parcel_id === ids[0]);
       if (top) onFocusParcel(top);
@@ -84,10 +83,7 @@ export function MapAssistant({
     if (answer.top) onFocusParcel(answer.top);
   };
 
-  const chip = (c: string, topId: string | null | undefined) => {
-    if (c === "أضفها للمقارنة" && topId) toggleCompare(topId);
-    else send(c);
-  };
+  const chip = (c: string) => send(c);
 
   return (
     <section className="flex h-full flex-col bg-surface" aria-label="المساعد">
@@ -118,7 +114,7 @@ export function MapAssistant({
                     {m.chips.map((c) => (
                       <Button
                         key={c}
-                        onClick={() => chip(c, m.top)}
+                        onClick={() => chip(c)}
                         className="rounded-full border px-3 py-1 text-xs hover:bg-secondary"
                       >
                         {c}
