@@ -33,9 +33,9 @@ function Home() {
   const unanswered = inquiries.filter((i) => i.status === "new").length;
 
   const signals = [
-    { title: `${shortage.openInquiries} مشترين ينتظرون ${TYPE_AR[shortage.landType]} ${AREA_AR[shortage.area]}`, meta: `المعروض المتاح: ${shortage.availableParcels} أرض` },
+    { title: `${shortage.openInquiries} مشترين ينتظرون أرضًا في ${AREA_AR[shortage.area]} ${TYPE_AR[shortage.landType]}`, meta: `المعروض المتاح: ${shortage.availableParcels} أرض` },
     { title: `${stagnant.count} أرضًا تجاوزت وسيط شريحتها في السوق`, meta: `${(stagnant.total / 1e6).toFixed(1)} مليون ريال قيد المراجعة` },
-    { title: `فائض في ${TYPE_AR[surplus.landType]} ${AREA_AR[surplus.area]}`, meta: `${surplus.availableParcels} أرض مقابل ${surplus.openInquiries} طلبات` },
+    { title: `فائض في ${AREA_AR[surplus.area]} ${TYPE_AR[surplus.landType]}`, meta: `${surplus.availableParcels} أرض مقابل ${surplus.openInquiries} طلبات` },
     { title: `${unanswered} استفسارًا بانتظار أول رد`, meta: "يرتّبها المساعد حسب الجاهزية والقيمة" },
   ];
 
