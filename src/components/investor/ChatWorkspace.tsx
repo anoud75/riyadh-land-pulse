@@ -5,7 +5,7 @@ import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Columns2, ExternalLink, FileText, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, UserRound, Users, X } from "lucide-react";
+import { ArrowRight, BarChart3, Columns2, ExternalLink, FileText, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, UserRound, Users, X } from "lucide-react";
 import logo from "@/assets/sarj_logo.png.asset.json";
 import { askSarjAgent } from "@/lib/sarjAgent.functions";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -174,7 +174,8 @@ export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent 
       )}
 
       <main className="relative flex min-w-0 flex-1 flex-col">
-        {!sideOpen && <Button variant="ghost" size="icon" aria-label="إظهار القائمة" onClick={() => setSideOpen(true)} className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface"><PanelRight className="size-4" /></Button>}
+        <Link to="/" aria-label="الرجوع إلى الصفحة الرئيسية" className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface text-ink transition hover:bg-secondary"><ArrowRight className="size-4" /></Link>
+        {!sideOpen && <Button variant="ghost" size="icon" aria-label="إظهار القائمة" onClick={() => setSideOpen(true)} className="absolute right-16 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface"><PanelRight className="size-4" /></Button>}
         <div className="flex min-h-0 flex-1">
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6">
