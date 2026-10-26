@@ -96,7 +96,32 @@ export function districtBounds(f: DistrictFeature): [[number, number], [number, 
   return [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]];
 }
 
+const normName = (s: string) =>
+  s
+    .replace(/^حي\s+/, "")
+    .replace(/[ًٌٍَُِّْـ]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة$/g, "ه")
+    .replace(/^ال/, "")
+    .replace(/\s*dist\.?$/i, "")
+    .trim()
+    .toLowerCase();
+
+/** Match a district across all 189 features by Arabic or English name (normalized exact, then substring). */
+export function districtByName(geo: DistrictCollection, name: string): DistrictFeature | null {
+  const q = normName(name);
+  if (!q) return null;
+  const exact = geo.features.find((f) => normName(f.properties.name_ar) === q || normName(f.properties.name_en) === q);
+  if (exact) return exact;
+  return geo.features.find((f) => normName(f.properties.name_ar).includes(q) || normName(f.properties.name_en).includes(q)) ?? null;
+}
+
+/** Centre of a district (midpoint of its bounding box) — works even where سرج has no parcels. */
+export function districtCenter(f: DistrictFeature): [number, number] {
+  const [[minLng, minLat], [maxLng, maxLat]] = districtBounds(f);
+  return [Math.round(((minLat + maxLat) / 2) * 1000) / 1000, Math.round(((minLng + maxLng) / 2) * 1000) / 1000];
+}
+
 export function findDistrict(geo: DistrictCollection, name: string): DistrictFeature | null {
-  const n = name.replace(/^حي\s+/, "").trim().toLowerCase();
-  return geo.features.find((f) => f.properties.name_ar === n || f.properties.name_en.toLowerCase().replace(/ dist\.?$/, "") === n.replace(/ dist\.?$/, "")) ?? null;
+  return districtByName(geo, name);
 }

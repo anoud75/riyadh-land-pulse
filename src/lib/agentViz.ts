@@ -1,10 +1,13 @@
 import type { Area, Inquiry, Parcel } from "@/data/types";
 import { AREA_AR } from "@/data/types";
+import { districtByName, districtCenter, pointInDistrict, type DistrictCollection } from "./districtStats";
 import { getNegotiationCandidates, getSupplyDemandGaps, isAvailable } from "./portfolioEngine";
 import { diagnoseRegion, getMarketContext, getStagnantCapitalReport } from "./sarjAgentTools";
 import type { ChartSpec, MapCommand, ReportSection } from "./agentUi";
+import geoRaw from "@/data/riyadhDistricts.json";
 
 /** Pure builders for charts, reports and map commands. Every number comes from the engines. */
+const GEO = geoRaw as unknown as DistrictCollection;
 
 export const RIYADH_CENTER: [number, number] = [24.7136, 46.6753];
 const SRC = "سجلّ سرج · لقطة 11 أغسطس 2026";
