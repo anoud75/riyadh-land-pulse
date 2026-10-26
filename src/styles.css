@@ -288,3 +288,10 @@
   .landing-word, .landing-pulse { animation: none; opacity: 1; transform: none; filter: none; }
   .landing-reveal { opacity: 1; transform: none; transition: none; }
 }
+.landing-orbit { animation: landing-orbit 14s ease-in-out infinite; }
+@keyframes landing-orbit { 0%,100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.05); opacity: .4; } }
+.landing-ring { transform-box: fill-box; transform-origin: center; animation: landing-ring 4.5s ease-in-out infinite; }
+@keyframes landing-ring { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+.landing-ping { transform-box: fill-box; transform-origin: center; animation: landing-ping 2.4s ease-out infinite; }
+@keyframes landing-ping { 0% { transform: scale(.4); opacity: .6; } 100% { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .landing-orbit, .landing-ring, .landing-ping { animation: none; } }
