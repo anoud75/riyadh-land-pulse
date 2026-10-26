@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChatWorkspace } from "@/components/investor/ChatWorkspace";
 
 export const Route = createFileRoute("/investor/chats")({
-  validateSearch: (s: Record<string, unknown>): { q?: string } => ({ q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined }),
+  validateSearch: (s: Record<string, unknown>): { q?: string | undefined } => ({ q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined }),
   head: () => ({
     meta: [
       { title: "المساعد الذكي — سرج" },
@@ -20,5 +20,5 @@ export const Route = createFileRoute("/investor/chats")({
 function Chats() {
   const { q } = Route.useSearch();
   const navigate = useNavigate({ from: "/investor/chats" });
-  return <ChatWorkspace initialPrompt={q} onInitialSent={() => navigate({ search: {}, replace: true })} />;
+  return <ChatWorkspace initialPrompt={q} onInitialSent={() => void navigate({ search: {}, replace: true })} />;
 }

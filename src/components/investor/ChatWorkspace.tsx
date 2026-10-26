@@ -69,7 +69,7 @@ const CONFIG = {
   },
 } as const;
 
-export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent }: { mode?: Mode; initialPrompt?: string; onInitialSent?: () => void }) {
+export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent }: { mode?: Mode; initialPrompt?: string | undefined; onInitialSent?: () => void }) {
   const cfg = CONFIG[mode];
   const { parcels, inquiries, investorName } = usePortfolio();
   const preloaded = useMemo<Thread[]>(() => [
