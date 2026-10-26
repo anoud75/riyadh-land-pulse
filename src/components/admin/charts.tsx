@@ -120,7 +120,7 @@ export function AgingDots({ rows }: { rows: { id: string; status: string; days: 
   const W = 640, H = 150, P = 24;
   const max = Math.max(...rows.map((r) => r.days), 1);
   const lanes = ["new", "contacted", "negotiating"];
-  const laneAr: Record<string, string> = { new: "بلا رد", contacted: "تواصل", negotiating: "تفاوض" };
+  const laneAr: Record<string, string> = { new: "بلا رد", contacted: "تم التواصل", negotiating: "قيد التفاوض" };
   const { show, setTip, layer } = useTip();
   return (
     <div className="relative" onMouseLeave={() => setTip(null)} onBlur={() => setTip(null)}>

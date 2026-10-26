@@ -155,7 +155,7 @@ function AddParcel() {
           <div className="text-sm text-muted-foreground">الفجوة في {AREA_AR[f.area_of_city]} · {LAND_AR[f.land_type]}</div>
           <div className="font-mono text-3xl"><span className={impact.gapBefore < 0 ? "text-destructive" : ""}>{impact.gapBefore}</span> ← <span className="text-primary">{impact.gapAfter}</span></div>
           <p className="text-xs text-muted-foreground">سالب = مشترون أكثر من الأراضي.</p>
-          <div className="text-sm">تناسب <b>{impact.matched.length}</b> من {impact.buyers} مشترين في الشريحة (نفس الصفقة وضمن الميزانية):</div>
+          <div className="text-sm">تناسب <b>{impact.matched.length}</b> من {impact.buyers} مشترين في الشريحة (الصفقة نفسها وضمن الميزانية):</div>
           <ul className="space-y-1 text-sm">{impact.matched.map((i) => <li key={i.inquiry_id} className="flex justify-between"><span>{i.investor_name}</span><span className="font-mono text-xs">{fmt(i.budget_sar ?? 0)}</span></li>)}</ul>
           {locationRequests.length > 0 && (
             <div className="border-t pt-3 text-sm">
