@@ -36,6 +36,7 @@ const GEO = geoRaw as unknown as DistrictCollection;
 function Report() {
   const { parcelId } = Route.useParams();
   const { parcels } = usePortfolio();
+  const today = useToday();
   const r = useMemo(() => {
     const p = parcels.find((x) => x.parcel_id === parcelId);
     let pop: { district: number; riyadh: number } | null = null;
@@ -49,7 +50,6 @@ function Report() {
 
   if (!r) return <p>لم نجد هذه الأرض. <Link to="/investor" className="text-primary">عودة إلى الأراضي</Link></p>;
   const p = r.parcel;
-  const today = useToday();
   const maxPpm = Math.max(p.price_per_sqm_sar ?? 0, r.segmentMedianPpm ?? 0) * 1.15 || 1;
 
   return (
