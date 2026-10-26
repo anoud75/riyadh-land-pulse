@@ -32,6 +32,7 @@ import { Route as LocateTokenRouteImport } from './routes/locate.$token'
 import { Route as WhoNameRouteImport } from './routes/who_.name'
 import { Route as InvestorInquireParcelIdRouteImport } from './routes/investor.inquire.$parcelId'
 import { Route as InvestorParcelsParcelIdRouteImport } from './routes/investor.parcels.$parcelId'
+import { Route as InvestorReportParcelIdRouteImport } from './routes/investor.report.$parcelId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -148,6 +149,11 @@ const InvestorParcelsParcelIdRoute = InvestorParcelsParcelIdRouteImport.update({
   path: '/parcels/$parcelId',
   getParentRoute: () => InvestorRoute,
 } as any)
+const InvestorReportParcelIdRoute = InvestorReportParcelIdRouteImport.update({
+  id: '/report/$parcelId',
+  path: '/report/$parcelId',
+  getParentRoute: () => InvestorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/investor/': typeof InvestorIndexRoute
   '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
   '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
+  '/investor/report/$parcelId': typeof InvestorReportParcelIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/investor': typeof InvestorIndexRoute
   '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
   '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
+  '/investor/report/$parcelId': typeof InvestorReportParcelIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/investor/': typeof InvestorIndexRoute
   '/investor/inquire/$parcelId': typeof InvestorInquireParcelIdRoute
   '/investor/parcels/$parcelId': typeof InvestorParcelsParcelIdRoute
+  '/investor/report/$parcelId': typeof InvestorReportParcelIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/investor/'
     | '/investor/inquire/$parcelId'
     | '/investor/parcels/$parcelId'
+    | '/investor/report/$parcelId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/investor'
     | '/investor/inquire/$parcelId'
     | '/investor/parcels/$parcelId'
+    | '/investor/report/$parcelId'
   id:
     | '__root__'
     | '/'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/investor/'
     | '/investor/inquire/$parcelId'
     | '/investor/parcels/$parcelId'
+    | '/investor/report/$parcelId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -473,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestorParcelsParcelIdRouteImport
       parentRoute: typeof InvestorRoute
     }
+    '/investor/report/$parcelId': {
+      id: '/investor/report/$parcelId'
+      path: '/report/$parcelId'
+      fullPath: '/investor/report/$parcelId'
+      preLoaderRoute: typeof InvestorReportParcelIdRouteImport
+      parentRoute: typeof InvestorRoute
+    }
   }
 }
 
@@ -507,6 +526,7 @@ interface InvestorRouteChildren {
   InvestorIndexRoute: typeof InvestorIndexRoute
   InvestorInquireParcelIdRoute: typeof InvestorInquireParcelIdRoute
   InvestorParcelsParcelIdRoute: typeof InvestorParcelsParcelIdRoute
+  InvestorReportParcelIdRoute: typeof InvestorReportParcelIdRoute
 }
 
 const InvestorRouteChildren: InvestorRouteChildren = {
@@ -518,6 +538,7 @@ const InvestorRouteChildren: InvestorRouteChildren = {
   InvestorIndexRoute: InvestorIndexRoute,
   InvestorInquireParcelIdRoute: InvestorInquireParcelIdRoute,
   InvestorParcelsParcelIdRoute: InvestorParcelsParcelIdRoute,
+  InvestorReportParcelIdRoute: InvestorReportParcelIdRoute,
 }
 
 const InvestorRouteWithChildren = InvestorRoute._addFileChildren(
