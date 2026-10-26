@@ -5,9 +5,9 @@ import { Suspense } from "react";
 import { lazyWithReload } from "@/lib/lazyWithReload";
 import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { usePortfolio } from "@/context/PortfolioProvider";
-import { getHeadline, getSegmentStats, MIN_SAMPLE } from "@/lib/portfolioEngine";
-import { SECTORS, getStagnant } from "@/lib/sectors";
-import { CountUp, DataFlow, KineticHeadline, NoiseOverlay, Reveal, WordRotate } from "@/components/landing/Landing";
+import { MIN_SAMPLE } from "@/lib/portfolioEngine";
+import { SECTORS } from "@/lib/sectors";
+import { CountUp, KineticHeadline, NoiseOverlay, Reveal, WordRotate } from "@/components/landing/Landing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,12 +27,7 @@ const MalqaMap = lazyWithReload(() => import("@/components/landing/MalqaMap"));
 const ICONS = [Building2, Warehouse, Stethoscope];
 
 function Home() {
-  const { parcels, inquiries } = usePortfolio();
-  const h = getHeadline(parcels, inquiries);
-  const stagnant = getStagnant(parcels);
-  const eastCom = getSegmentStats(parcels, "East", "commercial", "sale");
-  const northRes = getSegmentStats(parcels, "North", "residential", "sale");
-  const unanswered = Math.round((inquiries.filter((i) => i.status === "new").length / inquiries.length) * 100);
+  const { parcels } = usePortfolio();
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,7 +38,7 @@ function Home() {
         <NoiseOverlay />
         <div className="landing-orbit pointer-events-none absolute -left-48 top-10 size-[620px] rounded-full border border-primary/25" />
         <div className="landing-orbit pointer-events-none absolute -left-24 top-36 size-[380px] rounded-full border border-primary/15" style={{ animationDelay: "-6s" }} />
-        <div className="relative mx-auto max-w-6xl px-6 pt-28">
+        <div className="relative mx-auto max-w-6xl px-6 pt-28 pb-28">
           <KineticHeadline
             text="تحويل القرارات العقارية إلى نتائج استثمارية قابلة للقياس."
             className="max-w-2xl text-4xl font-bold leading-tight md:text-5xl"
@@ -57,19 +52,6 @@ function Home() {
               <Link to="/who" className="rounded-full border border-ink-muted/40 px-6 py-3 text-sm transition hover:bg-ink-line">اعرض لوحة الفريق</Link>
             </div>
           </Reveal>
-          <div className="mt-24 grid grid-cols-2 border-t border-ink-line md:grid-cols-4">
-            {[
-              [h.parcels, `أرضًا في ${h.districts} حيًّا`],
-              [h.inquiries, "استفسارًا مرتبطًا بها"],
-              [h.closed, "صفقة مغلقة في 2026"],
-              [h.medianClosingDays, "يومًا وسيط الإغلاق", true],
-            ].map(([v, l, hi], i) => (
-              <Reveal key={i} delay={900 + i * 120} className="border-ink-line py-8 md:border-l md:px-8 md:first:pr-0 md:last:border-l-0">
-                <div className={`font-mono text-4xl font-semibold ${hi ? "text-primary-soft" : ""}`}><CountUp value={v as number} /></div>
-                <div className="mt-2 text-sm text-ink-muted">{l as string}</div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -243,26 +225,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Measurable */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-24 md:grid-cols-[1fr_1.3fr]">
-        <Reveal>
-          <h2 className="text-3xl font-bold">ما الذي يصير قابلًا للقياس</h2>
-          <p className="mt-3 max-w-md leading-relaxed text-muted-foreground">أربعة أرقام لم تكن تُحسب قبل ربط المحفظة بالطلب. تقرأها إدارة سرج كل صباح، ويتغيّر قرار التسعير والشراء بناءً عليها.</p>
-        </Reveal>
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border bg-border">
-          {[
-            [<><CountUp value={Number((stagnant.total / 1e6).toFixed(1))} />M</>, `ريالًا معطّلة في ${stagnant.count} أرضًا تجاوزت وسيط شريحتها`],
-            [<CountUp value={h.unmetSegments} />, "شرائح يطلبها السوق ولا تملك المحفظة فيها شيئًا"],
-            [<CountUp value={eastCom.medianClosingDays} />, `يومًا تبيع الشريحة التجارية الشرقية، مقابل ${northRes.medianClosingDays ?? "—"} في الشمال السكني`],
-            [<><CountUp value={unanswered} />%</>, "من الاستفسارات لم تحصل على أول رد بعد"],
-          ].map(([v, l], i) => (
-            <Reveal key={i} delay={i * 120} className="bg-card p-6 transition hover:bg-surface">
-              <div className="font-mono text-3xl font-semibold text-primary">{v}</div>
-              <div className="mt-2 text-sm leading-relaxed text-muted-foreground">{l as string}</div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
 
       {/* Limits */}
       <section className="relative overflow-hidden bg-ink text-ink-foreground">
