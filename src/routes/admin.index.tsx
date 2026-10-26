@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowUpLeft, Clock3, Inbox, Landmark, Wallet, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,10 @@ import { ChartCard } from "@/components/admin/chartKit";
 import { AREA_AR, LAND_AR } from "@/data/types";
 import { isAvailable, type GapCell } from "@/lib/portfolioEngine";
 import { usePortfolio } from "@/context/PortfolioProvider";
-import { getActionCards, getKpis, getStagnantBars } from "@/lib/adminEngine";
+import { getActionCards, getKpis } from "@/lib/adminEngine";
 import { getSupplyDemandGaps } from "@/lib/portfolioEngine";
 import { TodaySmartVisuals } from "@/components/admin/TodaySmartVisuals";
-import { GapDiverging, StagnantBars, fmt } from "@/components/admin/charts";
+import { GapDiverging, fmt } from "@/components/admin/charts";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -32,9 +32,7 @@ function Today() {
   const a = getActionCards(parcels, inquiries);
   const k = getKpis(parcels, inquiries);
   const gaps = getSupplyDemandGaps(parcels, inquiries);
-  const st = getStagnantBars(parcels);
   const card = "flex min-w-0 flex-col rounded-lg border bg-card p-4";
-  const nav = useNavigate();
   const [cell, setCell] = useState<GapCell | null>(null);
   const cellKey = cell ? `${cell.area}|${cell.landType}` : null;
   const cellBuyers = cell ? inquiries.filter((i) => i.area_of_city_wanted === cell.area && i.land_type_wanted === cell.landType && i.status !== "closed") : [];
@@ -75,7 +73,7 @@ function Today() {
         ))}
       </div>
       <TodaySmartVisuals parcels={parcels} inquiries={inquiries} />
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="grid items-start gap-4">
         <ChartCard
           title="أين يزيد الطلب عن المعروض؟"
           howTo="الفارق بين الأراضي المتاحة والاستفسارات المفتوحة، حسب المنطقة ونوع الأرض."
@@ -84,14 +82,6 @@ function Today() {
         >
           <GapDiverging gaps={gaps} selected={cellKey} onPick={setCell} />
 
-        </ChartCard>
-        <ChartCard
-          title="الأراضي الأطول بقاءً في السوق"
-          howTo={`أطول مدد العرض مقارنة بوسيط الإغلاق: ${st.median} يومًا. الأحمر يتجاوز ضعف الوسيط.`}
-          legend={[{ label: "ضمن ضعف المعتاد", className: "bg-primary/70", shape: "bar" }, { label: "أكثر من ضعف المعتاد", className: "bg-destructive/80", shape: "bar" }, { label: `المعتاد ${st.median} يومًا`, className: "bg-foreground", shape: "line" }]}
-          source="الأراضي المتاحة · الوسيط من الصفقات المغلقة"
-        >
-          <StagnantBars rows={st.rows} median={st.median} onPick={(id) => nav({ to: "/admin/portfolio", search: { focus: id } })} />
         </ChartCard>
       </div>
       {cell && (
