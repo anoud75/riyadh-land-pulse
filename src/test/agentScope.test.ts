@@ -33,7 +33,7 @@ describe("viz builders", () => {
     expect(c.label).toContain(anyDistrict);
     expect(c.district).toBeTruthy();
   });
-  it("map: any of the 189 Riyadh districts resolves even with no سرج parcels", () => {
+  it("map: any of the 189 Riyadh districts resolves even with no سرج parcels", async () => {
     const geo = (await import("@/data/riyadhDistricts.json")).default as { features: { properties: { id: number; name_ar: string; name_en: string } }[] };
     const covered = new Set(initialParcels.map((p) => p.district_ar));
     const empty = geo.features.find((f) => ![...covered].some((d) => d.includes(f.properties.name_ar) || f.properties.name_ar.includes(d)));
