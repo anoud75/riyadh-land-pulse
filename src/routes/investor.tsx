@@ -44,7 +44,7 @@ function Layout() {
           <span className="flex items-center gap-2"><LandPlot className="size-4" />الأراضي</span>{badge(parcels.filter(isAvailable).length)}
         </Link>
         <Link to="/investor/chats" activeProps={active} className={item}>
-          <span className="flex items-center gap-2"><MessageSquare className="size-4" />محادثاتي</span>{badge(5)}
+          <span className="flex items-center gap-2"><MessageSquare className="size-4" />المساعد الذكي</span>
         </Link>
         <Link to="/investor/map" activeProps={active} className={item}>
           <span className="flex items-center gap-2"><Map className="size-4" />الخريطة</span>
@@ -68,7 +68,7 @@ function Layout() {
         ))}
       </div>
       <div className="mt-auto flex items-center gap-3 border-t pt-4">
-        <span className="grid size-9 place-items-center rounded-full bg-accent text-accent-foreground"><UserRound className="size-4.5" /></span>
+        <span className="grid size-9 place-items-center rounded-full bg-secondary text-ink"><UserRound className="size-4.5" /></span>
         <div className="text-sm"><div>{investorName || "ضيف"}</div><div className="text-xs text-muted-foreground">مستثمر</div></div>
       </div>
     </>
