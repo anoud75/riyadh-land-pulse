@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture
+- Both assistant pages share ChatWorkspace's conversation-only sidebar; workspace navigation stays in the parent layouts — prevents mismatched or duplicated menus.
 - Admin-agent tools and payloads follow the latest request through `adminAgentPolicy`; waiting matches render tool-built summaries and rows, and external investor tools are excluded — prevents unrelated maps, market cards, and verbose code lists.
 - Team chart tooltips share chartKit's hover/focus layer; HTML chart marks use viewport-bounded portals to avoid clipping in narrow layouts.
 - Portfolio data lives in `src/data/*.json` and is cleaned on load; all analytics are pure functions in `src/lib/portfolioEngine.ts` — keeps numbers deterministic and testable.

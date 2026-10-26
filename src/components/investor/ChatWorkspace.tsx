@@ -5,7 +5,7 @@ import { MarketInsightCard } from "@/components/investor/MarketInsightCard";
 import { buildMarketInsight } from "@/lib/marketEngine";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Briefcase, Columns2, ExternalLink, FileText, GitCompare, Inbox, LandPlot, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, Sun, UserRound, Users, X } from "lucide-react";
+import { BarChart3, Columns2, ExternalLink, FileText, Map as MapIcon, PanelRight, Plus, Printer, Radar, Search, Send, Sparkle, UserRound, Users, X } from "lucide-react";
 import logo from "@/assets/sarj_logo.png.asset.json";
 import { askSarjAgent } from "@/lib/sarjAgent.functions";
 import { usePortfolio } from "@/context/PortfolioProvider";
@@ -18,6 +18,7 @@ import type { MapCommand, UiPayload } from "@/lib/agentUi";
 import type { Parcel } from "@/data/types";
 import { ChatChart } from "@/components/chat/ChatChart";
 import { AgentUiBlock } from "@/components/AgentChat";
+import { Button } from "@/components/ui/button";
 
 const ChatMap = lazyWithReload(() => import("@/components/chat/ChatMap"));
 
@@ -131,59 +132,39 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
 
   const shown = threads.filter((t) => t.title.includes(filter));
   const groups = (["اليوم", "أمس", "آخر 7 أيام"] as const).map((g) => [g, shown.filter((t) => t.group === g)] as const).filter(([, l]) => l.length);
-  const navItem = "flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary";
-  const unanswered = inquiries.filter((i) => i.status === "new").length;
 
   return (
     <div dir="rtl" className="fixed inset-0 z-40 flex bg-background">
       {sideOpen && (
-        <aside className="flex w-72 shrink-0 flex-col border-l bg-surface">
+        <aside aria-label="قائمة محادثات المساعد" className="flex w-72 shrink-0 flex-col border-l bg-surface text-ink">
           <div className="relative flex h-20 shrink-0 items-center justify-center px-5">
             <Link to="/" className="flex items-center"><img src={logo.url} alt="سرج" className="h-11" /></Link>
-            <button aria-label="إخفاء القائمة" onClick={() => setSideOpen(false)} className="absolute left-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-lg hover:bg-secondary"><PanelRight className="size-4" /></button>
+            <Button variant="ghost" size="icon" aria-label="إخفاء القائمة" onClick={() => setSideOpen(false)} className="absolute left-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-lg hover:bg-secondary"><PanelRight className="size-4" /></Button>
           </div>
-          <button onClick={() => { setActiveId(null); setInput(""); setPanel(null); }} className="mx-4 mt-3 flex items-center justify-center gap-2 rounded-2xl bg-ink py-3 text-sm font-medium text-ink-foreground"><Plus className="size-4" />محادثة جديدة</button>
+          <Button onClick={() => { setActiveId(null); setInput(""); setPanel(null); }} className="mx-4 mt-3 h-11 shrink-0 rounded-full bg-ink text-ink-foreground hover:bg-ink/90"><Plus className="size-4" />محادثة جديدة</Button>
           <label className="mx-4 mt-3 flex items-center gap-2 rounded-2xl bg-secondary px-3 py-2.5 text-sm">
-            <Search className="size-4 text-muted-foreground" />
+            <Search className="size-4 text-ink" />
             <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="ابحث في المحادثات" className="min-w-0 flex-1 bg-transparent outline-none" />
           </label>
-          <nav className="mx-2 mt-4 space-y-0.5 border-b pb-3">
-            {mode === "investor" ? (
-              <>
-                <Link to="/investor" className={navItem}><span className="flex items-center gap-2"><LandPlot className="size-4" />الأراضي</span><span className="font-mono text-xs text-muted-foreground">{parcels.filter(isAvailable).length}</span></Link>
-                <button onClick={() => setPanel({ kind: "map", command: mapCommand(parcels, {}) })} className={`${navItem} w-full`}><span className="flex items-center gap-2"><MapIcon className="size-4" />الخريطة</span></button>
-                <Link to="/investor/compare" className={navItem}><span className="flex items-center gap-2"><GitCompare className="size-4" />المقارنة</span></Link>
-                <Link to="/investor/inquiries" className={navItem}><span className="flex items-center gap-2"><Send className="size-4" />استفساراتي</span></Link>
-              </>
-            ) : (
-              <>
-                <Link to="/admin" className={navItem}><span className="flex items-center gap-2"><Sun className="size-4" />اليوم</span></Link>
-                <Link to="/admin/portfolio" className={navItem}><span className="flex items-center gap-2"><Briefcase className="size-4" />المحفظة</span><span className="font-mono text-xs text-muted-foreground">{parcels.length}</span></Link>
-                <Link to="/admin/inquiries" className={navItem}><span className="flex items-center gap-2"><Inbox className="size-4" />الاستفسارات</span><span className="rounded-full bg-destructive/10 px-2 text-xs text-destructive">{unanswered} بلا رد</span></Link>
-                <button onClick={() => setPanel({ kind: "map", command: mapCommand(parcels, {}) })} className={`${navItem} w-full`}><span className="flex items-center gap-2"><MapIcon className="size-4" />الخريطة</span></button>
-                <Link to="/admin/performance" className={navItem}><span className="flex items-center gap-2"><BarChart3 className="size-4" />الأداء</span></Link>
-              </>
-            )}
-          </nav>
-          <div className="flex-1 overflow-y-auto px-2 py-3">
+          <div className="mt-4 min-h-0 flex-1 overflow-y-auto border-t px-2 py-3">
             {groups.map(([g, list]) => (
               <div key={g} className="mb-3">
                 <div className="px-3 pb-1 text-xs text-muted-foreground">{g}</div>
                 {list.map((t) => (
-                  <button key={t.id} onClick={() => setActiveId(t.id)} className={`block w-full truncate rounded-xl px-3 py-2 text-right text-sm ${t.id === activeId ? "bg-accent font-medium text-accent-foreground" : "hover:bg-secondary"}`}>{t.title}</button>
+                  <Button variant="ghost" key={t.id} onClick={() => setActiveId(t.id)} aria-pressed={t.id === activeId} className={`block h-auto w-full truncate rounded-xl px-3 py-2 text-right text-sm hover:bg-secondary hover:text-ink ${t.id === activeId ? "bg-secondary font-medium text-ink" : "font-normal"}`}>{t.title}</Button>
                 ))}
               </div>
             ))}
           </div>
-          <div className="m-3 flex items-center gap-3 rounded-2xl border p-3">
-            <span className="grid size-9 place-items-center rounded-full bg-accent text-accent-foreground">{mode === "admin" ? <span className="font-semibold">س</span> : <UserRound className="size-4.5" />}</span>
+          <div className="mx-4 mt-auto mb-4 flex shrink-0 items-center gap-3 border-t pt-4">
+            <span className="grid size-9 place-items-center rounded-full bg-secondary text-ink">{mode === "admin" ? <Users className="size-4.5" /> : <UserRound className="size-4.5" />}</span>
             <div><div className="text-sm font-semibold">{mode === "admin" ? "فريق سرج" : investorName || "العنود السميل"}</div><div className="text-xs text-muted-foreground">{cfg.role}</div></div>
           </div>
         </aside>
       )}
 
       <main className="relative flex min-w-0 flex-1 flex-col">
-        {!sideOpen && <button aria-label="إظهار القائمة" onClick={() => setSideOpen(true)} className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface"><PanelRight className="size-4" /></button>}
+        {!sideOpen && <Button variant="ghost" size="icon" aria-label="إظهار القائمة" onClick={() => setSideOpen(true)} className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface"><PanelRight className="size-4" /></Button>}
         <div className="flex min-h-0 flex-1">
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6">
@@ -193,7 +174,7 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
               <div className="mt-3 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
                 {cfg.starters.map((s) => (
                   <button key={s.title} onClick={() => send(s.q)} className="rounded-2xl border bg-surface p-4 text-right transition hover:-translate-y-0.5 hover:shadow-md">
-                    <s.icon className="size-5 text-primary" />
+                    <s.icon className="size-5 text-ink" />
                     <div className="mt-3 font-semibold">{s.title}</div>
                     <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.body}</div>
                   </button>
