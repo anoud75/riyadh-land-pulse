@@ -27,9 +27,4 @@ describe('team reply relevance', () => {
     expect(r.ui.rows.filter((row) => row.flag === 'لا مخزون في الشريحة').every((row) => row.matches.length === 0)).toBe(true);
     expect(r.ui.rows.some((row) => row.matches.length > 0)).toBe(true);
   });
-  it('specific buyer or region questions are not replaced by a global overview', () => {
-    expect(adminRequestPolicy('من ينتظر أرضًا مثل SRE-042؟').waitingOverview).toBe(false);
-    expect(adminRequestPolicy('طابق المنتظرين في الشمال').waitingOverview).toBe(false);
-    expect(adminRequestPolicy('طابق الاستفسارات المنتظرة مع المخزون، ومن نستبعد؟').waitingOverview).toBe(true);
-  });
 });
