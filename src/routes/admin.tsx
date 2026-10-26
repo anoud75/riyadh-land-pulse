@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, Bot, Briefcase, Inbox, Menu, PlusSquare, Send, Sun } from "lucide-react";
+import { BarChart3, Bot, Briefcase, Inbox, Menu, PlusSquare, Send, Sun, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/SiteHeader";
 import { ViewSwitcher } from "@/components/ViewSwitcher";
 import { TeamAssistant } from "@/components/admin/TeamAssistant";
@@ -41,23 +42,23 @@ function Layout() {
         <Link to="/admin/performance" activeProps={active} className={item}><span className="flex items-center gap-2"><BarChart3 className="size-4" />الأداء</span></Link>
       </nav>
       <div className="mt-auto flex items-center gap-3 border-t pt-4">
-        <span className="grid size-9 place-items-center rounded-full bg-accent text-sm text-accent-foreground">س</span>
+        <span className="grid size-9 place-items-center rounded-full bg-secondary text-muted-foreground"><Users className="size-4" /></span>
         <div className="text-sm"><div>فريق سرج</div><div className="text-xs text-muted-foreground">إدارة المحفظة</div></div>
       </div>
     </>
   );
   if (pathname === "/admin/assistant") return <Outlet />;
   return (
-    <div className="flex min-h-screen">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-l bg-surface p-4 md:flex">{nav}</aside>
+    <div className="team-workspace flex min-h-screen">
+      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-l bg-surface p-4 md:flex">{nav}</aside>
       <div className="min-w-0 flex-1">
-        <header className="flex items-center justify-between border-b bg-surface px-6 py-3">
-          <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="القائمة"><Menu className="size-5" /></button>
-          <div className="text-xs text-muted-foreground">{parcels.length} أرضًا · {inquiries.length} استفسارًا · لقطة 11 أغسطس 2026</div>
+        <header className="flex min-h-14 flex-wrap items-center justify-between gap-2 border-b bg-surface px-4 py-2 lg:px-6">
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(!open)} aria-label="القائمة" aria-expanded={open}><Menu className="size-5" /></Button>
+          <div className="text-xs text-muted-foreground">تحديث 11 أغسطس 2026</div>
           <ViewSwitcher />
         </header>
         {open && <div className="flex flex-col border-b bg-surface p-4 md:hidden" onClick={() => setOpen(false)}>{nav}</div>}
-        <main className="mx-auto max-w-6xl px-6 py-10"><Outlet /></main>
+        <main className="mx-auto max-w-[1440px] px-4 py-5 lg:px-6"><Outlet /></main>
       </div>
       <TeamAssistant />
     </div>

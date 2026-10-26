@@ -265,3 +265,12 @@
 .map-panel-stacked { top: 100px; height: min(300px, calc(50dvh - 130px)); }
 .map-panel-stacked-below { top: calc(100px + min(300px, calc(50dvh - 130px)) + 12px); height: min(420px, calc(100dvh - 240px - min(300px, calc(50dvh - 130px)) - 12px)); }
 @media (max-width: 760px) { .map-panel-stacked, .map-panel-stacked-below { top: auto; } .map-panel-stacked { z-index: 13; } }
+
+/* Team pages share a compact reading rhythm without affecting investor views. */
+.team-workspace main > .space-y-8 { gap: 20px; display: flex; flex-direction: column; }
+.team-workspace main > .space-y-8 > * { margin-block: 0; }
+.team-workspace main h1 { font-size: 24px; line-height: 1.4; }
+.team-workspace main .rounded-2xl { border-radius: 8px; }
+.team-workspace main section { min-width: 0; }
+.team-workspace main table { min-width: 660px; }
+.team-workspace main :is(input, select, textarea) { border-radius: 6px; }

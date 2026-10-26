@@ -1,4 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, type SyntheticEvent } from "react";
+import { createPortal } from "react-dom";
+import { Button } from "@/components/ui/button";
 
 /** Shared frame for every team chart: title, how-to-read line, legend, filters, source. */
 export function ChartCard({ title, howTo, legend, filters, source, children, aside }: {
@@ -6,17 +8,17 @@ export function ChartCard({ title, howTo, legend, filters, source, children, asi
   filters?: ReactNode; source?: string; children: ReactNode; aside?: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border bg-card p-5">
+    <section className="min-w-0 rounded-lg border bg-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">{howTo}</p>
+          <h2 className="text-base font-semibold">{title}</h2>
+          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">{howTo}</p>
         </div>
         {aside}
       </div>
       {filters && <div className="mt-4 flex flex-wrap gap-2">{filters}</div>}
       {legend && (
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
           {legend.map((l) => (
             <span key={l.label} className="flex items-center gap-1.5">
               <span className={`${l.shape === "bar" ? "h-2.5 w-4 rounded-sm" : l.shape === "line" ? "h-0.5 w-5" : l.shape === "ring" ? "size-3 rounded-full border-2 border-dashed bg-transparent" : "size-2.5 rounded-full"} ${l.className}`} />
@@ -33,7 +35,7 @@ export function ChartCard({ title, howTo, legend, filters, source, children, asi
 
 export function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className={`rounded-full border px-3 py-1 text-xs transition ${on ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:bg-secondary"}`}>{children}</button>
+    <Button type="button" size="sm" variant={on ? "default" : "outline"} onClick={onClick} aria-pressed={on} className="h-7 rounded-md px-2.5 shadow-none">{children}</Button>
   );
 }
 
@@ -47,14 +49,19 @@ export function ChipGroup<T extends string>({ value, onChange, options, allLabel
   );
 }
 
-export interface Tip { x: number; y: number; body: ReactNode }
+export interface Tip { x: number; y: number; body: ReactNode; fixed?: boolean }
 /** Hover tooltip positioned in % of the chart box. */
 export function useTip() {
   const [tip, setTip] = useState<Tip | null>(null);
-  const layer = tip && (
-    <div className="pointer-events-none absolute z-10 w-max max-w-[16rem] -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-xl border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-lg" style={{ left: `${tip.x}%`, top: `${tip.y}%` }}>
+  const content = tip && (
+    <div role="tooltip" dir="rtl" className={`pointer-events-none z-50 w-max max-w-[min(16rem,calc(100vw-24px))] rounded-lg border bg-popover px-3 py-2 text-xs leading-6 text-popover-foreground shadow-lg ${tip.fixed ? "fixed" : "absolute -translate-x-1/2 -translate-y-[calc(100%+10px)]"}`} style={{ left: tip.fixed ? tip.x : `${Math.max(20, Math.min(80, tip.x))}%`, top: tip.fixed ? tip.y : `${Math.max(15, tip.y)}%` }}>
       {tip.body}
     </div>
   );
-  return { tip, setTip, layer };
+  const show = (event: SyntheticEvent<Element>, body: ReactNode) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTip({ x: Math.max(12, Math.min(window.innerWidth - 268, rect.left + rect.width / 2)), y: Math.max(12, Math.min(window.innerHeight - 150, rect.bottom + 8)), body, fixed: true });
+  };
+  const layer = tip?.fixed && typeof document !== "undefined" ? createPortal(content, document.body) : content;
+  return { tip, setTip, show, layer };
 }
