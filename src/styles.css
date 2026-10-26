@@ -290,6 +290,20 @@
 }
 .landing-orbit { animation: landing-orbit 14s ease-in-out infinite; }
 @keyframes landing-orbit { 0%,100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.05); opacity: .4; } }
+/* Magic UI–style: border beam, animated beam, word rotate */
+@property --beam-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.border-beam { position: relative; isolation: isolate; }
+.border-beam::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; z-index: -1; pointer-events: none;
+  background: conic-gradient(from var(--beam-angle), transparent 0 80%, var(--primary) 90%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .4s; animation: beam-spin 5s linear infinite; }
+.border-beam:hover::before, .border-beam.beam-on::before { opacity: 1; }
+@keyframes beam-spin { to { --beam-angle: 360deg; } }
+.flow-dash { stroke-dasharray: 6 10; animation: flow-dash 1.6s linear infinite; }
+@keyframes flow-dash { to { stroke-dashoffset: -32; } }
+.word-rotate { animation: word-rotate .6s cubic-bezier(.2,.7,.2,1); }
+@keyframes word-rotate { from { opacity: 0; transform: translateY(0.5em); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@media (prefers-reduced-motion: reduce) { .border-beam::before, .flow-dash, .word-rotate { animation: none; } }
 .landing-ring { transform-box: fill-box; transform-origin: center; animation: landing-ring 4.5s ease-in-out infinite; }
 @keyframes landing-ring { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 .landing-ping { transform-box: fill-box; transform-origin: center; animation: landing-ping 2.4s ease-out infinite; }
