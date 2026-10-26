@@ -209,9 +209,9 @@ function ReachDiagram() {
         <circle cx="200" cy="160" r="6" fill="var(--primary-soft)" />
         <text x="200" y="185" textAnchor="middle" fontSize="11" fill="currentColor">الملقا</text>
         <circle cx="285" cy="60" r="4" fill="currentColor" className="landing-pulse" />
-        <text x="275" y="64" textAnchor="end" fontSize="9" fill="currentColor" opacity=".7">منافس</text>
+        <text x="276" y="64" textAnchor="start" fontSize="9" fill="currentColor" opacity=".7">منافس</text>
         <circle cx="110" cy="210" r="4" fill="currentColor" className="landing-pulse" style={{ animationDelay: "1.5s" }} />
-        <text x="100" y="214" textAnchor="end" fontSize="9" fill="currentColor" opacity=".7">منافس</text>
+        <text x="101" y="214" textAnchor="start" fontSize="9" fill="currentColor" opacity=".7">منافس</text>
       </svg>
       <div className="absolute bottom-4 right-4 flex gap-4 text-xs text-ink-muted">
         <span>5 دقائق</span><span>10 دقائق</span><span>15 دقيقة</span>
