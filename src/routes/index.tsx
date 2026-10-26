@@ -89,7 +89,7 @@ function Home() {
                 <Suspense fallback={null}><MalqaMap parcels={parcels} /></Suspense>
               </ClientOnly>
               <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-ink/80 px-3 py-1 text-xs text-ink-foreground backdrop-blur">الملقا · شمال الرياض</div>
-              <div className="pointer-events-none absolute bottom-4 right-4 flex gap-3 rounded-full bg-ink/80 px-3 py-1 text-xs text-ink-muted backdrop-blur"><span>5 دقائق</span><span>10 دقائق</span><span>15 دقيقة</span></div>
+              <div className="pointer-events-none absolute left-4 top-4 flex gap-3 rounded-full bg-ink/80 px-3 py-1 text-xs text-ink-muted backdrop-blur"><span>5 دقائق</span><span>10 دقائق</span><span>15 دقيقة</span></div>
             </div>
           </Reveal>
           <div className="divide-y border-y">

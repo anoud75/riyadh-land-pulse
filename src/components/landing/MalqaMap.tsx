@@ -37,7 +37,7 @@ export default function MalqaMap({ parcels }: { parcels: Parcel[] }) {
       if (started) return;
       started = true;
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const target = { center: MALQA, zoom: 12.6, pitch: 45, bearing: -15 };
+      const target = { center: MALQA, zoom: 11.6, pitch: 40, bearing: -15 };
       if (reduce) m.jumpTo(target);
       else m.flyTo({ ...target, duration: 5200, curve: 1.3, essential: true });
     };
@@ -65,5 +65,5 @@ export default function MalqaMap({ parcels }: { parcels: Parcel[] }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!TOKEN) return null;
-  return <div ref={box} className="absolute inset-0" />;
+  return <div className="absolute inset-0"><div ref={box} className="h-full w-full" /></div>;
 }
