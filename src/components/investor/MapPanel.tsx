@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { GripHorizontal, Sparkles, Minus } from "lucide-react";
+import { GripHorizontal, Minus } from "lucide-react";
+import assistantIcon from "@/assets/sarj-assistant.png.asset.json";
 import { Button } from "@/components/ui/button";
 
 /** Viewport-bounded panel dragging; the map keeps its native gesture handling. */
@@ -27,7 +28,7 @@ export function MapPanel({ title, side, onMinimize, children, hidden = false, cl
       if (!start || !rect) return;
       setPosition({ left: Math.max(8, Math.min(window.innerWidth - rect.width - 8, start.left + e.clientX - start.x)), top: Math.max(8, Math.min(window.innerHeight - rect.height - 8, start.top + e.clientY - start.y)) });
     }} onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}>
-      {icon ? <span className="grid size-7 place-items-center rounded-full bg-primary text-primary-foreground shadow-[0_0_14px_var(--primary)]"><Sparkles className="size-3.5" aria-hidden="true" /></span> : <GripHorizontal className="size-4 text-muted-foreground" aria-hidden="true" />}
+      {icon ? <img src={assistantIcon.url} alt="" aria-hidden="true" className="size-7 shrink-0 object-contain" /> : <GripHorizontal className="size-4 text-muted-foreground" aria-hidden="true" />}
       <span className="flex-1 text-xs font-semibold">{title}</span>
       <Button variant="ghost" size="icon" className="size-7" aria-label={`تصغير ${title}`} title={`تصغير ${title}`} onClick={onMinimize}><Minus className="size-4" /></Button>
     </header>
@@ -45,10 +46,13 @@ function PanelBody({ children }: { children: ReactNode }) {
   const measure = useCallback(() => {
     const el = scroll.current;
     if (!el) return;
-    const max = el.scrollHeight - el.clientHeight;
+    // A hidden panel measures 0×0: keep every value finite (NaN never equals itself,
+    // which would make the guard below re-render forever).
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
     const over = max > 4;
-    const trackH = track.current?.clientHeight || el.clientHeight;
-    const thumb = Math.max(28, Math.round((el.clientHeight / el.scrollHeight) * trackH));
+    const trackH = track.current?.clientHeight || el.clientHeight || 0;
+    const ratio = el.scrollHeight > 0 ? el.clientHeight / el.scrollHeight : 1;
+    const thumb = Math.max(28, Math.round(ratio * trackH));
     setGeo((p) => (p.top === el.scrollTop && p.max === max && p.thumb === thumb && p.track === trackH && p.over === over ? p : { top: el.scrollTop, max, thumb, track: trackH, over }));
   }, []);
 

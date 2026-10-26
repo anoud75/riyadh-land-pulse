@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Send, Sparkles } from "lucide-react";
+import { Send } from "lucide-react";
+import assistantIcon from "@/assets/sarj-assistant.png.asset.json";
 import { Button } from "@/components/ui/button";
 import type { Parcel } from "@/data/types";
 import { answerQuery } from "@/lib/assistant";
@@ -99,7 +100,7 @@ export function MapAssistant({
             </div>
           ) : (
             <div key={m.id} className="flex gap-2">
-              <Sparkles className="mt-1 size-4 shrink-0 text-primary" />
+              <img src={assistantIcon.url} alt="" aria-hidden="true" className="mt-0.5 size-5 shrink-0 object-contain" />
               <div className="min-w-0 flex-1">
                 <p className="whitespace-pre-line text-sm leading-relaxed">{m.text}</p>
                 {m.ui && <AgentUiBlock ui={m.ui} />}

@@ -1,7 +1,8 @@
 import { createFileRoute, ClientOnly, Link } from "@tanstack/react-router";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { lazyWithReload } from "@/lib/lazyWithReload";
-import { ArrowRight, ChevronDown, Layers, LocateFixed, Minus, Plus, Sparkles, X, SlidersHorizontal, Heart, MapPin } from "lucide-react";
+import { ArrowRight, ChevronDown, Layers, LocateFixed, Minus, Plus, X, SlidersHorizontal, Heart, MapPin } from "lucide-react";
+import assistantIcon from "@/assets/sarj-assistant.png.asset.json";
 import type { MapHandle } from "@/components/investor/ParcelMap";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, type Area, type Parcel } from "@/data/types";
@@ -95,7 +96,7 @@ function MapPage() {
         {selected && mode === "parcels" && detailsOpen && <MapPanel title="تفاصيل الأرض" side="right" onMinimize={() => setDetailsOpen(false)}><Drawer p={selected} onClose={() => setSelected(null)} /></MapPanel>}
 
         <div className="map-bottom-dock" dir="rtl">
-          <Button size="icon" variant={chatOpen ? "default" : "ghost"} aria-label="مساعد سرج" title="مساعد سرج" aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)}><Sparkles className="size-4" /></Button>
+          <Button size="icon" variant={chatOpen ? "secondary" : "ghost"} className={chatOpen ? "ring-1 ring-primary/30" : ""} aria-label="مساعد سرج" title="مساعد سرج" aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)}><img src={assistantIcon.url} alt="" className="size-6 object-contain" /></Button>
           {selected && <Button size="icon" variant={detailsOpen ? "secondary" : "ghost"} aria-label="تفاصيل الأرض" title="تفاصيل الأرض" onClick={() => setDetailsOpen(!detailsOpen)}><MapPin className="size-4" /></Button>}
           <span className="map-toolbar-divider" />
           <Button size="icon" variant="ghost" aria-label="تكبير" title="تكبير" onClick={() => mapRef.current?.zoomIn()}><Plus className="size-4" /></Button>
