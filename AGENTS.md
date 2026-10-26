@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture
+- Admin-agent tools and payloads follow the latest request through `adminAgentPolicy`; waiting matches render tool-built summaries and rows, and external investor tools are excluded — prevents unrelated maps, market cards, and verbose code lists.
 - Team chart tooltips share chartKit's hover/focus layer; HTML chart marks use viewport-bounded portals to avoid clipping in narrow layouts.
 - Portfolio data lives in `src/data/*.json` and is cleaned on load; all analytics are pure functions in `src/lib/portfolioEngine.ts` — keeps numbers deterministic and testable.
 - `PortfolioProvider` (src/context) is the single live store for parcels and inquiries; views derive stats from it so investor and admin views update together.
