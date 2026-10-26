@@ -117,8 +117,8 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
             <tr className="text-right text-[11px] text-muted-foreground">
               <th className="pb-2 font-medium">الأرض</th>
               <th className="pb-2 font-medium">الشريحة</th>
-              <th className="w-[30%] pb-2 font-medium">فوق وسيط المنطقة</th>
-              <th className="pb-2 font-medium">مدة العرض</th>
+              <th className="w-[24%] pb-2 font-medium">فوق وسيط المنطقة</th>
+              <th className="pb-2 font-medium">مدة العرض (يومًا)</th>
               <th className="pb-2 text-left font-medium">الضعف</th>
             </tr>
           </thead>
@@ -136,7 +136,7 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
                     <span className="font-mono text-[11px] text-muted-foreground">{r.id}</span>
                   </Link>
                 </td>
-                <td className="whitespace-nowrap py-2 text-xs text-muted-foreground">{r.segment}</td>
+                <td className="py-2 text-xs text-muted-foreground">{r.segment}</td>
                 <td className="py-2 pl-3">
                   <div className="h-5 rounded-full bg-muted">
                     <div className="flex h-5 items-center rounded-full px-1.5 text-[10px] font-semibold text-primary-foreground" style={{ width: `${Math.max(16, (r.deltaPct / maxDelta) * 100)}%`, background: tint(45 + 55 * (r.deltaPct / maxDelta)) }}>
@@ -144,7 +144,7 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
                     </div>
                   </div>
                 </td>
-                <td className="whitespace-nowrap py-2 pr-3 font-mono text-xs">{r.days} مقابل {r.medianDays} يومًا</td>
+                <td className="whitespace-nowrap py-2 pr-3 font-mono text-xs">{r.days} مقابل {r.medianDays}</td>
                 <td className="py-2 text-left font-mono text-xs">x{r.domMultiplier}</td>
               </tr>
             ))}
