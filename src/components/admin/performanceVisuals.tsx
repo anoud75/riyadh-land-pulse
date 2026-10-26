@@ -59,7 +59,7 @@ export function ClosingRateBars({ rows, note }: { rows: AreaClosingRow[]; note: 
           >
             <span className="text-sm font-medium">{r.label}</span>
             <div className="h-7 rounded-full bg-muted">
-              <div className="flex h-7 items-center rounded-full px-2.5 text-[11px] font-semibold text-primary-foreground transition-all" style={{ width: `${Math.max(9, (r.rate / max) * 100)}%`, background: tint(40 + 60 * (r.rate / max)) }}>
+              <div className="flex h-7 items-center rounded-full px-2.5 text-[11px] font-semibold text-primary-foreground transition-all" style={{ width: `${Math.max(9, (r.rate / max) * 100)}%`, background: tint(72 + 28 * (r.rate / max)) }}>
                 <span className="font-mono">{r.rate}%</span>
               </div>
             </div>
@@ -112,7 +112,7 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
   return (
     <div className="relative" onMouseLeave={() => setTip(null)} onBlur={() => setTip(null)}>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[36rem] text-sm">
+        <table className="w-full text-sm">
           <thead>
             <tr className="text-right text-[11px] text-muted-foreground">
               <th className="pb-2 font-medium">الأرض</th>
@@ -137,14 +137,14 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
                   </Link>
                 </td>
                 <td className="whitespace-nowrap py-2 text-xs text-muted-foreground">{r.segment}</td>
-                <td className="py-2">
+                <td className="py-2 pl-3">
                   <div className="h-5 rounded-full bg-muted">
                     <div className="flex h-5 items-center rounded-full px-1.5 text-[10px] font-semibold text-primary-foreground" style={{ width: `${Math.max(16, (r.deltaPct / maxDelta) * 100)}%`, background: tint(45 + 55 * (r.deltaPct / maxDelta)) }}>
                       <span className="font-mono">+{r.deltaPct}%</span>
                     </div>
                   </div>
                 </td>
-                <td className="whitespace-nowrap py-2 font-mono text-xs">{r.days} مقابل {r.medianDays} يومًا</td>
+                <td className="whitespace-nowrap py-2 pr-3 font-mono text-xs">{r.days} مقابل {r.medianDays} يومًا</td>
                 <td className="py-2 text-left font-mono text-xs">x{r.domMultiplier}</td>
               </tr>
             ))}
