@@ -190,7 +190,7 @@ export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent 
                   </button>
                 ))}
               </div>
-              <p className="mt-10 text-center text-xs text-muted-foreground">{parcels.length} أرضًا في المحفظة · لقطة البيانات 11 أغسطس 2026 · {cfg.footer}</p>
+              <p className="mt-10 text-center text-xs text-muted-foreground">{"\n"}</p>
             </div>
           ) : (
             <div className="flex min-w-0 flex-1 flex-col">
