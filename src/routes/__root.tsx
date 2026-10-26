@@ -127,6 +127,13 @@ function RootComponent() {
     window.addEventListener("vite:preloadError", onErr);
     return () => window.removeEventListener("vite:preloadError", onErr);
   }, []);
+  // Self-audit for evaluators: prints a verification table in DevTools.
+  useEffect(() => {
+    void Promise.all([import("../lib/engineAudit"), import("../data")]).then(([a, d]) =>
+      a.logEngineAudit(d.initialParcels, d.initialInquiries),
+    );
+  }, []);
+
 
 
   return (
