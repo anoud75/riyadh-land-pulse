@@ -105,7 +105,7 @@ function Inquiries() {
                   <td>{USE_AR[i.wants_to] ?? i.wants_to}</td>
                   <td><span className="rounded-full bg-muted px-2 py-0.5 text-xs">{LAND_AR[i.land_type_wanted]} · {DEAL_AR[i.prefers]} · {AREA_AR[i.area_of_city_wanted]}</span></td>
                   <td className="tabular-nums font-medium">{i.missingBudget ? "—" : M(i.budget_sar ?? 0)}</td>
-                  <td><span className="rounded-md bg-success/10 px-2 py-0.5 text-xs text-success">{INTENT_AR[i.intent] ?? i.intent}</span></td>
+                  <td><span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary">{INTENT_AR[i.intent] ?? i.intent}</span></td>
                   <td><span className={`rounded-md px-2 py-0.5 text-xs tabular-nums ${wait > 30 ? "bg-destructive/10 text-destructive" : "bg-muted"}`}>{wait} يومًا</span></td>
                   <td className="text-left">{matches ? <Link to="/admin/offer" className="text-xs font-medium text-primary hover:underline">اعرض أرضًا ({matches})</Link> : <span className="text-xs text-muted-foreground">لا مطابقة</span>}</td>
                 </tr>
