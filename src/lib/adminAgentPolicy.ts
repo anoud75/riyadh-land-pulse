@@ -4,8 +4,10 @@ import { getActionableWaitingInquiries, getExcludedWaitingBuyers, SNAPSHOT_DATE 
 
 /** Latest request alone authorizes visual tools; old chat turns do not. */
 export function adminRequestPolicy(question: string) {
+  const matching = /طابق|مطابق|مستبعد|نستبعد|استبعاد|منتظر|ينتظر|waiting|match|exclud/i.test(question);
   return {
-    matching: /طابق|مطابق|مستبعد|نستبعد|استبعاد|منتظر|ينتظر|waiting|match|exclud/i.test(question),
+    matching,
+    waitingOverview: matching && /طابق|نستبعد|مستبعد|استبعاد|match|exclud/i.test(question) && !/SRE-|INQ-|شمال|جنوب|شرق|غرب|وسط|تجاري|سكني|مليون|ميزاني|مستشفى|مستودع|قهو|كاف|\d/i.test(question),
     map: /خريط|قر[ّ]?ب|قرب|كب[ّ]?ر|صغ[ّ]?ر|zoom|map/i.test(question),
     chart: /ارسم|رسم|شارت|مخطط|قارن|مقارن|chart|graph|compar/i.test(question),
     report: /تقرير|report/i.test(question),
@@ -14,7 +16,9 @@ export function adminRequestPolicy(question: string) {
 
 export function relevantAdminPayloads(question: string, payloads: UiPayload[]) {
   const policy = adminRequestPolicy(question);
+  const hasMatching = payloads.some((ui) => ui.kind === 'matching');
   return payloads.filter((ui) => {
+    if (hasMatching && ui.kind === 'excluded') return false;
     if (ui.kind === 'market_insight' || ui.kind === 'suitability' || ui.kind === 'negotiation_report') return false;
     if (ui.kind === 'map') return policy.map;
     if (ui.kind === 'chart') return policy.chart || policy.report;

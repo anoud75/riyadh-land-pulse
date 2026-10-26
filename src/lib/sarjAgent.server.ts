@@ -80,7 +80,7 @@ export async function runSarjAgent(input: {
 
   const adminPolicy = adminRequestPolicy(lastQ);
   const inquiries = input.mode === "admin" ? [...initialInquiries, ...input.extraInquiries.filter((i) => !initialInquiries.some((x) => x.inquiry_id === i.inquiry_id))] : [];
-  if (input.mode === "admin" && adminPolicy.matching && !adminPolicy.map && !adminPolicy.chart && !adminPolicy.report) {
+  if (input.mode === "admin" && adminPolicy.waitingOverview && !adminPolicy.map && !adminPolicy.chart && !adminPolicy.report) {
     const response = buildWaitingResponse(parcels, inquiries);
     return { text: response.text, parcelIds: [], filters: null, tools: ["getActionableWaitingInquiries", "getExcludedWaitingBuyers"], ui: response.ui, uis: [response.ui] };
   }

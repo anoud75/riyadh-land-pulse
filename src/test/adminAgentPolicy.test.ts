@@ -19,11 +19,17 @@ describe('team reply relevance', () => {
   it('summarizes waiting inquiries without parcel-code prose and partitions every row', () => {
     const r = buildWaitingResponse(P, I);
     expect(r.total).toBe(24);
+    expect([r.ready, r.excluded, r.review]).toEqual([15, 4, 5]);
     expect(r.ready + r.excluded + r.review).toBe(24);
     expect(r.text).not.toMatch(/SRE-\d/);
     expect(r.ui.kind).toBe('matching');
     if (r.ui.kind !== 'matching') throw new Error('Missing matching rows');
     expect(r.ui.rows.filter((row) => row.flag === 'لا مخزون في الشريحة').every((row) => row.matches.length === 0)).toBe(true);
     expect(r.ui.rows.some((row) => row.matches.length > 0)).toBe(true);
+  });
+  it('specific buyer or region questions are not replaced by a global overview', () => {
+    expect(adminRequestPolicy('من ينتظر أرضًا مثل SRE-042؟').waitingOverview).toBe(false);
+    expect(adminRequestPolicy('طابق المنتظرين في الشمال').waitingOverview).toBe(false);
+    expect(adminRequestPolicy('طابق الاستفسارات المنتظرة مع المخزون، ومن نستبعد؟').waitingOverview).toBe(true);
   });
 });
