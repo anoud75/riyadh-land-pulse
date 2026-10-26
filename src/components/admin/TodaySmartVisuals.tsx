@@ -79,7 +79,7 @@ export function TodaySmartVisuals({ parcels, inquiries }: { parcels: Parcel[]; i
 
       <Shell show={show} hide={hide} title="فرص لسدّ النقص" sub="طلب مفتوح بلا أي أرض متاحة"
         how="الشرائح (المنطقة × نوع الأرض) التي فيها استفسارات مفتوحة وصفر أراضٍ متاحة. شدة اللون = عدد المنتظرين؛ الميزانية = مجموع ميزانياتهم."
-        insight={b.shortages.length ? <><b className="text-foreground">{b.shortages.length}</b> شرائح بلا مخزون — أولها {LAND_AR[b.shortages[0].landType]} {AREA_AR[b.shortages[0].area]}.</> : "لا توجد شريحة بلا مخزون."} to="/admin/add" cta="أضف أرضًا">
+        insight={b.shortages.length ? <><b className="text-foreground">{b.shortages.length}</b> شرائح بلا مخزون — أولها {LAND_AR[b.shortages[0]!.landType]} {AREA_AR[b.shortages[0]!.area]}.</> : "لا توجد شريحة بلا مخزون."} to="/admin/add" cta="أضف أرضًا">
         {b.shortages.length ? (
           <div className="grid grid-cols-2 gap-2">
             {b.shortages.map((s) => (
