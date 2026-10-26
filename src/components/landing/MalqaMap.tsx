@@ -65,5 +65,5 @@ export default function MalqaMap({ parcels }: { parcels: Parcel[] }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!TOKEN) return null;
-  return <div ref={box} className="absolute inset-0" />;
+  return <div className="absolute inset-0"><div ref={box} className="h-full w-full" /></div>;
 }
