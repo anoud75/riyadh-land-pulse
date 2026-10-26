@@ -174,7 +174,7 @@ export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent 
       )}
 
       <main className="relative flex min-w-0 flex-1 flex-col">
-        <Link to="/" aria-label="الرجوع إلى الصفحة الرئيسية" className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface text-ink transition hover:bg-secondary"><ArrowRight className="size-4" /></Link>
+        <Link to={mode === "admin" ? "/admin" : "/investor"} aria-label="الرجوع إلى الصفحة الرئيسية" className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface text-ink transition hover:bg-secondary"><ArrowRight className="size-4" /></Link>
         {!sideOpen && <Button variant="ghost" size="icon" aria-label="إظهار القائمة" onClick={() => setSideOpen(true)} className="absolute right-16 top-4 z-10 grid size-9 place-items-center rounded-lg border bg-surface"><PanelRight className="size-4" /></Button>}
         <div className="flex min-h-0 flex-1">
           {!active ? (
