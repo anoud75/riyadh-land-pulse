@@ -107,7 +107,7 @@ function Inquiries() {
                   <td className="tabular-nums font-medium">{i.missingBudget ? "—" : M(i.budget_sar ?? 0)}</td>
                   <td><span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary">{INTENT_AR[i.intent] ?? i.intent}</span></td>
                   <td><span className={`rounded-md px-2 py-0.5 text-xs tabular-nums ${wait > 30 ? "bg-destructive/10 text-destructive" : "bg-muted"}`}>{wait} يومًا</span></td>
-                  <td className="text-left">{matches ? <Link to="/admin/offer" className="text-xs font-medium text-primary hover:underline">اعرض أرضًا ({matches})</Link> : <span className="text-xs text-muted-foreground">لا مطابقة</span>}</td>
+                  <td className="text-left">{matches ? <Link to="/admin/offer" search={{ inquiry: i.inquiry_id }} className="text-xs font-medium text-primary hover:underline">اعرض أرضًا ({matches})</Link> : <span className="text-xs text-muted-foreground">لا مطابقة</span>}</td>
                 </tr>
               ))}
             </tbody>
