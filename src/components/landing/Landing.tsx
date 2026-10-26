@@ -121,3 +121,41 @@ export function DottedRiyadhMap({ parcels }: { parcels: Parcel[] }) {
     </svg>
   );
 }
+
+/** Magic UI–style word rotate: cycles words in place. */
+export function WordRotate({ words, interval = 2600, className = "" }: { words: string[]; interval?: number; className?: string }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setI((n) => (n + 1) % words.length), interval);
+    return () => clearInterval(t);
+  }, [words.length, interval]);
+  return <span key={i} className={`word-rotate inline-block ${className}`}>{words[i]}</span>;
+}
+
+/** Magic UI–style animated beam: three sources flow into one engine, then into two views. */
+export function DataFlow() {
+  const sources = ["بيانات الأراضي", "مؤشرات السوق", "السكان والخدمات"];
+  const outs = ["واجهة المستثمر", "لوحة الفريق"];
+  return (
+    <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-10">
+      <svg aria-hidden className="pointer-events-none absolute inset-0 size-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {[17, 50, 83].map((y) => (
+          <path key={y} d={`M 30 ${y} C 42 ${y}, 42 50, 50 50`} fill="none" stroke="var(--primary)" strokeWidth="0.4" className="flow-dash" vectorEffect="non-scaling-stroke" />
+        ))}
+        {[30, 70].map((y) => (
+          <path key={y} d={`M 50 50 C 58 50, 58 ${y}, 70 ${y}`} fill="none" stroke="var(--primary)" strokeWidth="0.4" className="flow-dash" vectorEffect="non-scaling-stroke" />
+        ))}
+      </svg>
+      <div className="relative space-y-4">
+        {sources.map((s) => <div key={s} className="rounded-xl border bg-card px-4 py-3 text-sm shadow-sm">{s}</div>)}
+      </div>
+      <div className="border-beam beam-on relative grid size-28 place-items-center rounded-2xl bg-ink text-center text-sm font-semibold text-ink-foreground md:size-36">
+        محرك سرج<br /><span className="text-xs font-normal text-ink-muted">حساب لا تخمين</span>
+      </div>
+      <div className="relative space-y-10">
+        {outs.map((s) => <div key={s} className="rounded-xl border bg-card px-4 py-3 text-sm shadow-sm">{s}</div>)}
+      </div>
+    </div>
+  );
+}

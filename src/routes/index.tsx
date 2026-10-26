@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Building2, Database, ShieldCheck, Sparkles, Stethoscope, Warehouse } from "lucide-react";
+import { ArrowLeft, Building2, Database, FileText, Layers, Lock, MapPin, Navigation, Scale, ShieldCheck, Sparkles, Stethoscope, UserRound, Users, Warehouse } from "lucide-react";
 import { ClientOnly } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { lazyWithReload } from "@/lib/lazyWithReload";
@@ -7,7 +7,7 @@ import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { getHeadline, getSegmentStats, MIN_SAMPLE } from "@/lib/portfolioEngine";
 import { SECTORS, getStagnant } from "@/lib/sectors";
-import { CountUp, KineticHeadline, NoiseOverlay, Reveal } from "@/components/landing/Landing";
+import { CountUp, DataFlow, KineticHeadline, NoiseOverlay, Reveal, WordRotate } from "@/components/landing/Landing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -112,29 +112,105 @@ function Home() {
         </div>
       </section>
 
-      {/* AI + data */}
-      <section className="border-t">
+      {/* About + who we serve */}
+      <section id="about" className="border-t">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <Reveal>
-            <h2 className="text-3xl font-bold">الذكاء الاصطناعي فوق بيانات حقيقية</h2>
-            <p className="mt-3 max-w-2xl text-muted-foreground">المساعد لا يخترع أرقامًا؛ يقرأ من مصادر معروفة، ثم يشرح النتيجة بلغة واضحة.</p>
+            <span className="text-xs font-medium tracking-wide text-primary">من نحن</span>
+            <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-snug">
+              منصة ذكاء عقاري تساعد على اتخاذ قرار أفضل بشأن الأراضي في الرياض، اعتمادًا على{" "}
+              <WordRotate words={["بيانات الموقع", "مؤشرات السوق", "الخدمات القريبة", "بيانات السكان"]} className="text-primary" />
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">بدل الاعتماد على الانطباعات وحدها، تجمع سرج الأرض والسوق والموقع في قرار واحد واضح.</p>
           </Reveal>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border bg-border md:grid-cols-3">
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
             {[
-              [Database, "البيانات", `${parcels.length} أرضًا و${inquiries.length} استفسارًا، مع خرائط الأحياء وتقديرات السكان وأسعار العرض في السوق.`],
-              [Sparkles, "التحليل", "يحسب الوسيط والفجوة بين العرض والطلب وزمن الوصول، ويقارن الأراضي بأوزانك أنت."],
-              [ShieldCheck, "الثقة", "كل رقم معلَّم بمصدره، وبيانات المشترين لا تظهر للمستثمر."],
+              [UserRound, "المستثمر", "يبحث عن أرض تناسب هدفه وميزانيته."],
+              [Building2, "المطور أو الوسيط العقاري", "يدير محفظة أراضٍ ويحتاج إلى ترتيب الفرص."],
+              [Users, "فرق المبيعات والاستثمار", "تتابع الاستفسارات وتحوّلها إلى عروض مناسبة."],
             ].map(([Icon, t, d], i) => {
               const I = Icon as typeof Database;
               return (
-                <Reveal key={t as string} delay={i * 140} className="bg-card p-7">
-                  <I className="size-5 text-primary" />
-                  <h3 className="mt-4 font-semibold">{t as string}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d as string}</p>
+                <Reveal key={t as string} delay={i * 140} className="h-full">
+                  <div className="border-beam h-full rounded-2xl border bg-card p-6 transition duration-300 hover:-translate-y-1">
+                    <I className="size-5 text-foreground" />
+                    <h3 className="mt-4 font-semibold">{t as string}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d as string}</p>
+                  </div>
                 </Reveal>
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Features bento */}
+      <section id="features" className="border-t bg-surface">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <Reveal>
+            <span className="text-xs font-medium tracking-wide text-primary">ما الذي تقدمه</span>
+            <h2 className="mt-3 text-3xl font-bold">أدوات قرار، لا قوائم أراضٍ</h2>
+          </Reveal>
+          <div className="mt-10 grid auto-rows-[minmax(150px,auto)] gap-4 md:grid-cols-4">
+            {[
+              [MapPin, "الأراضي على الخريطة", "كل أرض بمواصفاتها الأساسية وموقعها الفعلي.", "md:col-span-2"],
+              [Layers, "تحليل الحي والموقع", "السكان، والخدمات القريبة، والوصول، والطلب المحتمل.", "md:col-span-2"],
+              [Sparkles, "مساعد ذكي للمستثمر", "يشرح الفرص ويقترح الخطوة التالية دون اختلاق بيانات.", "md:col-span-2 md:row-span-2"],
+              [Users, "مساعد فريق سرج", "يفهم المحفظة والاستفسارات ويحدد الأولويات.", ""],
+              [FileText, "تقارير قابلة للطباعة", "مؤشرات الأرض، والمقارنة السعرية، والملاءمة، والخدمات.", ""],
+              [Scale, "مقارنة بمعايير قابلة للقياس", "لا بالسعر والمساحة وحدهما.", ""],
+              [Navigation, "خريطة يحرّكها المساعد", "يقرّب على حي أو أرض محددة أثناء المحادثة.", ""],
+            ].map(([Icon, t, d, span], i) => {
+              const I = Icon as typeof Database;
+              const big = (span as string).includes("row-span");
+              return (
+                <Reveal key={t as string} delay={i * 90} className={`h-full ${span}`}>
+                  <div className={`border-beam flex h-full flex-col justify-between rounded-2xl border p-6 transition duration-300 hover:-translate-y-0.5 ${big ? "relative overflow-hidden bg-ink text-ink-foreground" : "bg-card"}`}>
+                    {big && <NoiseOverlay />}
+                    <I className={`size-5 ${big ? "text-primary-soft" : "text-foreground"}`} />
+                    <div className="relative mt-6">
+                      <h3 className={`font-semibold ${big ? "text-2xl" : ""}`}>{t as string}</h3>
+                      <p className={`mt-2 text-sm leading-relaxed ${big ? "text-ink-muted" : "text-muted-foreground"}`}>{d as string}</p>
+                      {big && (
+                        <Link to="/who" className="mt-6 inline-flex items-center gap-1 text-sm text-primary-soft">
+                          جرّب المساعد <ArrowLeft className="size-3.5" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Differentiators */}
+      <section id="why" className="border-t">
+        <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 py-24 md:grid-cols-[1fr_1.2fr]">
+          <div>
+            <Reveal>
+              <span className="text-xs font-medium tracking-wide text-primary">ما يميزها</span>
+              <h2 className="mt-3 text-3xl font-bold leading-snug">هل هذه الأرض مناسبة لهذا الاستخدام، وهذه الميزانية، وفي هذا الموقع؟</h2>
+            </Reveal>
+            <ul className="mt-8 space-y-4 text-sm leading-relaxed">
+              {[
+                [Database, "تجمع بيانات الأرض والسوق والموقع في قرار واحد واضح."],
+                [ShieldCheck, "توضح مصدر كل رقم، وتفصل بين البيانات الفعلية والتقديرات."],
+                [Sparkles, "الذكاء الاصطناعي مقيّد بالبيانات المتاحة وسياق المستخدم؛ لا يفترض أرقامًا ولا يخرج عن المهمة."],
+                [Lock, "تجربة للمستثمر وأخرى للفريق، وبيانات الاستفسارات محمية عن المستثمرين."],
+              ].map(([Icon, t], i) => {
+                const I = Icon as typeof Database;
+                return (
+                  <Reveal key={i} delay={i * 120} className="flex gap-3">
+                    <I className="mt-0.5 size-4 shrink-0 text-foreground" />
+                    <span className="text-muted-foreground">{t as string}</span>
+                  </Reveal>
+                );
+              })}
+            </ul>
+          </div>
+          <Reveal><DataFlow /></Reveal>
         </div>
       </section>
 
