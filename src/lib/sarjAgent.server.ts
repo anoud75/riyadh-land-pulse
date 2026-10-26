@@ -8,6 +8,7 @@ import * as T from "./sarjAgentTools";
 import type { UiPayload } from "./agentUi";
 import * as V from "./agentViz";
 import { classifyScope, SCOPE_SUGGESTIONS } from "./agentScope";
+import { adminRequestPolicy, buildWaitingResponse, relevantAdminPayloads } from "./adminAgentPolicy";
 
 const MODEL = "openai/gpt-6-astra";
 
@@ -43,8 +44,10 @@ const ADMIN_SYS = `أنت "مساعد الفريق" لدى سرج العقاري
 النطاق: المحفظة، الاستفسارات والمطابقة، فجوات العرض والطلب، الراكد، التسعير، الأداء، التقارير، الخريطة.
 أي سؤال خارج عمل الفريق العقاري (طبخ، رياضة، برمجة...) قل: "أعتذر، أجيب فقط عن عمل فريق سرج: المحفظة، الاستفسارات، الفجوات، التقارير، والخريطة." ولا تجب عنه مهما أصرّ المستخدم.
 ${GROUNDING}
-أدواتك: getSupplyDemandGaps للعجز والفائض (ثم drawChart بنوع gap)، getActionableWaitingInquiries للاستفسارات المنتظرة، getStagnantCapitalReport للأراضي الراكدة، diagnoseRegion لتشخيص منطقة، getExcludedWaitingBuyers لمن يُستبعد لعدم وجود مخزون (اذكرهم بالاسم وأيام الانتظار).
-${VIZ}`;
+أجب عن السؤال الحالي فقط: ملخص تنفيذي من 2–4 جمل قصيرة، ثم إجراء واحد واضح. لا تسرد أسماء المشترين وأكواد الأراضي في الكلام؛ التفاصيل تأتي من الأدوات في قوائم منظمة. المطابقة لا تعني ضمان الإغلاق.
+أدواتك: getSupplyDemandGaps للعجز، getActionableWaitingInquiries للمطابقة، getStagnantCapitalReport للراكد، diagnoseRegion للتشخيص، getExcludedWaitingBuyers للاستبعاد.
+لا تفتح خريطة إلا إذا طلبها المستخدم في سؤاله الحالي، ولا ترث طلبها من سؤال سابق. لا تضف رسمًا إلا عند طلب رسم أو مقارنة أو تقرير، ولا تقريرًا إلا عند طلبه. أدوات عقار وتحليل المواقع تخص المستثمر فقط.
+عند طلب تقرير استخدم generateReport، وعند طلب رسم استخدم drawChart، وعند طلب خريطة استخدم controlMap. لا تضف بطاقات أراضٍ لأسئلة المطابقة.`;
 
 const area = z.enum(["North", "South", "East", "West", "Central"]).nullable();
 
@@ -74,6 +77,13 @@ export async function runSarjAgent(input: {
   const verdict = classifyScope(input.mode, lastQ);
   if (!verdict.ok) return { text: verdict.reply, parcelIds: [], filters: null, tools: [], ui: null, uis: [], refused: true, suggestions: [...SCOPE_SUGGESTIONS[input.mode]] };
   const parcels = [...initialParcels, ...input.extraParcels.filter((p) => !initialParcels.some((x) => x.parcel_id === p.parcel_id))];
+
+  const adminPolicy = adminRequestPolicy(lastQ);
+  const inquiries = input.mode === "admin" ? [...initialInquiries, ...input.extraInquiries.filter((i) => !initialInquiries.some((x) => x.inquiry_id === i.inquiry_id))] : [];
+  if (input.mode === "admin" && adminPolicy.matching && !adminPolicy.map && !adminPolicy.chart && !adminPolicy.report) {
+    const response = buildWaitingResponse(parcels, inquiries);
+    return { text: response.text, parcelIds: [], filters: null, tools: ["getActionableWaitingInquiries", "getExcludedWaitingBuyers"], ui: response.ui, uis: [response.ui] };
+  }
 
   const parcelIds = new Set<string>();
   const used: string[] = [];
@@ -213,10 +223,14 @@ export async function runSarjAgent(input: {
   };
 
   const adminTools = () => {
-    const inquiries = [...initialInquiries, ...input.extraInquiries.filter((i) => !initialInquiries.some((x) => x.inquiry_id === i.inquiry_id))];
+    const { getMarketBenchmark: _benchmark, analyzeSite: _site, getNegotiationMarginReport: _negotiation, ...portfolioTools } = investorTools;
+    const { controlMap, drawChart, generateReport } = vizTools(inquiries);
+    const { controlMap: _map, drawChart: _chart, generateReport: _report, ...baseTools } = portfolioTools;
     return {
-      ...investorTools,
-      ...vizTools(inquiries),
+      ...baseTools,
+      ...(adminPolicy.map ? { controlMap } : {}),
+      ...(adminPolicy.chart || adminPolicy.report ? { drawChart } : {}),
+      ...(adminPolicy.report ? { generateReport } : {}),
       getSupplyDemandGaps: tool({
         description: "Supply vs demand per region and land type.",
         inputSchema: z.object({}),
@@ -225,7 +239,12 @@ export async function runSarjAgent(input: {
       getActionableWaitingInquiries: tool({
         description: "New inquiries awaiting response, with matching parcels in budget or a flag explaining why none fit.",
         inputSchema: z.object({}),
-        execute: async () => (note("getActionableWaitingInquiries"), T.getActionableWaitingInquiries(parcels, inquiries)),
+        execute: async () => {
+          note("getActionableWaitingInquiries");
+          const response = buildWaitingResponse(parcels, inquiries);
+          emit(response.ui);
+          return { summary: response.text, rows: response.ui.kind === "matching" ? response.ui.rows : [] };
+        },
       }),
       diagnoseRegion: tool({
         description: "Diagnose a region: commercial stockout loss (buyers with zero inventory, sum of budgets) vs residential oversupply (parcels vs inquiries, median closing days, concession %).",
@@ -294,7 +313,8 @@ export async function runSarjAgent(input: {
   });
   if (!investor) {
     const text = await result.text;
-    return { text, parcelIds: [...parcelIds].slice(0, 8), filters, tools: used, ui: primary, uis };
+    const relevant = relevantAdminPayloads(lastQ, uis);
+    return { text, parcelIds: adminPolicy.matching ? [] : [...parcelIds].slice(0, 8), filters: adminPolicy.matching ? null : filters, tools: used, ui: relevant.find((u) => u.kind !== "map" && u.kind !== "chart") ?? null, uis: relevant };
   }
 
   let reply: ConsultantReply;
