@@ -16,8 +16,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-8">
           <Link to="/"><Logo /></Link>
           <nav className="hidden items-center gap-6 md:flex">
-            <Link to="/contextual-model" className={nav} activeProps={{ className: "text-foreground" }}>النموذج السياقي</Link>
-            <Link to="/contextual-model" hash="sectors" className={nav}>القطاعات</Link>
+            <Link to="/" hash="about" className={nav}>من نحن</Link>
             <Link to="/who" className={nav}>المنصة</Link>
           </nav>
         </div>
