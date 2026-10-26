@@ -214,9 +214,6 @@ function Home() {
                       <div className="flex justify-between"><dt className="text-muted-foreground">الوزن الأعلى</dt><dd className="font-medium">{s.weight}</dd></div>
                       <div className="flex justify-between"><dt className="text-muted-foreground">أراضٍ مطابقة</dt><dd className="font-mono">{parcels.filter(s.match).length} من {parcels.length}</dd></div>
                     </dl>
-                    <Link to="/contextual-model" className="mt-5 inline-flex items-center gap-1 text-sm text-primary">
-                      اعرض تحليل الشرائح <ArrowLeft className="size-3.5 transition group-hover:-translate-x-1" />
-                    </Link>
                   </div>
                 </Reveal>
               );
