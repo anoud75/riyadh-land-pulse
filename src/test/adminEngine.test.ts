@@ -68,3 +68,37 @@ describe("inquiry briefs", () => {
     expect(b.uses.reduce((s, u) => s + u.demand, 0)).toBe(b.open);
   });
 });
+
+import { getAreaClosing, getConversionFunnel, getPricingReview, getSegmentClosingTime } from "@/lib/adminEngine";
+describe("performance page", () => {
+  it("funnel counts each hand-off from the same rows", () => {
+    const f = getConversionFunnel(I);
+    expect(f.steps.map((s) => s.n)).toEqual([48, 24, 9]);
+    expect(f.steps[1]!.lost).toBe(24);
+    expect(f.steps[1]!.lostNote).toBe("نصف الوارد");
+    expect(f.steps[2]!.lost).toBe(15);
+    expect(f.steps[2]!.lostNote).toBeNull();
+    expect(f.readyUnanswered).toBe(7);
+  });
+  it("area closing ranks by rate and keeps the median", () => {
+    const c = getAreaClosing(P);
+    expect(c.rows[0]).toMatchObject({ area: "Central", rate: 60, closed: 6, total: 10, medianDays: 67 });
+    expect(c.rows.at(-1)).toMatchObject({ area: "West", rate: 13, closed: 3, total: 23, medianDays: 28 });
+    expect(c.gapPoints).toBe(47);
+    expect(c.rows.reduce((s, r) => s + r.total, 0)).toBe(P.length);
+  });
+  it("segment time hides medians under three closed deals", () => {
+    const t = getSegmentClosingTime(P);
+    expect(t.rows.filter((r) => r.sufficient).map((r) => `${r.label}:${r.medianDays}`)).toEqual(["تجاري · بيع:23.5", "تجاري · إيجار:38", "سكني · بيع:69"]);
+    expect(t.rows.at(-1)).toMatchObject({ label: "سكني · إيجار", n: 2, sufficient: false });
+    expect(t.diff).toBe(45.5);
+  });
+  it("pricing review needs both price and time above their medians", () => {
+    const r = getPricingReview(P);
+    expect(r.count).toBe(12);
+    expect(r.totalValue).toBe(104_058_000);
+    expect(r.rows.every((x) => x.deltaPct > 0 && x.domMultiplier > 1 && x.days > x.medianDays)).toBe(true);
+    expect(r.topSegment).toMatchObject({ n: 6, label: "الشمال · سكني · بيع" });
+    expect(r.rows[0]!.deltaPct).toBe(82);
+  });
+});
