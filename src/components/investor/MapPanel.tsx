@@ -46,10 +46,13 @@ function PanelBody({ children }: { children: ReactNode }) {
   const measure = useCallback(() => {
     const el = scroll.current;
     if (!el) return;
-    const max = el.scrollHeight - el.clientHeight;
+    // A hidden panel measures 0×0: keep every value finite (NaN never equals itself,
+    // which would make the guard below re-render forever).
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
     const over = max > 4;
-    const trackH = track.current?.clientHeight || el.clientHeight;
-    const thumb = Math.max(28, Math.round((el.clientHeight / el.scrollHeight) * trackH));
+    const trackH = track.current?.clientHeight || el.clientHeight || 0;
+    const ratio = el.scrollHeight > 0 ? el.clientHeight / el.scrollHeight : 1;
+    const thumb = Math.max(28, Math.round(ratio * trackH));
     setGeo((p) => (p.top === el.scrollTop && p.max === max && p.thumb === thumb && p.track === trackH && p.over === over ? p : { top: el.scrollTop, max, thumb, track: trackH, over }));
   }, []);
 
