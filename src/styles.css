@@ -38,6 +38,7 @@
   --color-ink-line: var(--ink-line);
   --color-surface: var(--surface);
   --color-chart-blue: var(--chart-blue);
+  --color-warning: var(--warning);
   --color-map-lease: var(--map-lease);
 }
 

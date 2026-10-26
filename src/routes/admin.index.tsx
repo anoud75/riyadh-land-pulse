@@ -8,6 +8,7 @@ import { isAvailable, type GapCell } from "@/lib/portfolioEngine";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { getActionCards, getKpis, getStagnantBars } from "@/lib/adminEngine";
 import { getSupplyDemandGaps } from "@/lib/portfolioEngine";
+import { TodaySmartVisuals } from "@/components/admin/TodaySmartVisuals";
 import { GapDiverging, StagnantBars, fmt } from "@/components/admin/charts";
 
 export const Route = createFileRoute("/admin/")({
@@ -73,6 +74,7 @@ function Today() {
           <div key={label} className="min-w-0 bg-card p-4"><div className="flex items-center justify-between gap-2 text-xs text-muted-foreground"><span>{label}</span><Icon className="size-4 shrink-0" /></div><div className="mt-2 text-xl font-semibold tabular-nums">{value}</div></div>
         ))}
       </div>
+      <TodaySmartVisuals parcels={parcels} inquiries={inquiries} />
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <ChartCard
           title="أين يزيد الطلب عن المعروض؟"
