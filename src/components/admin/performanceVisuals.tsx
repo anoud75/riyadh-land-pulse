@@ -112,14 +112,14 @@ export function PricingReviewTable({ rows, note }: { rows: PricingReviewRow[]; n
   return (
     <div className="relative" onMouseLeave={() => setTip(null)} onBlur={() => setTip(null)}>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full table-fixed text-sm">
           <thead>
             <tr className="text-right text-[11px] text-muted-foreground">
-              <th className="pb-2 font-medium">الأرض</th>
-              <th className="pb-2 font-medium">الشريحة</th>
+              <th className="w-[18%] pb-2 font-medium">الأرض</th>
+              <th className="w-[24%] pb-2 font-medium">الشريحة</th>
               <th className="w-[24%] pb-2 font-medium">فوق وسيط المنطقة</th>
-              <th className="pb-2 font-medium">مدة العرض (يومًا)</th>
-              <th className="pb-2 text-left font-medium">الضعف</th>
+              <th className="w-[22%] pb-2 font-medium">مدة العرض (يومًا)</th>
+              <th className="w-[12%] pb-2 text-left font-medium">الضعف</th>
             </tr>
           </thead>
           <tbody>
