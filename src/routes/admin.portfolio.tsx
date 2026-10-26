@@ -129,7 +129,7 @@ function Portfolio() {
           <span className="self-center text-xs text-muted-foreground">{rows.length} أرضًا حسب التصفية أعلاه</span>
         </div>
         <div className="max-h-[520px] overflow-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[660px] text-sm">
             <thead className="sticky top-0 bg-card text-xs text-muted-foreground"><tr>{th("parcel_id", "الرقم")}<th className="p-2 text-start">الحي</th><th className="p-2 text-start">الشريحة</th>{th("area_sqm", "المساحة م²")}{th("price_per_sqm_sar", "سعر المتر")}{th("days_on_market", "أيام العرض")}<th className="p-2 text-start">الحالة</th></tr></thead>
             <tbody className="divide-y">
               {rows.map((p) => {

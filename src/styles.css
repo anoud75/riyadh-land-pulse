@@ -274,5 +274,5 @@
 .team-workspace main h1 { font-size: 24px; line-height: 1.4; }
 .team-workspace main .rounded-2xl { border-radius: 8px; }
 .team-workspace main section { min-width: 0; }
-.team-workspace main table { min-width: 660px; }
+/* Each team table sets its own minimum width instead of a blanket rule. */
 .team-workspace main :is(input, select, textarea) { border-radius: 6px; }

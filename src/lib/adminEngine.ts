@@ -1,8 +1,8 @@
 import type { Area, DealType, Inquiry, LandType, Parcel } from "@/data/types";
-import { AREAS, LAND_TYPES, SNAPSHOT_DATE } from "@/data/types";
+import { AREAS, AREA_AR, DEAL_AR, LAND_AR, LAND_TYPES, SNAPSHOT_DATE } from "@/data/types";
 import {
   getHeadline, getNegotiationCandidates, getSegmentStats, getSupplyDemandGaps,
-  isAvailable, isClosed, isPriced, median,
+  isAvailable, isClosed, isPriced, median, MIN_SAMPLE,
 } from "./portfolioEngine";
 import { COMPOUND_MIN_SQM, getActionableWaitingInquiries, getStagnantCapitalReport } from "./sarjAgentTools";
 
@@ -270,5 +270,122 @@ export function getInquiryBriefs(parcels: Parcel[], inquiries: Inquiry[]) {
     over30: waits.filter((w) => w > 30).length, over60: waits.filter((w) => w > 60).length,
     buckets, matrix, uses, top,
     comparingUnanswered: open.filter((i) => i.intent === "comparing options" && i.status === "new").length,
+  };
+}
+
+/* ---------- performance page ---------- */
+
+export interface FunnelStep { key: string; label: string; n: number; lost: number; lostNote: string | null }
+
+/** Inquiry funnel: three hand-offs counted from the same rows, with what each one loses. */
+export function getConversionFunnel(inquiries: Inquiry[]) {
+  const counts = [
+    inquiries.length,
+    inquiries.filter((i) => i.status !== "new").length,
+    inquiries.filter((i) => i.status === "negotiating").length,
+  ];
+  const meta = [["all", "كل الاستفسارات"], ["contacted", "تم التواصل"], ["negotiating", "تفاوض"]] as const;
+  const steps: FunnelStep[] = meta.map(([key, label], i) => {
+    const lost = i ? counts[i - 1]! - counts[i]! : 0;
+    return { key, label, n: counts[i]!, lost, lostNote: lost && lost * 2 === counts[0] ? "نصف الوارد" : null };
+  });
+  const readyUnanswered = inquiries.filter((i) => i.status === "new" && i.intent === "ready to move").length;
+  return {
+    steps,
+    readyUnanswered,
+    note: "لا يضيع الطلب في التفاوض بل قبل أول ردّ:",
+    noteStrong: `${readyUnanswered} ممّن لم يُردّ عليهم جاهزون للتنفيذ.`,
+  };
+}
+
+export interface AreaClosingRow {
+  area: Area; label: string; total: number; closed: number; rate: number; medianDays: number | null;
+}
+
+/** Share of each area's own holdings that reached sold/leased, with the closing speed beside it. */
+export function getAreaClosing(parcels: Parcel[]) {
+  const rows: AreaClosingRow[] = AREAS.map((area) => {
+    const own = parcels.filter((p) => p.area_of_city === area);
+    const closed = own.filter(isClosed);
+    return {
+      area, label: AREA_AR[area], total: own.length, closed: closed.length,
+      rate: own.length ? Math.round((closed.length / own.length) * 100) : 0,
+      medianDays: median(closed.map((p) => p.days_on_market)),
+    };
+  }).sort((a, b) => b.rate - a.rate);
+  const best = rows[0] ?? null;
+  const worst = rows[rows.length - 1] ?? null;
+  const gapPoints = best && worst ? best.rate - worst.rate : 0;
+  return {
+    rows, best, worst, gapPoints,
+    note: best && worst
+      ? `${best.label} يغلق ${best.rate}% و${worst.label} ${worst.rate}% — فارق ${gapPoints} نقطة. و${worst.label} ليس بطيئًا حين يُغلق (${worst.medianDays ?? 0} يومًا)، بل نادرًا ما يُغلق أصلًا.`
+      : "",
+  };
+}
+
+export interface SegmentTimeRow {
+  landType: LandType; dealType: DealType; label: string; n: number; medianDays: number | null; sufficient: boolean;
+}
+
+/** Median days to close per land type × deal type; the three-deal rule stays visible. */
+export function getSegmentClosingTime(parcels: Parcel[]) {
+  const rows: SegmentTimeRow[] = [];
+  for (const landType of LAND_TYPES)
+    for (const dealType of ["sale", "lease"] as DealType[]) {
+      const closed = parcels.filter((p) => p.land_type === landType && p.listing_type === dealType && isClosed(p));
+      rows.push({
+        landType, dealType, label: `${LAND_AR[landType]} · ${DEAL_AR[dealType]}`, n: closed.length,
+        medianDays: median(closed.map((p) => p.days_on_market)), sufficient: closed.length >= MIN_SAMPLE,
+      });
+    }
+  rows.sort((a, b) => Number(b.sufficient) - Number(a.sufficient) || (a.medianDays ?? Infinity) - (b.medianDays ?? Infinity));
+  const ok = rows.filter((r) => r.sufficient && r.medianDays != null);
+  const fastest = ok[0] ?? null;
+  const slowest = ok[ok.length - 1] ?? null;
+  const diff = fastest && slowest ? Math.round(((slowest.medianDays ?? 0) - (fastest.medianDays ?? 0)) * 10) / 10 : 0;
+  return {
+    rows, fastest, slowest, diff,
+    note: fastest && slowest
+      ? `${fastest.label} يُغلق في ${fastest.medianDays} يومًا و${slowest.label} في ${slowest.medianDays} يومًا — فارق ${diff} يومًا في تدوير رأس المال.`
+      : "",
+  };
+}
+
+export interface PricingReviewRow {
+  id: string; district: string; area: Area; landType: LandType; dealType: DealType;
+  segment: string; segKey: string; deltaPct: number; days: number; medianDays: number;
+  domMultiplier: number; totalPrice: number; pricePerSqm: number; medianPricePerSqm: number;
+}
+
+/** Available, priced lands that are both above their segment's median price and slower than its median close. */
+export function getPricingReview(parcels: Parcel[]) {
+  const rows: PricingReviewRow[] = getNegotiationCandidates(parcels)
+    .filter((c) => (c.priceDeltaPct ?? 0) > 0 && (c.domMultiplier ?? 0) > 1 && c.parcel.total_price_sar != null)
+    .map((c) => ({
+      id: c.parcel.parcel_id, district: c.parcel.district_ar, area: c.parcel.area_of_city,
+      landType: c.parcel.land_type, dealType: c.parcel.listing_type,
+      segment: `${AREA_AR[c.parcel.area_of_city]} · ${LAND_AR[c.parcel.land_type]} · ${DEAL_AR[c.parcel.listing_type]}`,
+      segKey: `${c.parcel.area_of_city}|${c.parcel.land_type}|${c.parcel.listing_type}`,
+      deltaPct: Math.round(c.priceDeltaPct!), days: c.parcel.days_on_market,
+      medianDays: c.segment.medianClosingDays!, domMultiplier: c.domMultiplier!,
+      totalPrice: c.parcel.total_price_sar!, pricePerSqm: c.parcel.price_per_sqm_sar!,
+      medianPricePerSqm: c.segment.medianPricePerSqm!,
+    }))
+    .sort((a, b) => b.deltaPct - a.deltaPct);
+  const totalValue = rows.reduce((s, r) => s + r.totalPrice, 0);
+  const counts = new Map<string, { label: string; n: number }>();
+  for (const r of rows) {
+    const e = counts.get(r.segKey) ?? { label: r.segment, n: 0 };
+    e.n += 1;
+    counts.set(r.segKey, e);
+  }
+  const top = [...counts.entries()].sort((a, b) => b[1].n - a[1].n)[0];
+  const topSegment = top ? { key: top[0], label: top[1].label, n: top[1].n } : null;
+  return {
+    rows, count: rows.length, totalValue, topSegment,
+    note: topSegment && rows.length > 1
+      ? `${topSegment.n} من ${rows.length} في شريحة واحدة (${topSegment.label}) — فالمشكلة شريحة واحدة تُراجع مرّة، لا ${rows.length} أرضًا متفرقة.`
+      : "",
   };
 }
