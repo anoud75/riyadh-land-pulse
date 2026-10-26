@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChatWorkspace } from "@/components/investor/ChatWorkspace";
 
 export const Route = createFileRoute("/investor/chats")({
+  validateSearch: (s: Record<string, unknown>): { q?: string } => ({ q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined }),
   head: () => ({
     meta: [
       { title: "المساعد الذكي — سرج" },
@@ -17,5 +18,7 @@ export const Route = createFileRoute("/investor/chats")({
 });
 
 function Chats() {
-  return <ChatWorkspace />;
+  const { q } = Route.useSearch();
+  const navigate = useNavigate({ from: "/investor/chats" });
+  return <ChatWorkspace initialPrompt={q} onInitialSent={() => navigate({ search: {}, replace: true })} />;
 }

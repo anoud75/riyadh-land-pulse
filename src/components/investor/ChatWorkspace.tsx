@@ -69,7 +69,7 @@ const CONFIG = {
   },
 } as const;
 
-export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
+export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent }: { mode?: Mode; initialPrompt?: string; onInitialSent?: () => void }) {
   const cfg = CONFIG[mode];
   const { parcels, inquiries, investorName } = usePortfolio();
   const preloaded = useMemo<Thread[]>(() => [
@@ -129,6 +129,16 @@ export function ChatWorkspace({ mode = "investor" }: { mode?: Mode }) {
     if (active && live.some((l) => l.id === active.id)) run(text, active.id, active.msgs, active.title);
     else run(text, `live-${Date.now()}`, active?.msgs ?? [], active?.title ?? text.slice(0, 42));
   };
+
+  const initialDone = useRef(false);
+  useEffect(() => {
+    if (!initialPrompt?.trim() || initialDone.current) return;
+    initialDone.current = true;
+    const text = initialPrompt.trim();
+    run(text, `live-${Date.now()}`, [], text.slice(0, 42));
+    onInitialSent?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPrompt]);
 
   const shown = threads.filter((t) => t.title.includes(filter));
   const groups = (["اليوم", "أمس", "آخر 7 أيام"] as const).map((g) => [g, shown.filter((t) => t.group === g)] as const).filter(([, l]) => l.length);

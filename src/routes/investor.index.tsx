@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { usePortfolio } from "@/context/PortfolioProvider";
 import { AREAS, AREA_AR, LAND_AR, DEAL_AR, type Parcel } from "@/data/types";
 import { isAvailable, isPriced } from "@/lib/portfolioEngine";
@@ -44,15 +44,15 @@ export const Route = createFileRoute("/investor/")({
   component: Lands,
 });
 
-const CHIPS: { label: string; search: Search }[] = [
-  { label: "مستودع", search: { land: "commercial", sort: "street" } },
-  { label: "معرض سيارات", search: { land: "commercial", street: 36 } },
-  { label: "مجمع سكني", search: { land: "residential", deal: "sale" } },
-  { label: "بيت عائلة", search: { land: "residential", deal: "sale", sort: "price" } },
-  { label: "مكاتب", search: { land: "commercial", deal: "lease" } },
-  { label: "محل تجزئة", search: { land: "commercial", deal: "lease", sort: "price" } },
-  { label: "مطعم", search: { land: "commercial", deal: "lease" } },
-  { label: "مستشفى", search: { land: "commercial", deal: "sale" } },
+const CHIPS: { label: string; prompt: string }[] = [
+  { label: "مستودع", prompt: "أبغى أرض لمستودع في الرياض " },
+  { label: "معرض سيارات", prompt: "أبغى أرض لمعرض سيارات على شارع واسع " },
+  { label: "مجمع سكني", prompt: "أبغى أرض لمجمع سكني " },
+  { label: "بيت عائلة", prompt: "أبغى أرض أبني عليها بيت عائلة " },
+  { label: "مكاتب", prompt: "أبغى أرض لمبنى مكاتب " },
+  { label: "محل تجزئة", prompt: "أبغى أرض لمحل تجزئة " },
+  { label: "مطعم", prompt: "أبغى أرض لمطعم " },
+  { label: "مستشفى", prompt: "أبغى أرض لمستشفى " },
 ];
 
 function applyFilters(parcels: Parcel[], s: Search) {
@@ -80,6 +80,8 @@ function Lands() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/investor/" });
   const [intent, setIntent] = useState("");
+  const intentRef = useRef<HTMLInputElement>(null);
+  const pick = (t: string) => { setIntent(t); requestAnimationFrame(() => { const el = intentRef.current; if (el) { el.focus(); el.setSelectionRange(t.length, t.length); } }); };
   const set = (patch: Partial<Search>) => navigate({ search: (prev) => ({ ...prev, ...patch }) });
   const list = applyFilters(parcels, search);
   const featured = parcels.find((p) => p.parcel_id === "SRE-015");
@@ -92,15 +94,16 @@ function Lands() {
     <div>
       <h1 className="text-3xl font-bold">أهلاً {first} — ما الذي تنوين بناءه؟</h1>
       <form
-        onSubmit={(e) => { e.preventDefault(); navigate({ to: "/investor/chats" }); }}
+        onSubmit={(e) => { e.preventDefault(); const q = intent.trim(); navigate({ to: "/investor/chats", search: q ? { q } : {} }); }}
         className="mt-5 flex gap-2 rounded-2xl border bg-surface p-2"
       >
-        <input value={intent} onChange={(e) => setIntent(e.target.value)} placeholder="اكتبه بجملة واحدة: أرض تجارية شمال الرياض بميزانية 3 ملايين…" className="flex-1 bg-transparent px-3 outline-none" />
+        <input ref={intentRef} value={intent} onChange={(e) => setIntent(e.target.value)} placeholder="اكتبه بجملة واحدة: أرض تجارية شمال الرياض بميزانية 3 ملايين…" className="flex-1 bg-transparent px-3 outline-none" />
         <button type="submit" aria-label="إرسال" className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground"><Send className="size-4" /></button>
       </form>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 text-xs text-muted-foreground">اقتراحات للسؤال</div>
+      <div className="mt-2 flex flex-wrap gap-2">
         {CHIPS.map((c) => (
-          <Link key={c.label} to="/investor" search={c.search} className="rounded-full border bg-surface px-3 py-1.5 text-sm hover:border-primary">{c.label}</Link>
+          <button type="button" key={c.label} onClick={() => pick(c.prompt)} className="rounded-full border bg-surface px-3 py-1.5 text-sm hover:border-primary">{c.label}</button>
         ))}
       </div>
 
