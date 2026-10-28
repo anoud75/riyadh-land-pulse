@@ -73,7 +73,7 @@ const GREETINGS: Record<Mode, string> = {
   investor:
     "\n",
   admin:
-    "أهلاً بك، أنا مساعد الفريق في سرج. أراقب حركة المحفظة، ومطابقة الاستفسارات مع الأراضي المتاحة، وكشف الأصول الراكدة وفجوات العرض والطلب في الرياض.\n\nما الملف أو الاستفسار الذي نبدأ بحسمه اليوم؟",
+    "\n",
 };
 
 export function ChatWorkspace({ mode = "investor", initialPrompt, onInitialSent }: { mode?: Mode; initialPrompt?: string | undefined; onInitialSent?: () => void }) {
